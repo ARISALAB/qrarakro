@@ -80,6 +80,26 @@
         .welcome-text {
             margin-left: 20px;
         }
+                   /* Media query για κινητές οθόνες */
+        @media only screen and (max-width: 768px) {
+            .description {
+                flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
+                text-align: left; /* Κεντραρισμένο κείμενο */
+            }
+            .description img {
+                order: 2; /* Η εικόνα μετακινείται στη δεύτερη θέση */
+                max-width: 100%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
+                margin: 20px 0; /* Αλλαγή διαστήματος γύρω από την εικόνα */
+            }
+            .description-text {
+                order: 3; /* Το κείμενο μετακινείται στην τρίτη θέση */
+                max-width: 80%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
+                margin: 0; /* Αφαίρεση αριστερού margin */
+            }
+            h2 {
+                order: 1; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
+            }
+        }
     </style>
 </head>
 <body>
