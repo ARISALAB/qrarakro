@@ -45,6 +45,20 @@
             border-radius: 8px;
             margin-top: 10px;
         }
+        .description1 {
+            margin-bottom: 20px;
+            background-color: blue;
+            color: #fff;
+            h2{
+                color:#fff
+            }
+        }
+        .description1 img {
+            width: 200px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 8px;
+            margin-top: 10px;
+        }
         h2 {
             display: flex;
             align-items: center;
@@ -73,14 +87,7 @@
         .main-button:hover {
             background-color: #357ae8;
         }
-        .welcome {
-            display: flex;
-            align-items: center;
-        }
-        .welcome-text {
-            margin-left: 20px;
-        }
-                   /* Media query για κινητές οθόνες */
+           /* Media query για κινητές οθόνες */
         @media only screen and (max-width: 768px) {
             .description {
                 flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
@@ -100,6 +107,13 @@
                 order: 1; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
             }
         }
+        .welcome {
+            display: flex;
+            align-items: center;
+        }
+        .welcome-text {
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +124,7 @@
             <p>Create your personalized QR codes effortlessly. Our application provides you with multiple customization options to make your QR codes unique and professional.</p>
         </div>
     </div>
-    <div class="container description">
+    <div class="container description1">
         <h2>How to Create Your QR Code:
            
         </h2>
@@ -124,7 +138,7 @@
     </div>
     <div class="container description">
         <h2>Types of QR Codes You Can Generate:
-            
+
             <img src="3.png">
         </h2>
         <p>Our application allows you to create different types of QR codes based on your needs:</p>
@@ -138,7 +152,7 @@
         </ul>
     </div>
 
-    <div class="container description">
+    <div class="container description1">
         <h2>Pricing Information</h2>
         <p>Create unlimited QR codes for a one-time fee of €80.</p>
         <p>Our premium plan offers unlimited QR code generation for a lifetime. Take advantage of this special offer to enhance your marketing strategies and streamline your business operations. Whether you're a small business owner, marketer, or event organizer, our QR code generator is a valuable tool to engage your audience and boost conversions.</p>
