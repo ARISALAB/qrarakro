@@ -10,10 +10,10 @@
                 transform: translateY(0);
             }
             40% {
-                transform: translateY(-20px);
+                transform: translateY(-10px); /* Μειώσαμε την ένταση της μετακίνησης */
             }
             60% {
-                transform: translateY(-10px);
+                transform: translateY(-5px); /* Μειώσαμε την ένταση της μετακίνησης */
             }
         }
 
@@ -29,34 +29,31 @@
         .container {
             max-width: 800px;
             width: 100%; /* Ensure the container takes full width up to max-width */
-            background: #fff;
+            background: linear-gradient(to right, #ffcccc, #ffff99); /* Μίξη χρωμάτων στο background */
             padding: 30px;
-            border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 0;
             color: black; /* Χρώμα κειμένου εντός container */
         }
         .description {
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
         .description img {
             width: 200px; /* Adjust the width as needed */
             height: auto; /* Maintain aspect ratio */
-            border-radius: 8px;
             margin-top: 0;
         }
         .description1 {
-            margin-bottom: 20px;
-            background-color: blue;
+            margin-bottom: 0;
+            background: linear-gradient(to right, blue, purple); /* Μίξη χρωμάτων στο background */
             color: #fff;
-            h2{
-                color:#fff
+            h2 {
+                color: #fff;
             }
         }
         .description1 img {
             width: 200px; /* Adjust the width as needed */
             height: auto; /* Maintain aspect ratio */
-            border-radius: 8px;
             margin-top: 10px;
         }
         h2 {
@@ -68,7 +65,10 @@
             width: 40px;
             height: auto;
             margin-left: 10px;
-            animation: bounce 2s infinite;
+            animation: bounce 3s infinite; /* Αυξήσαμε τη διάρκεια του animation */
+        }
+        .bouncing-image {
+            animation: bounce 3s infinite; /* Αυξήσαμε τη διάρκεια του animation */
         }
         .main-button {
             display: block;
@@ -125,9 +125,7 @@
         </div>
     </div>
     <div class="container description1">
-        <h2>How to Create Your QR Code:
-           
-        </h2>
+        <h2>How to Create Your QR Code:</h2>
         <ol>
             <li>Enter the name, URL, and any custom text you want to include.</li>
             <li>Upload your logo if you have one. This will be embedded in the center of the QR code.</li>
@@ -138,8 +136,7 @@
     </div>
     <div class="container description">
         <h2>Types of QR Codes You Can Generate:
-
-            <img src="3.png">
+            <img src="3.png" alt="QR Code Types" class="bouncing-image">
         </h2>
         <p>Our application allows you to create different types of QR codes based on your needs:</p>
         <ul>
@@ -151,19 +148,13 @@
             <li><strong>Social Media Links:</strong> Link to your social media profiles to boost engagement.</li>
         </ul>
     </div>
-
     <div class="container description1">
         <h2>Pricing Information</h2>
         <p>Create unlimited QR codes for a one-time fee of €80.</p>
         <p>Our premium plan offers unlimited QR code generation for a lifetime. Take advantage of this special offer to enhance your marketing strategies and streamline your business operations. Whether you're a small business owner, marketer, or event organizer, our QR code generator is a valuable tool to engage your audience and boost conversions.</p>
         <p>Unlock the full potential of QR codes today by subscribing to our premium plan!</p>
-        
     </div>
-    
-    
-
     <a href="main.html" class="main-button">Go to QR Code Generator</a>
-
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
