@@ -87,11 +87,17 @@
         }
         @media only screen and (max-width: 768px) {
             .list-item {
-                justify-content: flex-start;
+                flex-direction: column; /* Αλλαγή σε στήλη για μικρές οθόνες */
+                align-items: flex-start; /* Ευθυγράμμιση προς τα αριστερά */
                 text-align: left;
             }
             .list-item i {
-                margin-right: 5px;
+                margin-right: 0;
+                margin-bottom: 5px; /* Μικρότερο διάστημα δεξιά */
+            }
+            .generate-button {
+                margin-top: 10px; /* Προσθήκη διαστήματος πάνω από το κουμπί */
+                margin-left: 0; /* Αφαίρεση αριστερού margin */
             }
         }
     </style>
