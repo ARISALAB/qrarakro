@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator from AR Akron Services</title>
     <style>
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -13,43 +25,57 @@
             padding: 20px;
             background-color: black; /* Αλλαγή χρώματος φόντου σε μαύρο */
             color: white; /* Αλλαγή χρώματος κειμένου σε λευκό για καλύτερη αντίθεση */
-            margin: 0; /* Αφαίρεση default margin του body */
         }
         .container {
             max-width: 800px;
             width: 100%; /* Ensure the container takes full width up to max-width */
-            background: #fff;
+            background: linear-gradient(to right, #ffcccc, #ffff99); /* Μίξη χρωμάτων στο background */
             padding: 30px;
-            border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 0; /* Αφαίρεση κενών μεταξύ των containers */
+            margin-bottom: 0;
             color: black; /* Χρώμα κειμένου εντός container */
         }
         .description {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0; /* Αφαίρεση κενών μεταξύ των containers */
+            margin-bottom: 0;
         }
         .description img {
-            max-width: 45%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
-            border-radius: 8px;
+            width: 200px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+            margin-top: 0;
+        }
+        .description1 {
+            margin-bottom: 0;
+            background: linear-gradient(to right, blue, purple); /* Μίξη χρωμάτων στο background */
+            color: #fff;
+            h2 {
+                color: #fff;
+            }
+        }
+        .description1 img {
+            width: 200px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
             margin-top: 10px;
         }
-        .description-text {
-            max-width: 50%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
-            margin-left: 20px;
-        }
         h2 {
+            display: flex;
+            align-items: center;
             color: black; /* Χρώμα κεφαλίδων */
-            margin-top: 0; /* Αφαίρεση πάνω margin */
+        }
+        .bouncing-hand {
+            width: 40px;
+            height: auto;
+            margin-left: 10px;
+            animation: bounce 2s infinite;
+        }
+        .bouncing-image {
+            animation: bounce 2s infinite;
         }
         .main-button {
             display: block;
             width: 100%;
             max-width: 300px;
             padding: 10px 20px;
-            margin: 20px auto 0; /* Αφαίρεση κάτω margin */
+            margin: 20px auto;
             font-size: 16px;
             color: white;
             background-color: #4285f4;
@@ -61,16 +87,11 @@
         .main-button:hover {
             background-color: #357ae8;
         }
-        .blue-background {
-            background-color: #4285f4;
-            color: white;
-        }
-
-        /* Media query για κινητές οθόνες */
+           /* Media query για κινητές οθόνες */
         @media only screen and (max-width: 768px) {
             .description {
                 flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
-                text-align: center; /* Κεντραρισμένο κείμενο */
+                text-align: left; /* Κεντραρισμένο κείμενο */
             }
             .description img {
                 order: 2; /* Η εικόνα μετακινείται στη δεύτερη θέση */
@@ -79,24 +100,31 @@
             }
             .description-text {
                 order: 3; /* Το κείμενο μετακινείται στην τρίτη θέση */
-                max-width: 100%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
+                max-width: 80%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
                 margin: 0; /* Αφαίρεση αριστερού margin */
             }
             h2 {
                 order: 1; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
             }
         }
+        .welcome {
+            display: flex;
+            align-items: center;
+        }
+        .welcome-text {
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="container description">
-        <h2>Welcome to QR Code Generator from AR Akron Services</h2>
+    <div class="container description welcome">
         <img src="1.png" alt="Example QR Code">
-        <div class="description-text">
+        <div class="welcome-text">
+            <h2>Welcome to QR Code Generator from AR Akron Services</h2>
             <p>Create your personalized QR codes effortlessly. Our application provides you with multiple customization options to make your QR codes unique and professional.</p>
         </div>
     </div>
-    <div class="container description blue-background">
+    <div class="container description1">
         <h2>How to Create Your QR Code:</h2>
         <ol>
             <li>Enter the name, URL, and any custom text you want to include.</li>
@@ -107,7 +135,9 @@
         </ol>
     </div>
     <div class="container description">
-        <h2>Types of QR Codes You Can Generate:</h2>
+        <h2>Types of QR Codes You Can Generate:
+            <img src="3.png" alt="QR Code Types" class="bouncing-image">
+        </h2>
         <p>Our application allows you to create different types of QR codes based on your needs:</p>
         <ul>
             <li><strong>Website URL:</strong> Direct users to your event's website or any other URL.</li>
@@ -118,14 +148,13 @@
             <li><strong>Social Media Links:</strong> Link to your social media profiles to boost engagement.</li>
         </ul>
     </div>
-
-    <div class="container description blue-background">
+    <div class="container description1">
         <h2>Pricing Information</h2>
-        <p>Create unlimited QR codes for a one-time fee of €80. Enjoy unlimited access and customization options with no recurring fees. Sign up now to take advantage of this offer and start creating your professional QR codes today!</p>
+        <p>Create unlimited QR codes for a one-time fee of €80.</p>
+        <p>Our premium plan offers unlimited QR code generation for a lifetime. Take advantage of this special offer to enhance your marketing strategies and streamline your business operations. Whether you're a small business owner, marketer, or event organizer, our QR code generator is a valuable tool to engage your audience and boost conversions.</p>
+        <p>Unlock the full potential of QR codes today by subscribing to our premium plan!</p>
     </div>
-
-    <a href="main.html" class="main-button">Go to Homepage</a>
-
+    <a href="main.html" class="main-button">Go to QR Code Generator</a>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
