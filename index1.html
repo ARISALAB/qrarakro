@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator from AR Akron Services</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: black; /* Αλλαγή χρώματος φόντου σε μαύρο */
+            color: white; /* Αλλαγή χρώματος κειμένου σε λευκό για καλύτερη αντίθεση */
+            margin: 0; /* Αφαίρεση default margin του body */
+        }
+        .container {
+            max-width: 800px;
+            width: 100%; /* Ensure the container takes full width up to max-width */
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 0; /* Αφαίρεση κενών μεταξύ των containers */
+            color: black; /* Χρώμα κειμένου εντός container */
+        }
+        .description {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0; /* Αφαίρεση κενών μεταξύ των containers */
+        }
+        .description img {
+            max-width: 45%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .description-text {
+            max-width: 50%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
+            margin-left: 20px;
+        }
+        h2 {
+            color: black; /* Χρώμα κεφαλίδων */
+            margin-top: 0; /* Αφαίρεση πάνω margin */
+        }
+        .main-button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            padding: 10px 20px;
+            margin: 20px auto 0; /* Αφαίρεση κάτω margin */
+            font-size: 16px;
+            color: white;
+            background-color: #4285f4;
+            border: none;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+        }
+        .main-button:hover {
+            background-color: #357ae8;
+        }
+        .blue-background {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        /* Media query για κινητές οθόνες */
+        @media only screen and (max-width: 768px) {
+            .description {
+                flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
+                text-align: center; /* Κεντραρισμένο κείμενο */
+            }
+            .description img {
+                order: 2; /* Η εικόνα μετακινείται στη δεύτερη θέση */
+                max-width: 100%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
+                margin: 20px 0; /* Αλλαγή διαστήματος γύρω από την εικόνα */
+            }
+            .description-text {
+                order: 3; /* Το κείμενο μετακινείται στην τρίτη θέση */
+                max-width: 100%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
+                margin: 0; /* Αφαίρεση αριστερού margin */
+            }
+            h2 {
+                order: 1; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container description">
+        <h2>Welcome to QR Code Generator from AR Akron Services</h2>
+        <img src="1.png" alt="Example QR Code">
+        <div class="description-text">
+            <p>Create your personalized QR codes effortlessly. Our application provides you with multiple customization options to make your QR codes unique and professional.</p>
+        </div>
+    </div>
+    <div class="container description blue-background">
+        <h2>How to Create Your QR Code:</h2>
+        <ol>
+            <li>Enter the name, URL, and any custom text you want to include.</li>
+            <li>Upload your logo if you have one. This will be embedded in the center of the QR code.</li>
+            <li>Choose your preferred border color for the QR code from the available options.</li>
+            <li>Click the "Generate" button to create your QR code.</li>
+            <li>Once generated, click the "Download" button to save your QR code as a JPG file.</li>
+        </ol>
+    </div>
+    <div class="container description">
+        <h2>Types of QR Codes You Can Generate:</h2>
+        <p>Our application allows you to create different types of QR codes based on your needs:</p>
+        <ul>
+            <li><strong>Website URL:</strong> Direct users to your event's website or any other URL.</li>
+            <li><strong>Contact Information:</strong> Share your contact details, including phone number and email address.</li>
+            <li><strong>Event Details:</strong> Provide detailed information about your event, such as date, time, and location.</li>
+            <li><strong>Custom Text:</strong> Encode any custom message or information you want to share.</li>
+            <li><strong>Wi-Fi Access:</strong> Allow users to connect to your Wi-Fi network by scanning the QR code.</li>
+            <li><strong>Social Media Links:</strong> Link to your social media profiles to boost engagement.</li>
+        </ul>
+    </div>
+
+    <div class="container description blue-background">
+        <h2>Pricing Information</h2>
+        <p>Create unlimited QR codes for a one-time fee of €80. Enjoy unlimited access and customization options with no recurring fees. Sign up now to take advantage of this offer and start creating your professional QR codes today!</p>
+    </div>
+
+    <a href="main.html" class="main-button">Go to Homepage</a>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>
