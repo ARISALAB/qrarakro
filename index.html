@@ -3,174 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator from AR Akron Services</title>
+    <title>My AR Akron QR Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px); /* Μειώσαμε την ένταση της μετακίνησης */
-            }
-            60% {
-                transform: translateY(-5px); /* Μειώσαμε την ένταση της μετακίνησης */
-            }
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: black; /* Αλλαγή χρώματος φόντου σε μαύρο */
-            color: white; /* Αλλαγή χρώματος κειμένου σε λευκό για καλύτερη αντίθεση */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
-        .container {
-            max-width: 800px;
-            width: 100%; /* Ensure the container takes full width up to max-width */
-            background: linear-gradient(to right, #ffcccc, #ffff99); /* Μίξη χρωμάτων στο background */
-            padding: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 0;
-            color: black; /* Χρώμα κειμένου εντός container */
-        }
-        .description {
-            margin-bottom: 0;
-        }
-        .description img {
-            width: 200px; /* Adjust the width as needed */
-            height: auto; /* Maintain aspect ratio */
-            margin-top: 0;
-        }
-        .description1 {
-            margin-bottom: 0;
-            background: linear-gradient(to right, blue, purple); /* Μίξη χρωμάτων στο background */
+        header {
+            background-color: #007bff;
             color: #fff;
-            h2 {
-                color: #fff;
-            }
+            padding: 10px 0;
+            text-align: center;
         }
-        .description1 img {
-            width: 200px; /* Adjust the width as needed */
-            height: auto; /* Maintain aspect ratio */
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        nav {
             margin-top: 10px;
         }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
         h2 {
+            color: #444;
+        }
+        .section {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+        .section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .section input[type="text"], .section input[type="file"], .section input[type="color"], .section textarea {
+            width: calc(100% - 40px);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .section .icon-left {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #007bff;
+            left: 10px;
+        }
+        .section .icon-right {
+            display: none;
+        }
+        .section.name-section {
+            background-color: #e3f2fd;
+        }
+        .section.url-section {
+            background-color: #e8f5e9;
+        }
+        .section.text-section {
+            background-color: #fff3e0;
+        }
+        .section.logo-section {
+    background-color: #fce4ec;
+    display: flex;
+    flex-direction: column; /* Εξασφαλίζει ότι το label και το input είναι σε στήλη */
+    align-items: center; /* Ευθυγραμμίζει τα στοιχεία στην αριστερή πλευρά */
+    padding: 15px;
+    position: relative;
+}
+.section.logo-section label {
+    margin-bottom: 5px; /* Προσθέτει διάστημα κάτω από το label */
+}
+
+        .section.logo-section label {
+            margin-left: 0px;
+            line-height: 1.5;
+        }
+        .section.logo-section input[type="file"] {
+            display: inline-block;
+            width: auto;
+        }
+        .section.color-section {
+            background-color: #f3e5f5;
             display: flex;
             align-items: center;
-            color: black; /* Χρώμα κεφαλίδων */
+            justify-content: center;
+            gap: 10px;
         }
-        .bouncing-hand {
-            width: 40px;
-            height: auto;
-            margin-left: 10px;
-            animation: bounce 3s infinite; /* Αυξήσαμε τη διάρκεια του animation */
+        .section.contact-section {
+            background-color: #e1f5fe;
         }
-        .bouncing-image {
-            animation: bounce 3s infinite; /* Αυξήσαμε τη διάρκεια του animation */
-        }
-        .main-button {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            padding: 10px 20px;
-            margin: 20px auto;
-            font-size: 16px;
+        .button-generate {
+            background-color: #28a745;
             color: white;
-            background-color: #4285f4;
             border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 5px;
+        }
+        .button-generate:hover {
+            background-color: #218838;
+        }
+        .button-color-picker {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button-color-picker:hover {
+            background-color: #e0a800;
+        }
+        #qrCode {
+            margin: 20px auto;
+            border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .color-display {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #000;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        footer {
+            background-color: #007bff;
+            color: #fff;
             text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: 20px;
+        }
+        footer a {
+            color: #fff;
             text-decoration: none;
         }
-        .main-button:hover {
-            background-color: #357ae8;
+        footer a:hover {
+            text-decoration: underline;
         }
-           /* Media query για κινητές οθόνες */
-        @media only screen and (max-width: 768px) {
-            .description {
-                flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
-                text-align: left; /* Κεντραρισμένο κείμενο */
-            }
-            .description img {
-                order: 2; /* Η εικόνα μετακινείται στη δεύτερη θέση */
-                max-width: 100%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
-                margin: 20px 0; /* Αλλαγή διαστήματος γύρω από την εικόνα */
-            }
-            .description-text {
-                order: 3; /* Το κείμενο μετακινείται στην τρίτη θέση */
-                max-width: 80%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
-                margin: 0; /* Αφαίρεση αριστερού margin */
-            }
-            h2 {
-                order: -40; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
-            }
+        .hidden {
+            display: none;
         }
-        .welcome {
-            display: flex;
-            align-items: center;
-        }
-        .welcome-text {
-            margin-left: 20px;
+        .text-center {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container description welcome">
-        <img src="1.png" alt="Example QR Code">
-        <div class="welcome-text">
-            <h2>Welcome to QR Code Generator from AR Akron Services</h2>
-            <p>Create your personalized QR codes effortlessly. Our application provides you with multiple customization options to make your QR codes unique and professional.</p>
+    <header>
+        <h1>My AR Akron QR Generator</h1>
+        <nav>
+            <a href="#" onclick="showSection('home')">Home</a>
+            <a href="#" onclick="showSection('features')">Features</a>
+            <a href="#" onclick="showSection('contact')">Contact</a>
+        </nav>
+    </header>
+
+    <div id="home" class="container">
+        <h2>Create Your Event QR Code</h2>
+        
+        <div class="section name-section">
+            <i class="fas fa-user icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="small-input">
+            </div>
+        </div>
+
+        <div class="section url-section">
+            <i class="fas fa-link icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="url">URL:</label>
+                <input type="text" id="url" name="url" class="small-input">
+            </div>
+        </div>
+
+        <div class="section text-section">
+            <i class="fas fa-font icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="customText">Text:</label>
+                <input type="text" id="customText" name="customText" class="small-input">
+            </div>
+        </div>
+
+        <div class="section logo-section">
+            <i class="fas fa-image icon-left"></i>
+            <label for="logo">Upload logo:</label>
+            <input type="file" id="logo" name="logo" accept="image/*">
+        </div>
+        
+        <div class="section color-section text-center">
+            <button id="colorPickerButton" class="button-color-picker">Select QR Border Color</button>
+            <div id="colorDisplay" class="color-display"></div> <!-- Color display -->
+        </div>
+
+        <!-- Buttons for generating QR code and displaying it -->
+        <div class="text-center">
+            <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
+        </div>
+        
+        <div class="text-center">
+            <a id="downloadLink" href="#" class="hidden" download="qr-code.jpg">Download QR Code</a>
+        </div>
+        <canvas id="qrCode" width="300" height="300"></canvas>
+        <p id="scanCounter">Scans: 0</p>
+    </div>
+
+    <div id="features" class="container hidden">
+        <h2>Features</h2>
+        <p>Our QR code generator offers a range of features to customize your QR codes. Add logos, select colors, and track scans to measure engagement. Ideal for events, marketing campaigns, and more.</p>
+    </div>
+
+    <div id="contact" class="container hidden">
+        <h2>Contact Us</h2>
+        <form action="mailto:your-email@example.com" method="post" enctype="text/plain">
+            <div class="section contact-section">
+                <i class="fas fa-user icon-left"></i>
+                <div style="margin-left: 40px;">
+                    <label for="contactName">Name:</label>
+                    <input type="text" id="contactName" name="contactName" required>
+                </div>
+            </div>
+            <div class="section contact-section">
+                <i class="fas fa-envelope icon-left"></i>
+                <div style="margin-left: 40px;">
+                    <label for="contactEmail">Email:</label>
+                    <input type="email" id="contactEmail" name="contactEmail" required>
+                </div>
+            </div>
+            <div class="section contact-section">
+                <i class="fas fa-comment icon-left"></i>
+                <div style="margin-left: 40px;">
+                    <label for="contactMessage">Message:</label>
+                    <textarea id="contactMessage" name="contactMessage" rows="4" required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="button-generate">Send Message</button>
+        </form>
+    </div>
+
+    <!-- Color Picker Modal -->
+    <div id="colorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Select QR Border Color</h3>
+            <input type="color" id="colorPicker" value="#000000">
         </div>
     </div>
-    <div class="container description1">
-        <h2>How to Create Your QR Code:</h2>
-        <ol>
-            <li>Enter the name, URL, and any custom text you want to include.</li>
-            <li>Upload your logo if you have one. This will be embedded in the center of the QR code.</li>
-            <li>Choose your preferred border color for the QR code from the available options.</li>
-            <li>Click the "Generate" button to create your QR code.</li>
-            <li>Once generated, click the "Download" button to save your QR code as a JPG file.</li>
-        </ol>
-    </div>
-    <div class="container description">
-        <h2>Types of QR Codes You Can Generate:
-            <img src="3.png" alt="QR Code Types" class="bouncing-image">
-        </h2>
-        <p>Our application allows you to create different types of QR codes based on your needs:</p>
-        <ul>
-            <li><strong>Website URL:</strong> Direct users to your event's website or any other URL.</li>
-            <li><strong>Contact Information:</strong> Share your contact details, including phone number and email address.</li>
-            <li><strong>Event Details:</strong> Provide detailed information about your event, such as date, time, and location.</li>
-            <li><strong>Custom Text:</strong> Encode any custom message or information you want to share.</li>
-            <li><strong>Wi-Fi Access:</strong> Allow users to connect to your Wi-Fi network by scanning the QR code.</li>
-            <li><strong>Social Media Links:</strong> Link to your social media profiles to boost engagement.</li>
-        </ul>
-    </div>
-    <div class="container description1">
-        <h2>Pricing Information</h2>
-        <p>Create unlimited QR codes for a one-time fee of €80.</p>
-        <p>Our premium plan offers unlimited QR code generation for a lifetime. Take advantage of this special offer to enhance your marketing strategies and streamline your business operations. Whether you're a small business owner, marketer, or event organizer, our QR code generator is a valuable tool to engage your audience and boost conversions.</p>
-        <p>Unlock the full potential of QR codes today by subscribing to our premium plan!</p>
-    </div>
-    <a href="main.html" class="main-button">Go to QR Code Generator</a>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-    <script>
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+    <footer>
+        <p>&copy; 2024 My AR Akron QR Generator. All rights reserved. | <a href="privacy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('features').classList.add('hidden');
+            document.getElementById('contact').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // Modal functionality
+        const modal = document.getElementById('colorModal');
+        const btn = document.getElementById('colorPickerButton');
+        const span = document.getElementsByClassName('close')[0];
+
+        btn.onclick = function() {
+            modal.style.display = 'block';
+        }
+
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Color Picker
+        let selectedColor = '#000000';
+        const colorPicker = document.getElementById('colorPicker');
+        const colorDisplay = document.getElementById('colorDisplay');
+        
+        colorPicker.addEventListener('input', function() {
+            selectedColor = this.value;
+            colorDisplay.style.backgroundColor = selectedColor; // Update color display
+        });
+
+        // Initialize scan count from localStorage or default to 0
+        let scanCount = localStorage.getItem('scanCount') || 0;
+        document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
+
+        function generateQR() {
+            const name = document.getElementById("name").value;
+            const url = document.getElementById("url").value;
+            const customText = document.getElementById("customText").value;
+            const logoInput = document.getElementById("logo");
+            const qrCanvas = document.getElementById("qrCode");
+            const context = qrCanvas.getContext("2d");
+
+            // Increment scan count and update display
+            scanCount++;
+            document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
+            // Store updated scan count in localStorage
+            localStorage.setItem('scanCount', scanCount);
+
+            const qrValue = `${url}`;
+
+            const qr = new QRious({
+                element: qrCanvas,
+                value: qrValue,
+                size: 300,
+                foreground: selectedColor // Set border color
+            });
+
+            if (logoInput.files && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const logo = new Image();
+                    logo.onload = function() {
+                        const logoSize = qr.size / 6; // Adjust logo size as needed
+                        const x = (qrCanvas.width - logoSize) / 2;
+                        const y = (qrCanvas.height - logoSize) / 2;
+
+                        // Draw QR code first
+                        context.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height);
+
+                        // Create a circular clip
+                        context.save();
+                        context.beginPath();
+                        context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                        context.closePath();
+                        context.clip();
+
+                        // Draw the logo inside the clipped area with high resolution
+                        context.drawImage(logo, x, y, logoSize, logoSize);
+
+                        // Restore context to remove clipping
+                        context.restore();
+
+                        // Draw custom text below the QR code
+                        context.font = "16px Arial";
+                        context.textAlign = "center";
+                        context.fillStyle = "white";
+                        context.lineWidth = 4;
+                        context.strokeStyle = "black";
+                        context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                        context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+
+                        // Show download link
+                        const downloadLink = document.getElementById("downloadLink");
+                        downloadLink.style.display = "block";
+                    };
+                    logo.src = event.target.result;
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            } else {
+                // If no logo is uploaded, generate the QR code without a logo
+
+                // Draw custom text below the QR code
+                context.font = "16px Arial";
+                context.textAlign = "center";
+                context.fillStyle = "white";
+                context.lineWidth = 4;
+                context.strokeStyle = "black";
+                context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+
+                const downloadLink = document.getElementById("downloadLink");
+                downloadLink.style.display = "block";
+            }
+        }
+
+        function downloadQR() {
+            const qrCanvas = document.getElementById("qrCode");
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        }
     </script>
 </body>
 </html>
