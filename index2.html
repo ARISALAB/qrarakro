@@ -90,31 +90,38 @@
             background-color: #fff3e0;
         }
         .section.logo-section {
-    background-color: #fce4ec;
-    display: flex;
-    flex-direction: column; /* Εξασφαλίζει ότι το label και το input είναι σε στήλη */
-    align-items: center; /* Ευθυγραμμίζει τα στοιχεία στην αριστερή πλευρά */
-    padding: 15px;
-    position: relative;
-}
-.section.logo-section label {
-    margin-bottom: 5px; /* Προσθέτει διάστημα κάτω από το label */
-}
-
+            background-color: #fce4ec;
+            display: flex;
+            align-items: center;
+            padding: 15px;
+        }
+        .section.logo-section i {
+            font-size: 24px;
+            color: #007bff;
+            margin-right: 10px;
+        }
         .section.logo-section label {
-            margin-left: 0px;
+            margin-left: 10px;
             line-height: 1.5;
+            margin-right: 10px; /* Adjust spacing */
         }
         .section.logo-section input[type="file"] {
             display: inline-block;
             width: auto;
         }
-        .section.color-section {
+        .section.logo-shape-section {
             background-color: #f3e5f5;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+        }
+        .section.color-section {
+            background-color: #e1f5fe;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .section.contact-section {
             background-color: #e1f5fe;
@@ -133,7 +140,7 @@
             background-color: #218838;
         }
         .button-color-picker {
-            background-color: #ffc107;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 8px;
@@ -143,7 +150,7 @@
             margin: 5px;
         }
         .button-color-picker:hover {
-            background-color: #e0a800;
+            background-color: #0056b3;
         }
         #qrCode {
             margin: 20px auto;
@@ -156,6 +163,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #000;
+            display: inline-block;
         }
         a {
             color: #007bff;
@@ -164,6 +172,19 @@
         }
         a:hover {
             text-decoration: underline;
+        }
+        .download-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
         }
         /* Modal styles */
         .modal {
@@ -228,14 +249,14 @@
     <header>
         <h1>My AR Akron QR Generator</h1>
         <nav>
-            <a href="index.html" onclick="showSection('home')">Home</a>
+            <a href="#" onclick="showSection('home')">Home</a>
             <a href="#" onclick="showSection('features')">Features</a>
             <a href="#" onclick="showSection('contact')">Contact</a>
         </nav>
     </header>
 
     <div id="home" class="container">
-        <h2>Create Your Event QR Code</h2>
+        <h2>Create Your QR Code</h2>
         
         <div class="section name-section">
             <i class="fas fa-user icon-left"></i>
@@ -266,112 +287,72 @@
             <label for="logo">Upload logo:</label>
             <input type="file" id="logo" name="logo" accept="image/*">
         </div>
-        
-        <div class="section color-section text-center">
-            <button id="colorPickerButton" class="button-color-picker">Select QR Border Color</button>
-            <div id="colorDisplay" class="color-display"></div> <!-- Color display -->
+
+        <div class="section logo-shape-section">
+            <label for="logoShape">Logo shape:</label>
+            <input type="radio" id="circle" name="logoShape" value="circle" checked>
+            <label for="circle">Circle</label>
+            <input type="radio" id="square" name="logoShape" value="square">
+            <label for="square">Square</label>
+            <input type="radio" id="rectangle" name="logoShape" value="rectangle">
+            <label for="rectangle">Rectangle</label>
         </div>
 
-        <!-- Buttons for generating QR code and displaying it -->
-        <div class="text-center">
-            <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
+        <div class="section color-section">
+            <label>Choose Border Color (RGB):</label>
+            <button class="button-color-picker" onclick="document.getElementById('colorPickerModal').style.display='block'">Pick Color</button>
+            <span class="color-display" id="colorDisplay"></span>
         </div>
-        
-        <div class="text-center">
-            <a id="downloadLink" href="#" class="hidden" download="qr-code.jpg">Download QR Code</a>
-        </div>
-        <canvas id="qrCode" width="300" height="300"></canvas>
-        <p id="scanCounter">Scans: 0</p>
+
+        <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
+        <br>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
+        <br>
+        <a id="downloadLink" href="#" class="download-button" style="display:none;">Download QR Code</a>
     </div>
 
     <div id="features" class="container hidden">
         <h2>Features</h2>
-        <p>Our QR code generator offers a range of features to customize your QR codes. Add logos, select colors, and track scans to measure engagement. Ideal for events, marketing campaigns, and more.</p>
+        <p>Feature details go here...</p>
     </div>
 
     <div id="contact" class="container hidden">
-        <h2>Contact Us</h2>
-        <form action="mailto:your-email@example.com" method="post" enctype="text/plain">
-            <div class="section contact-section">
-                <i class="fas fa-user icon-left"></i>
-                <div style="margin-left: 40px;">
-                    <label for="contactName">Name:</label>
-                    <input type="text" id="contactName" name="contactName" required>
-                </div>
-            </div>
-            <div class="section contact-section">
-                <i class="fas fa-envelope icon-left"></i>
-                <div style="margin-left: 40px;">
-                    <label for="contactEmail">Email:</label>
-                    <input type="email" id="contactEmail" name="contactEmail" required>
-                </div>
-            </div>
-            <div class="section contact-section">
-                <i class="fas fa-comment icon-left"></i>
-                <div style="margin-left: 40px;">
-                    <label for="contactMessage">Message:</label>
-                    <textarea id="contactMessage" name="contactMessage" rows="4" required></textarea>
-                </div>
-            </div>
-            <button type="submit" class="button-generate">Send Message</button>
-        </form>
-    </div>
-
-    <!-- Color Picker Modal -->
-    <div id="colorModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Select QR Border Color</h3>
-            <input type="color" id="colorPicker" value="#000000">
-        </div>
+        <h2>Contact</h2>
+        <p>Contact details go here...</p>
     </div>
 
     <footer>
-        <p>&copy; 2024 My AR Akron QR Generator. All rights reserved. | <a href="privacy.html">Privacy Policy</a></p>
+        <p>&copy; 2024 My AR Akron QR Generator. All rights reserved. <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
     </footer>
+
+    <!-- Modal for color picker -->
+    <div id="colorPickerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('colorPickerModal').style.display='none'">&times;</span>
+            <h2>Select a Color</h2>
+            <input type="color" id="colorPicker" name="colorPicker" value="#000000" oninput="updateColorDisplay(this.value)">
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script>
-        // Navigation
+        let selectedColor = "#000000"; // Default border color
+
         function showSection(sectionId) {
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('features').classList.add('hidden');
-            document.getElementById('contact').classList.add('hidden');
-            document.getElementById(sectionId).classList.remove('hidden');
+            const sections = document.querySelectorAll(".container");
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.classList.remove("hidden");
+                } else {
+                    section.classList.add("hidden");
+                }
+            });
         }
 
-        // Modal functionality
-        const modal = document.getElementById('colorModal');
-        const btn = document.getElementById('colorPickerButton');
-        const span = document.getElementsByClassName('close')[0];
-
-        btn.onclick = function() {
-            modal.style.display = 'block';
+        function updateColorDisplay(color) {
+            selectedColor = color;
+            document.getElementById('colorDisplay').style.backgroundColor = color;
         }
-
-        span.onclick = function() {
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Color Picker
-        let selectedColor = '#000000';
-        const colorPicker = document.getElementById('colorPicker');
-        const colorDisplay = document.getElementById('colorDisplay');
-        
-        colorPicker.addEventListener('input', function() {
-            selectedColor = this.value;
-            colorDisplay.style.backgroundColor = selectedColor; // Update color display
-        });
-
-        // Initialize scan count from localStorage or default to 0
-        let scanCount = localStorage.getItem('scanCount') || 0;
-        document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
 
         function generateQR() {
             const name = document.getElementById("name").value;
@@ -380,21 +361,21 @@
             const logoInput = document.getElementById("logo");
             const qrCanvas = document.getElementById("qrCode");
             const context = qrCanvas.getContext("2d");
-
-            // Increment scan count and update display
-            scanCount++;
-            document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
-            // Store updated scan count in localStorage
-            localStorage.setItem('scanCount', scanCount);
+            const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
 
             const qrValue = `${url}`;
-
             const qr = new QRious({
                 element: qrCanvas,
                 value: qrValue,
                 size: 300,
                 foreground: selectedColor // Set border color
             });
+
+            qrCanvas.style.display = "block";
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.style.display = "inline-block";
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+            downloadLink.download = "qr-code.jpg"; // Set the filename for download
 
             if (logoInput.files && logoInput.files[0]) {
                 const reader = new FileReader();
@@ -408,18 +389,24 @@
                         // Draw QR code first
                         context.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height);
 
-                        // Create a circular clip
-                        context.save();
-                        context.beginPath();
-                        context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
-                        context.closePath();
-                        context.clip();
+                        if (logoShape === 'circle') {
+                            // Create a circular clip
+                            context.save();
+                            context.beginPath();
+                            context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                            context.closePath();
+                            context.clip();
+                        } else if (logoShape === 'rectangle') {
+                            // Adjust size for rectangle if necessary
+                        }
 
-                        // Draw the logo inside the clipped area with high resolution
+                        // Draw the logo inside the clipped area
                         context.drawImage(logo, x, y, logoSize, logoSize);
 
-                        // Restore context to remove clipping
-                        context.restore();
+                        if (logoShape === 'circle') {
+                            // Restore context to remove clipping
+                            context.restore();
+                        }
 
                         // Draw custom text below the QR code
                         context.font = "16px Arial";
@@ -430,9 +417,8 @@
                         context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
                         context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
 
-                        // Show download link
-                        const downloadLink = document.getElementById("downloadLink");
-                        downloadLink.style.display = "block";
+                        // Update download link with new QR code with logo and text
+                        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     };
                     logo.src = event.target.result;
                 };
@@ -449,15 +435,16 @@
                 context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
                 context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
 
-                const downloadLink = document.getElementById("downloadLink");
-                downloadLink.style.display = "block";
+                // Update download link with new QR code with text
+                downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
             }
         }
 
-        function downloadQR() {
-            const qrCanvas = document.getElementById("qrCode");
-            const downloadLink = document.getElementById("downloadLink");
-            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        // Close the modal when the user clicks anywhere outside of the modal content
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('colorPickerModal')) {
+                document.getElementById('colorPickerModal').style.display = "none";
+            }
         }
     </script>
 </body>
