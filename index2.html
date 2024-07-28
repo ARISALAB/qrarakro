@@ -92,7 +92,8 @@
         .section.logo-section {
             background-color: #fce4ec;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: center; /* Center items horizontally */
             padding: 15px;
         }
         .section.logo-section i {
@@ -104,6 +105,7 @@
             margin-left: 10px;
             line-height: 1.5;
             margin-right: 10px; /* Adjust spacing */
+            text-align: center;
         }
         .section.logo-section input[type="file"] {
             display: inline-block;
@@ -121,7 +123,8 @@
             padding: 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center; /* Center items horizontally */
+            gap: 10px;
         }
         .section.contact-section {
             background-color: #e1f5fe;
@@ -139,8 +142,9 @@
         .button-generate:hover {
             background-color: #218838;
         }
+        
         .button-color-picker {
-            background-color: #007bff;
+            background-color: #dede19;
             color: white;
             border: none;
             border-radius: 8px;
@@ -158,8 +162,8 @@
             border-radius: 4px;
         }
         .color-display {
-            width: 30px;
-            height: 30px;
+            width: 15px;
+            height: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #000;
@@ -299,8 +303,7 @@
         </div>
 
         <div class="section color-section">
-            <label>Choose Border Color (RGB):</label>
-            <button class="button-color-picker" onclick="document.getElementById('colorPickerModal').style.display='block'">Pick Color</button>
+            <button class="button-color-picker" onclick="document.getElementById('colorPickerModal').style.display='block'">Choose Border Color (RGB)</button>
             <span class="color-display" id="colorDisplay"></span>
         </div>
 
@@ -382,7 +385,7 @@
                 reader.onload = function(event) {
                     const logo = new Image();
                     logo.onload = function() {
-                        const logoSize = qr.size / 6; // Adjust logo size as needed
+                        const logoSize = qr.size / 4.4; // Adjust logo size as needed
                         const x = (qrCanvas.width - logoSize) / 2;
                         const y = (qrCanvas.height - logoSize) / 2;
 
