@@ -8,14 +8,14 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #1b1f3b; /* Dark Blue */
+            color: #f5c000; /* Gold */
             margin: 0;
             padding: 0;
-            color: #333;
         }
         header {
-            background-color: #1b1f3b; /* Dark Blue */
-            color: #fff;
+            background-color: #0a1128; /* Darker Blue */
+            color: #f5c000; /* Gold */
             padding: 10px 0;
             text-align: center;
         }
@@ -27,7 +27,7 @@
             margin-top: 10px;
         }
         nav a {
-            color: #fff;
+            color: #f5c000; /* Gold */
             text-decoration: none;
             margin: 0 15px;
             font-size: 18px;
@@ -40,14 +40,14 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background: #fff;
+            background: #0a1128; /* Darker Blue */
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             position: relative;
         }
         h2 {
-            color: #1b1f3b; /* Dark Blue */
+            color: #f5c000; /* Gold */
         }
         .section {
             padding: 15px;
@@ -74,30 +74,30 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 18px;
-            color: #1b1f3b; /* Dark Blue */
+            color: #f5c000; /* Gold */
             left: 10px;
         }
         .section .icon-right {
             display: none;
         }
         .section.name-section {
-            background-color: #e0e0e0; /* Light Gray */
+            background-color: #14213d; /* Dark Blue */
         }
         .section.url-section {
-            background-color: #cfd8dc; /* Darker Gray */
+            background-color: #1b1f3b; /* Dark Blue */
         }
         .section.text-section {
-            background-color: #eceff1; /* Very Light Gray */
+            background-color: #14213d; /* Dark Blue */
         }
         .section.logo-section {
-            background-color: #e1e2e1; /* Light Gray */
+            background-color: #1b1f3b; /* Dark Blue */
             display: flex;
             align-items: center;
             padding: 15px;
         }
         .section.logo-section i {
             font-size: 24px;
-            color: #1b1f3b; /* Dark Blue */
+            color: #f5c000; /* Gold */
             margin-right: 10px;
         }
         .section.logo-section label {
@@ -110,25 +110,25 @@
             width: auto;
         }
         .section.logo-shape-section {
-            background-color: #e1e2e1; /* Light Gray */
+            background-color: #14213d; /* Dark Blue */
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
         .section.color-section {
-            background-color: #b0bec5; /* Gray Blue */
+            background-color: #1b1f3b; /* Dark Blue */
             padding: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .section.contact-section {
-            background-color: #b0bec5; /* Gray Blue */
+            background-color: #1b1f3b; /* Dark Blue */
         }
         .button-generate {
-            background-color: #0d47a1; /* Dark Blue */
-            color: white;
+            background-color: #f5c000; /* Gold */
+            color: #0a1128; /* Darker Blue */
             border: none;
             border-radius: 8px;
             padding: 15px 30px;
@@ -137,12 +137,12 @@
             margin: 20px 5px;
         }
         .button-generate:hover {
-            background-color: #1565c0; /* Lighter Dark Blue */
+            background-color: #ffdd57; /* Lighter Gold */
         }
         
         .button-color-picker {
-            background-color: #1b1f3b; /* Dark Blue */
-            color: white;
+            background-color: #f5c000; /* Gold */
+            color: #0a1128; /* Darker Blue */
             border: none;
             border-radius: 8px;
             padding: 10px 20px;
@@ -151,7 +151,7 @@
             margin: 5px;
         }
         .button-color-picker:hover {
-            background-color: #1565c0; /* Lighter Dark Blue */
+            background-color: #ffdd57; /* Lighter Gold */
         }
         #qrCode {
             margin: 20px auto;
@@ -167,7 +167,7 @@
             display: inline-block;
         }
         a {
-            color: #1b1f3b; /* Dark Blue */
+            color: #f5c000; /* Gold */
             text-decoration: none;
             font-size: 16px;
         }
@@ -175,8 +175,8 @@
             text-decoration: underline;
         }
         .download-button {
-            background-color: #0d47a1; /* Dark Blue */
-            color: white;
+            background-color: #f5c000; /* Gold */
+            color: #0a1128; /* Darker Blue */
             border: none;
             border-radius: 8px;
             padding: 10px 20px;
@@ -185,7 +185,7 @@
             margin-top: 10px;
         }
         .download-button:hover {
-            background-color: #1565c0; /* Lighter Dark Blue */
+            background-color: #ffdd57; /* Lighter Gold */
         }
         /* Modal styles */
         .modal {
@@ -222,8 +222,8 @@
             cursor: pointer;
         }
         footer {
-            background-color: #1b1f3b; /* Dark Blue */
-            color: #fff;
+            background-color: #0a1128; /* Darker Blue */
+            color: #f5c000; /* Gold */
             text-align: center;
             padding: 10px 0;
             position: relative;
@@ -232,7 +232,7 @@
             margin-top: 20px;
         }
         footer a {
-            color: #fff;
+            color: #f5c000; /* Gold */
             text-decoration: none;
         }
         footer a:hover {
@@ -276,10 +276,10 @@
         </div>
 
         <div class="section text-section">
-            <i class="fas fa-font icon-left"></i>
+            <i class="fas fa-align-left icon-left"></i>
             <div style="margin-left: 40px;">
-                <label for="customText">Text:</label>
-                <input type="text" id="customText" name="customText" class="small-input">
+                <label for="text">Text:</label>
+                <input type="text" id="text" name="text" class="small-input">
             </div>
         </div>
 
