@@ -103,7 +103,6 @@
         .section.logo-section label {
             margin-left: 10px;
             line-height: 1.5;
-            margin-right: 10px; /* Adjust spacing */
         }
         .section.logo-section input[type="file"] {
             display: inline-block;
@@ -366,8 +365,16 @@
         }
 
         function generateQRCode() {
-            // QR code generation logic goes here
             const qrCode = document.getElementById('qrCode');
+            const name = document.getElementById('name').value;
+            const url = document.getElementById('url').value;
+            const text = document.getElementById('text').value;
+            const logo = document.getElementById('logo').files[0];
+            const logoShape = document.getElementById('logoShape').value;
+            const color = document.getElementById('color').value;
+
+            // QR code generation logic
+            // Example using a placeholder image
             qrCode.innerHTML = '<img src="https://via.placeholder.com/150" alt="QR Code">';
         }
 
