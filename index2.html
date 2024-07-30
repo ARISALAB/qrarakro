@@ -12,7 +12,6 @@
             margin: 0;
             padding: 0;
             color: #333;
-            overflow: hidden; /* Prevent scrolling during the effect */
         }
         header {
             background-color: #007bff;
@@ -246,47 +245,9 @@
         .text-center {
             text-align: center;
         }
-
-        /* Fire effect styles */
-        .fire-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .fire {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,0,0,0.5) 0%, rgba(255,165,0,0.5) 100%);
-            animation: fireAnimation 3s ease-in-out forwards;
-        }
-        @keyframes fireAnimation {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(2);
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Fire effect container -->
-    <div class="fire-container">
-        <div class="fire"></div>
-    </div>
-
     <header>
         <h1>My AR Akron QR Generator</h1>
         <nav>
@@ -297,23 +258,34 @@
     </header>
 
     <div id="home" class="container">
-        <h2>Generate Your Custom QR Code</h2>
+        <h2>Create Your QR Code</h2>
+        
         <div class="section name-section">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name">
+            <i class="fas fa-user icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="small-input">
+            </div>
         </div>
 
         <div class="section url-section">
-            <label for="url">URL:</label>
-            <input type="text" id="url" name="url">
+            <i class="fas fa-link icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="url">URL:</label>
+                <input type="text" id="url" name="url" class="small-input">
+            </div>
         </div>
 
         <div class="section text-section">
-            <label for="customText">Custom Text:</label>
-            <input type="text" id="customText" name="customText">
+            <i class="fas fa-font icon-left"></i>
+            <div style="margin-left: 40px;">
+                <label for="customText">Custom Text:</label>
+                <input type="text" id="customText" name="customText" class="small-input">
+            </div>
         </div>
 
         <div class="section logo-section">
+            <i class="fas fa-image"></i>
             <label for="logo">Upload logo:</label>
             <input type="file" id="logo" name="logo" accept="image/*">
         </div>
@@ -335,15 +307,55 @@
 
         <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
         <br>
-        <canvas id="qrCode" width="600" height="600" style="display:none;"></canvas>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
         <br>
         <a id="downloadLink" href="#" class="download-button" style="display:none;">Download QR Code</a>
     </div>
 
     <div id="features" class="container hidden">
         <h2>Features</h2>
-        <p>Feature details go here...</p>
+        <p>
+            <strong>Custom QR Code Generation</strong><br>
+            Create personalized QR codes easily with our generator. Enter your desired URL, custom text, and choose a logo to embed in your QR code.
+        </p>
+        <p>
+            <strong>High-Quality Output</strong><br>
+            Our tool ensures that your QR codes are generated in the highest possible resolution, perfect for both digital and print media.
+        </p>
+        <p>
+            <strong>Logo Integration</strong><br>
+            Add a professional touch to your QR codes by integrating your own logo. Choose from various shapes like circle, square, or rectangle to best fit your brand's style.
+        </p>
+        <p>
+            <strong>Color Customization</strong><br>
+            Select custom colors for your QR code's border to make it stand out. Use our color picker to find the perfect shade that matches your brand's identity.
+        </p>
+        <p>
+            <strong>Easy Download</strong><br>
+            Once your QR code is generated, you can easily download it in high-quality JPEG format, ready to be used wherever you need it.
+        </p>
+        <p>
+            <strong>User-Friendly Interface</strong><br>
+            Our intuitive interface makes the process of creating QR codes straightforward and quick. No technical expertise required.
+        </p>
+        <p>
+            <strong>Secure and Private</strong><br>
+            Your data is safe with us. We do not store any information entered into the QR code generator, ensuring your privacy.
+        </p>
+        <p>
+            <strong>Versatile Usage</strong><br>
+            Our QR codes are versatile and can be used for a variety of purposes, including marketing campaigns, business cards, product labels, and more.
+        </p>
+        <p>
+            <strong>Responsive Design</strong><br>
+            Access our QR code generator on any device, whether you're on a desktop, tablet, or smartphone. The design is fully responsive and mobile-friendly.
+        </p>
+        <p>
+            <strong>Continuous Improvements</strong><br>
+            We are constantly updating and improving our QR code generator based on user feedback to provide you with the best possible experience.
+        </p>
     </div>
+    
 
     <div id="contact" class="container hidden">
         <h2>Contact</h2>
@@ -396,7 +408,7 @@
             const qr = new QRious({
                 element: qrCanvas,
                 value: qrValue,
-                size: 600, // Increased size
+                size: 300,
                 foreground: selectedColor // Set border color
             });
 
@@ -411,12 +423,12 @@
                 reader.onload = function(event) {
                     const logo = new Image();
                     logo.onload = function() {
-                        const logoSize = qrCanvas.width / 4; // Adjust logo size as needed
+                        const logoSize = qrCanvas.width / 6; // Adjust logo size as needed
                         const x = (qrCanvas.width - logoSize) / 2;
                         const y = (qrCanvas.height - logoSize) / 2;
 
-                        context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-                        context.drawImage(qr.image, 0, 0, qrCanvas.width, qrCanvas.height);
+                        // Draw QR code first
+                        context.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height);
 
                         if (logoShape === 'circle') {
                             // Create a circular clip
@@ -438,13 +450,13 @@
                         }
 
                         // Draw custom text below the QR code
-                        context.font = "24px Arial"; // Increased font size
+                        context.font = "16px Arial";
                         context.textAlign = "center";
                         context.fillStyle = "white";
-                        context.lineWidth = 6; // Increased line width
+                        context.lineWidth = 4;
                         context.strokeStyle = "black";
-                        context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 20); // Adjusted position
-                        context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 20);
+                        context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                        context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
 
                         // Update download link with new QR code with logo and text
                         downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
@@ -456,13 +468,13 @@
                 // If no logo is uploaded, generate the QR code without a logo
 
                 // Draw custom text below the QR code
-                context.font = "24px Arial"; // Increased font size
+                context.font = "16px Arial";
                 context.textAlign = "center";
                 context.fillStyle = "white";
-                context.lineWidth = 6; // Increased line width
+                context.lineWidth = 4;
                 context.strokeStyle = "black";
-                context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 20); // Adjusted position
-                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 20);
+                context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
 
                 // Update download link with new QR code with text
                 downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
@@ -474,14 +486,6 @@
             if (event.target == document.getElementById('colorPickerModal')) {
                 document.getElementById('colorPickerModal').style.display = "none";
             }
-        }
-
-        // Remove fire effect after animation
-        window.onload = function() {
-            setTimeout(function() {
-                document.querySelector('.fire-container').style.display = 'none';
-                document.body.style.overflow = 'auto'; // Re-enable scrolling
-            }, 3000); // Duration of the fire animation
         }
     </script>
 </body>
