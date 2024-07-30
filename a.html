@@ -65,7 +65,7 @@
     margin-bottom: 5px;
 }
 
-.section input[type="text"], .section input[type="file"], .section input[type="color"], .section input[type="number"], .section select, .section textarea {
+.section input[type="text"], .section input[type="file"], .section input[type="color"], .section textarea {
     width: calc(100% - 40px);
     padding: 10px;
     border-radius: 4px;
@@ -87,6 +87,8 @@
 .section .icon-right {
     display: none;
 }
+
+
 
 .section.logo-section {
     background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
@@ -292,129 +294,200 @@
 
         <div class="section logo-shape-section">
             <label for="logoShape">Logo shape:</label>
-            <select id="logoShape" name="logoShape">
-                <option value="square">Square</option>
-                <option value="circle">Circle</option>
-            </select>
+            <input type="radio" id="circle" name="logoShape" value="circle" checked>
+            <label for="circle">Circle</label>
+            <input type="radio" id="square" name="logoShape" value="square">
+            <label for="square">Square</label>
+            <input type="radio" id="rectangle" name="logoShape" value="rectangle">
+            <label for="rectangle">Rectangle</label>
         </div>
 
         <div class="section color-section">
-            <label for="bgColor">Background color:</label>
-            <input type="color" id="bgColor" name="bgColor">
+            <button class="button-color-picker" onclick="document.getElementById('colorPickerModal').style.display='block'">Choose Border Color (RGB)</button>
+            <span class="color-display" id="colorDisplay"></span>
         </div>
 
-        <div class="section color-section">
-            <label for="fgColor">Foreground color:</label>
-            <input type="color" id="fgColor" name="fgColor">
-        </div>
-
-        <!-- Νέο τμήμα για επιλογές γραμματοσειράς, χρώματος και μεγέθους κειμένου -->
-        <div class="section text-settings-section">
-            <i class="fas fa-text-height icon-left"></i>
-            <div style="margin-left: 40px;">
-                <label for="fontFamily">Font Family:</label>
-                <select id="fontFamily" name="fontFamily" class="small-input">
-                    <option value="Arial">Arial</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                    <option value="Verdana">Verdana</option>
-                </select>
-                
-                <label for="fontColor">Font Color:</label>
-                <input type="color" id="fontColor" name="fontColor" class="small-input">
-
-                <label for="fontSize">Font Size:</label>
-                <input type="number" id="fontSize" name="fontSize" class="small-input" min="8" max="72" value="16">
-            </div>
-        </div>
-
-        <button class="button-generate" onclick="generateQRCode()">Generate QR Code</button>
-
-        <div id="qrCode" class="text-center"></div>
-        <button id="downloadBtn" class="download-button hidden">Download</button>
+        <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
+        <br>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
+        <br>
+        <a id="downloadLink" href="#" class="download-button" style="display:none;">Download QR Code</a>
     </div>
 
     <div id="features" class="container hidden">
         <h2>Features</h2>
-        <p>Explore the features of our QR code generator...</p>
+        <p>
+            <strong>Custom QR Code Generation</strong><br>
+            Create personalized QR codes easily with our generator. Enter your desired URL, custom text, and choose a logo to embed in your QR code.
+        </p>
+        <p>
+            <strong>High-Quality Output</strong><br>
+            Our tool ensures that your QR codes are generated in the highest possible resolution, perfect for both digital and print media.
+        </p>
+        <p>
+            <strong>Logo Integration</strong><br>
+            Add a professional touch to your QR codes by integrating your own logo. Choose from various shapes like circle, square, or rectangle to best fit your brand's style.
+        </p>
+        <p>
+            <strong>Color Customization</strong><br>
+            Select custom colors for your QR code's border to make it stand out. Use our color picker to find the perfect shade that matches your brand's identity.
+        </p>
+        <p>
+            <strong>Easy Download</strong><br>
+            Once your QR code is generated, you can easily download it in high-quality JPEG format, ready to be used wherever you need it.
+        </p>
+        <p>
+            <strong>User-Friendly Interface</strong><br>
+            Our intuitive interface makes the process of creating QR codes straightforward and quick. No technical expertise required.
+        </p>
+        <p>
+            <strong>Secure and Private</strong><br>
+            Your data is safe with us. We do not store any information entered into the QR code generator, ensuring your privacy.
+        </p>
+        <p>
+            <strong>Versatile Usage</strong><br>
+            Our QR codes are versatile and can be used for a variety of purposes, including marketing campaigns, business cards, product labels, and more.
+        </p>
+        <p>
+            <strong>Responsive Design</strong><br>
+            Access our QR code generator on any device, whether you're on a desktop, tablet, or smartphone. The design is fully responsive and mobile-friendly.
+        </p>
+        <p>
+            <strong>Continuous Improvements</strong><br>
+            We are constantly updating and improving our QR code generator based on user feedback to provide you with the best possible experience.
+        </p>
     </div>
+    
 
     <div id="contact" class="container hidden">
-        <h2>Contact Us</h2>
-        <p>Have any questions? Get in touch...</p>
+        <h2>Contact</h2>
+        <p>Contact details go here...</p>
     </div>
 
     <footer>
-        <p>&copy; 2024 My AR Akron QR Generator. All rights reserved.</p>
+        <p>&copy; 2024 My AR Akron QR Generator. All rights reserved. <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode"></script>
+    <!-- Modal for color picker -->
+    <div id="colorPickerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('colorPickerModal').style.display='none'">&times;</span>
+            <h2>Select a Color</h2>
+            <input type="color" id="colorPicker" name="colorPicker" value="#000000" oninput="updateColorDisplay(this.value)">
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script>
+        let selectedColor = "#000000"; // Default border color
+
         function showSection(sectionId) {
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('features').classList.add('hidden');
-            document.getElementById('contact').classList.add('hidden');
-            document.getElementById(sectionId).classList.remove('hidden');
+            const sections = document.querySelectorAll(".container");
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.classList.remove("hidden");
+                } else {
+                    section.classList.add("hidden");
+                }
+            });
         }
 
-        function generateQRCode() {
-            const name = document.getElementById('name').value;
-            const url = document.getElementById('url').value;
-            const customText = document.getElementById('customText').value;
-            const logo = document.getElementById('logo').files[0];
-            const logoShape = document.getElementById('logoShape').value;
-            const bgColor = document.getElementById('bgColor').value;
-            const fgColor = document.getElementById('fgColor').value;
-            const fontFamily = document.getElementById('fontFamily').value;
-            const fontColor = document.getElementById('fontColor').value;
-            const fontSize = document.getElementById('fontSize').value;
+        function updateColorDisplay(color) {
+            selectedColor = color;
+            document.getElementById('colorDisplay').style.backgroundColor = color;
+        }
 
-            const qrCodeContainer = document.getElementById('qrCode');
-            qrCodeContainer.innerHTML = '';
+        function generateQR() {
+            const name = document.getElementById("name").value;
+            const url = document.getElementById("url").value;
+            const customText = document.getElementById("customText").value;
+            const logoInput = document.getElementById("logo");
+            const qrCanvas = document.getElementById("qrCode");
+            const context = qrCanvas.getContext("2d");
+            const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
 
-            const qrOptions = {
-                text: url,
-                width: 256,
-                height: 256,
-                colorDark: fgColor,
-                colorLight: bgColor,
-                correctLevel: QRCode.CorrectLevel.H
-            };
+            const qrValue = `${url}`;
+            const qr = new QRious({
+                element: qrCanvas,
+                value: qrValue,
+                size: 300,
+                foreground: selectedColor // Set border color
+            });
 
-            if (logo) {
+            qrCanvas.style.display = "block";
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.style.display = "inline-block";
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+            downloadLink.download = "qr-code.jpg"; // Set the filename for download
+
+            if (logoInput.files && logoInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const logoDataUrl = event.target.result;
-                    qrOptions.logo = logoDataUrl;
-                    qrOptions.logoWidth = 50;
-                    qrOptions.logoHeight = 50;
-                    qrOptions.logoBackgroundTransparent = true;
-                    qrOptions.logoBackgroundColor = bgColor;
-                    qrOptions.logoShape = logoShape;
+                    const logo = new Image();
+                    logo.onload = function() {
+                        const logoSize = qrCanvas.width / 6; // Adjust logo size as needed
+                        const x = (qrCanvas.width - logoSize) / 2;
+                        const y = (qrCanvas.height - logoSize) / 2;
 
-                    generateAndDownload(qrOptions);
+                        // Draw QR code first
+                        context.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height);
+
+                        if (logoShape === 'circle') {
+                            // Create a circular clip
+                            context.save();
+                            context.beginPath();
+                            context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                            context.closePath();
+                            context.clip();
+                        } else if (logoShape === 'rectangle') {
+                            // Adjust size for rectangle if necessary
+                        }
+
+                        // Draw the logo inside the clipped area
+                        context.drawImage(logo, x, y, logoSize, logoSize);
+
+                        if (logoShape === 'circle') {
+                            // Restore context to remove clipping
+                            context.restore();
+                        }
+
+                        // Draw custom text below the QR code
+                        context.font = "16px Arial";
+                        context.textAlign = "center";
+                        context.fillStyle = "white";
+                        context.lineWidth = 4;
+                        context.strokeStyle = "black";
+                        context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                        context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+
+                        // Update download link with new QR code with logo and text
+                        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+                    };
+                    logo.src = event.target.result;
                 };
-                reader.readAsDataURL(logo);
+                reader.readAsDataURL(logoInput.files[0]);
             } else {
-                generateAndDownload(qrOptions);
+                // If no logo is uploaded, generate the QR code without a logo
+
+                // Draw custom text below the QR code
+                context.font = "16px Arial";
+                context.textAlign = "center";
+                context.fillStyle = "white";
+                context.lineWidth = 4;
+                context.strokeStyle = "black";
+                context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+
+                // Update download link with new QR code with text
+                downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
             }
         }
 
-        function generateAndDownload(qrOptions) {
-            const qrCodeContainer = document.getElementById('qrCode');
-            new QRCode(qrCodeContainer, qrOptions);
-
-            const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.classList.remove('hidden');
-            downloadBtn.onclick = function() {
-                const canvas = qrCodeContainer.querySelector('canvas');
-                const dataUrl = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = 'qr_code.png';
-                link.click();
-            };
+        // Close the modal when the user clicks anywhere outside of the modal content
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('colorPickerModal')) {
+                document.getElementById('colorPickerModal').style.display = "none";
+            }
         }
     </script>
 </body>
