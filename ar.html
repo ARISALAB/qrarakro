@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Card Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .ticket {
+            width: 100%; /* Ευρεία εμφάνιση */
+            max-width: 600px; /* Μέγιστο πλάτος */
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 10px; /* Απόσταση μεταξύ της κάρτας και του περιεχομένου */
+        }
+        h2, h3 {
+            font-family: 'Open Sans', sans-serif;
+            margin: 20px 0; /* Απόσταση πάνω και κάτω από τον τίτλο */
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="file"], input[type="number"], select {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .color-inputs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .color-inputs input, .color-inputs select {
+            width: 48%;
+        }
+        .container {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .container:nth-child(odd) {
+            background-color: #e6f7ff;
+        }
+        .container:nth-child(even) {
+            background-color: #ffecb3;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="container">
+            <h2>Generate Business Card</h2>
+        </div>
+
+        <div class="container">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name">
+        
+            <label for="company">Company:</label>
+            <input type="text" id="company" name="company">
+
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email">
+
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone">
+
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address">
+        </div>
+
+        <div class="container">
+            <label for="url">URL:</label>
+            <input type="text" id="url" name="url">
+        
+            <label for="logo">Upload logo:</label>
+            <input type="file" id="logo" name="logo" accept="image/*">
+        </div>
+
+        <div class="container">
+            <h3>Select QR Border Color:</h3>
+            <div class="color-inputs">
+                <select id="color-picker">
+                    <option value="black">Black</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="purple">Purple</option>
+                    <option value="none">None</option>
+                </select>
+                <input type="text" id="custom-color" placeholder="Enter color code">
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Select Background Color:</h3>
+            <div class="color-inputs">
+                <select id="bg-color-picker">
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="purple">Purple</option>
+                </select>
+                <input type="text" id="custom-bg-color" placeholder="Enter color code">
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Select Font Color:</h3>
+            <div class="color-inputs">
+                <select id="font-color-picker">
+                    <option value="black">Black</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="purple">Purple</option>
+                    <option value="white">White</option>
+                </select>
+                <input type="text" id="custom-font-color" placeholder="Enter color code">
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>Select Font Size:</h3>
+            <input type="number" id="fontSize" name="fontSize" value="16" min="10" max="50">
+        
+            <div class="container">
+                <h3>Select Font Family:</h3>
+                <select id="font-family-picker">
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="'Lato', sans-serif">Lato</option>
+                </select>
+            </div>
+        
+            <div class="container">
+                <button onclick="generateQR()">Generate</button>
+                <canvas id="qrCode" style="display:none;"></canvas>
+                <a id="downloadLink" href="#" download="business_card.jpg" style="display:none;">
+                    <i class="fas fa-download"></i> Download Business Card (JPG)
+                </a>
+                <span id="scanCounter">Scans: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        let scanCount = localStorage.getItem('scanCount') || 0;
+        document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
+
+        let selectedColor = 'black'; // Default QR color
+        let bgColor = 'white'; // Default background color
+        let fontColor = 'black'; // Default font color
+
+        document.getElementById('color-picker').addEventListener('change', function() {
+            selectedColor = this.value;
+        });
+
+        document.getElementById('custom-color').addEventListener('input', function() {
+            selectedColor = this.value;
+        });
+
+        document.getElementById('bg-color-picker').addEventListener('change', function() {
+            bgColor = this.value;
+        });
+
+        document.getElementById('custom-bg-color').addEventListener('input', function() {
+            bgColor = this.value;
+        });
+
+        document.getElementById('font-color-picker').addEventListener('change', function() {
+            fontColor = this.value;
+        });
+
+        document.getElementById('custom-font-color').addEventListener('input', function() {
+            fontColor = this.value;
+        });
+
+        document.getElementById('font-family-picker').addEventListener('change', function() {
+            const fontFamily = this.value;
+            document.querySelector('.business-card').style.fontFamily = fontFamily;
+        });
+
+        function generateQR() {
+            const name = document.getElementById("name").value;
+            const company = document.getElementById("company").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+            const address = document.getElementById("address").value;
+            const url = document.getElementById("url").value;
+            const logoInput = document.getElementById("logo");
+            const fontSize = document.getElementById("fontSize").value;
+
+            // Increment scan count and update display
+            scanCount++;
+            document.getElementById('scanCounter').innerText = `Scans: ${scanCount}`;
+            // Store updated scan count in localStorage
+            localStorage.setItem('scanCount', scanCount);
+
+            // Create the QR code value
+            const qrValue = `BEGIN:VCARD\nVERSION:3.0\nN:${name}\nORG:${company}\nEMAIL:${email}\nTEL:${phone}\nADR:${address}\nURL:${url}\nEND:VCARD`;
+
+            // Generate QR code
+            const qrCanvas = document.getElementById("qrCode");
+            const qr = new QRious({
+                element: qrCanvas,
+                value: qrValue,
+                size: 200,
+                foreground: selectedColor
+            });
+
+            // Draw QR code with logo
+            const qrCtx = qrCanvas.getContext('2d');
+            const logoFile = logoInput.files[0];
+
+            if (logoFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const logoImg = new Image();
+                    logoImg.onload = function() {
+                        const qrSize = qrCanvas.width;
+                        const logoSize = qrSize / 5; // Adjust the size of the logo relative to QR code
+                        const logoX = (qrSize - logoSize) / 2;
+                        const logoY = (qrSize - logoSize) / 2;
+
+                        qrCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+
+                        // Convert QR code to Data URL
+                        const qrDataUrl = qrCanvas.toDataURL("image/png");
+
+                        // Create a new canvas for the business card
+                        const cardCanvas = document.createElement('canvas');
+                        cardCanvas.width = 600; // Adjust size as needed
+                        cardCanvas.height = 300; // Adjust size as needed
+                        const cardCtx = cardCanvas.getContext('2d');
+
+                        // Draw card background
+                        cardCtx.fillStyle = bgColor;
+                        cardCtx.fillRect(0, 0, cardCanvas.width, cardCanvas.height);
+
+                        // Draw card content
+                        cardCtx.font = `${fontSize}px 'Open Sans', sans-serif`;
+                        cardCtx.fillStyle = fontColor;
+                        cardCtx.fillText(`Name: ${name}`, 20, 40);
+                        cardCtx.fillText(`Company: ${company}`, 20, 80);
+                        cardCtx.fillText(`Email: ${email}`, 20, 120);
+                        cardCtx.fillText(`Phone: ${phone}`, 20, 160);
+                        cardCtx.fillText(`Address: ${address}`, 20, 200);
+
+                        // Draw QR code on the card
+                        const qrImg = new Image();
+                        qrImg.onload = function() {
+                            const qrX = cardCanvas.width - qrImg.width - 20;
+                            const qrY = cardCanvas.height - qrImg.height - 20;
+                            cardCtx.drawImage(qrImg, qrX, qrY);
+
+                            // Create download link
+                            const downloadLink = document.getElementById('downloadLink');
+                            downloadLink.href = cardCanvas.toDataURL('image/jpeg');
+                            downloadLink.style.display = 'inline'; // Show download link
+
+                            // Open new tab for the business card
+                            const newTab = window.open();
+                            newTab.document.open();
+                            newTab.document.write(`
+                                <html>
+                                <head>
+                                    <title>Business Card</title>
+                                    <style>
+                                        body {
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            height: 100vh;
+                                            margin: 0;
+                                        }
+                                        .card-container {
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                            background-color: ${bgColor};
+                                            color: ${fontColor};
+                                            padding: 20px;
+                                            border: 2px solid black; /* Μαύρη γραμμή γύρω από την κάρτα */
+                                            box-sizing: border-box;
+                                        }
+                                        .business-card {
+                                            font-size: ${fontSize}px;
+                                            padding-right: 20px;
+                                        }
+                                        .qr-code {
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                        }
+                                        .qr-code img {
+                                            width: 200px;
+                                            height: 200px;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="card-container">
+                                        <div class="business-card">
+                                            <p><strong>Name:</strong> ${name}</p>
+                                            <p><strong>Company:</strong> ${company}</p>
+                                            <p><strong>Email:</strong> ${email}</p>
+                                            <p><strong>Phone:</strong> ${phone}</p>
+                                            <p><strong>Address:</strong> ${address}</p>
+                                        </div>
+                                        <div class="qr-code">
+                                            <img src="${qrDataUrl}" alt="QR Code">
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            `);
+                            newTab.document.close(); // Close the document to ensure rendering
+                        };
+                        qrImg.src = qrDataUrl;
+                    };
+                    logoImg.src = event.target.result;
+                };
+                reader.readAsDataURL(logoFile);
+            } else {
+                // If no logo is selected, just convert QR code to Data URL
+                const qrDataUrl = qrCanvas.toDataURL("image/png");
+
+                // Create a new canvas for the business card
+                const cardCanvas = document.createElement('canvas');
+                cardCanvas.width = 600; // Adjust size as needed
+                cardCanvas.height = 300; // Adjust size as needed
+                const cardCtx = cardCanvas.getContext('2d');
+
+                // Draw card background
+                cardCtx.fillStyle = bgColor;
+                cardCtx.fillRect(0, 0, cardCanvas.width, cardCanvas.height);
+
+                // Draw card content
+                cardCtx.font = `${fontSize}px 'Open Sans', sans-serif`;
+                cardCtx.fillStyle = fontColor;
+                cardCtx.fillText(`Name: ${name}`, 20, 40);
+                cardCtx.fillText(`Company: ${company}`, 20, 80);
+                cardCtx.fillText(`Email: ${email}`, 20, 120);
+                cardCtx.fillText(`Phone: ${phone}`, 20, 160);
+                cardCtx.fillText(`Address: ${address}`, 20, 200);
+
+                // Draw QR code on the card
+                const qrImg = new Image();
+                qrImg.onload = function() {
+                    const qrX = cardCanvas.width - qrImg.width - 20;
+                    const qrY = cardCanvas.height - qrImg.height - 20;
+                    cardCtx.drawImage(qrImg, qrX, qrY);
+
+                    // Create download link
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = cardCanvas.toDataURL('image/jpeg');
+                    downloadLink.style.display = 'inline'; // Show download link
+
+                    // Open new tab for the business card
+                    const newTab = window.open();
+                    newTab.document.open();
+                    newTab.document.write(`
+                        <html>
+                        <head>
+                            <title>Business Card</title>
+                            <style>
+                                body {
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                    margin: 0;
+                                }
+                                .card-container {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    background-color: ${bgColor};
+                                    color: ${fontColor};
+                                    padding: 20px;
+                                    border: 2px solid black; /* Μαύρη γραμμή γύρω από την κάρτα */
+                                    box-sizing: border-box;
+                                }
+                                .business-card {
+                                    font-size: ${fontSize}px;
+                                    padding-right: 20px;
+                                }
+                                .qr-code {
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                }
+                                .qr-code img {
+                                    width: 200px;
+                                    height: 200px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="card-container">
+                                <div class="business-card">
+                                    <p><strong>Name:</strong> ${name}</p>
+                                    <p><strong>Company:</strong> ${company}</p>
+                                    <p><strong>Email:</strong> ${email}</p>
+                                    <p><strong>Phone:</strong> ${phone}</p>
+                                    <p><strong>Address:</strong> ${address}</p>
+                                </div>
+                                <div class="qr-code">
+                                    <img src="${qrDataUrl}" alt="QR Code">
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    newTab.document.close(); // Close the document to ensure rendering
+                };
+                qrImg.src = qrDataUrl;
+            }
+        }
+    </script>
+</body>
+</html>
