@@ -382,99 +382,69 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
- <script>
-    let selectedColor = "#000000"; // Default border color
-    let qrReady = false;
 
-    function showSection(sectionId) {
-        const sections = document.querySelectorAll(".container");
-        sections.forEach(section => {
-            if (section.id === sectionId) {
-                section.classList.remove("hidden");
-            } else {
-                section.classList.add("hidden");
+   <script>
+        let qrReady = false;
+        let selectedColor = "#000000";
+
+        function prepareQR() {
+            const url = document.getElementById("url").value;
+            if (!url) {
+                alert("Please provide a valid URL.");
+                return;
             }
-        });
-    }
 
-    function updateColorDisplay(color) {
-        selectedColor = color;
-        document.getElementById('colorDisplay').style.backgroundColor = color;
-    }
-
-    function prepareQR() {
-        const name = document.getElementById("name").value;
-        const url = document.getElementById("url").value;
-        const customText = document.getElementById("customText").value;
-        const logoInput = document.getElementById("logo");
-        const qrCanvas = document.getElementById("qrCode");
-        const context = qrCanvas.getContext("2d");
-        const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
-
-        if (!url) {
-            alert("Please provide a valid URL.");
-            return;
-        }
-
-        const qrValue = `${url}`;
-        const qr = new QRious({
-            element: qrCanvas,
-            value: qrValue,
-            size: 300,
-            foreground: selectedColor // Set border color
-        });
-
-        qrReady = true;
-        alert("QR Code prepared. Complete payment to see it!");
-    }
-
-    function displayQR() {
-        if (!qrReady) {
-            alert("QR Code is not prepared yet.");
-            return;
-        }
-
-        const qrCanvas = document.getElementById("qrCode");
-        const downloadLink = document.getElementById("downloadLink");
-
-        qrCanvas.style.display = "block";
-        downloadLink.style.display = "inline-block";
-        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-        downloadLink.download = "qr-code.jpg";
-
-        alert("Your QR Code is now visible!");
-    }
-
-    // Initialize PayPal Button
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '5.00' // Amount for payment
-                    }
-                }]
+            const qrCanvas = document.getElementById("qrCode");
+            const qr = new QRious({
+                element: qrCanvas,
+                value: url,
+                size: 300,
+                foreground: selectedColor
             });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                alert('Payment completed by ' + details.payer.name.given_name);
-                displayQR(); // Display the QR Code after successful payment
-            });
-        },
-        onError: function(err) {
-            console.error("PayPal error:", err);
-            alert("An error occurred during payment. Please try again.");
-        }
-    }).render('#paypal-button-container');
 
-    // Close the modal when the user clicks anywhere outside of the modal content
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('colorPickerModal')) {
-            document.getElementById('colorPickerModal').style.display = "none";
+            qrReady = true;
+            alert("QR Code prepared. Complete payment to see it!");
         }
-    }
-</script>
+
+        function displayQR() {
+            if (!qrReady) {
+                alert("QR Code is not prepared yet.");
+                return;
+            }
+
+            const qrCanvas = document.getElementById("qrCode");
+            const downloadLink = document.getElementById("downloadLink");
+
+            qrCanvas.style.display = "block";
+            downloadLink.style.display = "inline-block";
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+            downloadLink.download = "qr-code.jpg";
+
+            alert("Your QR Code is now visible!");
+        }
+
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '5.00' // Τιμή πληρωμής
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Payment completed by ' + details.payer.name.given_name);
+                    displayQR();
+                });
+            },
+            onError: function(err) {
+                console.error("PayPal error:", err);
+                alert("An error occurred during payment. Please try again.");
+            }
+        }).render('#paypal-button-container');
+    </script>
 
 </body>
 </html>
