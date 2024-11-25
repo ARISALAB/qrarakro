@@ -3,367 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My AR Akron QR Generator</title>
+    <title>Enhanced QR Generator</title>
     <script src="https://www.paypal.com/sdk/js?client-id=AbP8aGEBpUSbe7x2frrXYzb502UdR7uL3CjpNb-Sp6lk7hy0j9sYRAJORgfzT01owV39NlnKlycB1mcj"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
        body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom, #00008b, #ffd700);
-    margin: 0;
-    padding: 0;
-    color: #ffffff;
-}
-
-        header {
-            background-color: #000000;
-            color: #ffffff;
-            padding: 10px 0;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        nav {
-            margin-top: 10px;
-        }
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 18px;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        .container {
-    width: 90%;
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background: black;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    position: relative;
-}
-
-        h2 {
-            color: #ffffff;
-        }
-        .section {
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: left;
-    position: relative;
-    background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
-}
-
-.section label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.section input[type="text"], .section input[type="file"], .section input[type="color"], .section textarea {
-    width: calc(100% - 40px);
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    position: relative;
-}
-
-.section .icon-left {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #ffd700;
-    left: 10px;
-}
-
-.section .icon-right {
-    display: none;
-}
-
-
-
-.section.logo-section {
-    background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px;
-}
-
-        .section.logo-section i {
-            font-size: 24px;
-            color: #ffd700;
-            margin-right: 10px;
-        }
-        .section.logo-section label {
-            margin-left: 10px;
-            line-height: 1.5;
-            margin-right: 10px;
-            text-align: center;
-        }
-        .section.logo-section input[type="file"] {
-            display: inline-block;
-            width: auto;
-        }
-        .section.logo-shape-section {
-            background-color: #f3e5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .section.color-section {
-            background-color: #e1f5fe;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .section.contact-section {
-            background-color: #e1f5fe;
-        }
-        .button-generate {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 15px 30px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 20px 5px;
-        }
-        .button-generate:hover {
-            background-color: #372188;
-        }
-        .button-color-picker {
-            background-color: #dede19;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-        }
-        .button-color-picker:hover {
-            background-color: #0056b3;
-        }
-        #qrCode {
-            margin: 20px auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .color-display {
-            width: 15px;
-            height: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #000;
-            display: inline-block;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .download-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .download-button:hover {
-            background-color: #0056b3;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 60px;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        footer {
-            background-color: #000000;
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            margin-top: 20px;
-        }
-        footer a {
-            color: #fff;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .hidden {
-            display: none;
-        }
-        .text-center {
-            text-align: center;
-        }
+           font-family: Arial, sans-serif;
+           background: #f4f4f9;
+           margin: 0;
+           padding: 0;
+       }
+       header {
+           background: #333;
+           color: #fff;
+           text-align: center;
+           padding: 10px 0;
+       }
+       .container {
+           max-width: 800px;
+           margin: 20px auto;
+           padding: 20px;
+           background: #fff;
+           border-radius: 10px;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+       }
+       .section {
+           margin-bottom: 20px;
+       }
+       label {
+           display: block;
+           margin-bottom: 5px;
+           font-weight: bold;
+       }
+       input[type="text"], input[type="color"], select {
+           width: 100%;
+           padding: 8px;
+           margin-bottom: 10px;
+           border: 1px solid #ccc;
+           border-radius: 4px;
+       }
+       #previewCanvas {
+           border: 1px solid #ccc;
+           border-radius: 4px;
+           display: block;
+           margin: 0 auto 10px auto;
+           background: #f9f9f9;
+       }
+       canvas {
+           display: block;
+           margin: 20px auto;
+       }
+       .download-button, .paypal-button {
+           display: block;
+           width: 100%;
+           padding: 10px;
+           text-align: center;
+           text-decoration: none;
+           color: #fff;
+           background: #28a745;
+           border: none;
+           border-radius: 4px;
+           margin-top: 10px;
+           cursor: pointer;
+       }
+       .download-button:hover {
+           background: #218838;
+       }
     </style>
 </head>
 <body>
     <header>
-        <h1>My AR Akron QR Generator</h1>
+        <h1>Enhanced QR Generator</h1>
     </header>
 
-    <div id="home" class="container">
-        <h2>Create Your QR Code</h2>
-        
-        <div class="section">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" class="small-input">
-        </div>
-
+    <div class="container">
         <div class="section">
             <label for="url">URL:</label>
-            <input type="text" id="url" name="url" class="small-input">
+            <input type="text" id="url" placeholder="Enter the URL for the QR Code">
         </div>
 
         <div class="section">
-            <label for="customText">Custom Text:</label>
-            <input type="text" id="customText" name="customText" class="small-input">
+            <label for="customText">Custom Text (Below QR Code):</label>
+            <input type="text" id="customText" placeholder="Enter custom text">
+        </div>
+
+        <div class="section">
+            <label for="qrColor">QR Code Color:</label>
+            <input type="color" id="qrColor" value="#000000">
         </div>
 
         <div class="section">
             <label for="logo">Upload Logo:</label>
             <input type="file" id="logo" accept="image/*">
+            <label for="logoShape">Logo Shape:</label>
+            <select id="logoShape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+            </select>
         </div>
 
-        <div id="paypal-button-container" style="margin-top: 20px;"></div>
-        <canvas id="qrCode" width="300" height="300" style="display:none; margin-top: 20px;"></canvas>
-        <a id="downloadLink" href="#" class="download-button" style="display:none;">Download QR Code</a>
+        <div class="section">
+            <h4>Preview</h4>
+            <canvas id="previewCanvas" width="150" height="150"></canvas>
+        </div>
+
+        <div id="paypal-button-container"></div>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
+        <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
     </div>
 
     <script>
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewContext = previewCanvas.getContext('2d');
+
+        // Update preview dynamically
+        function updatePreview() {
+            const url = document.getElementById("url").value;
+            const qrColor = document.getElementById("qrColor").value;
+            const customText = document.getElementById("customText").value;
+
+            // Clear the canvas
+            previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+            // Generate a simple QR code
+            const qr = new QRious({
+                value: url || "Preview",
+                size: previewCanvas.width,
+                foreground: qrColor
+            });
+
+            const qrImage = new Image();
+            qrImage.src = qr.toDataURL();
+            qrImage.onload = function () {
+                previewContext.drawImage(qrImage, 0, 0, previewCanvas.width, previewCanvas.height);
+
+                // Draw custom text below
+                previewContext.font = "12px Arial";
+                previewContext.fillStyle = qrColor;
+                previewContext.textAlign = "center";
+                previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, previewCanvas.height - 10);
+            };
+        }
+
+        // Generate final QR Code with options
         function generateQR() {
             const url = document.getElementById("url").value;
+            const qrColor = document.getElementById("qrColor").value;
             const customText = document.getElementById("customText").value;
             const logoInput = document.getElementById("logo");
+            const logoShape = document.getElementById("logoShape").value;
+            const qrCanvas = document.getElementById("qrCode");
+            const context = qrCanvas.getContext("2d");
 
             if (!url) {
                 alert("Please provide a valid URL.");
-                return null;
+                return;
             }
 
-            const qrCanvas = document.getElementById("qrCode");
             const qr = new QRious({
                 element: qrCanvas,
                 value: url,
                 size: 300,
-                foreground: "#000000"
+                foreground: qrColor
             });
 
-            // Draw the custom text below the QR code
-            const context = qrCanvas.getContext("2d");
-            context.font = "16px Arial";
-            context.textAlign = "center";
-            context.fillStyle = "black";
-            context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+            const qrImage = new Image();
+            qrImage.src = qrCanvas.toDataURL();
+            qrImage.onload = function () {
+                context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+                context.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
 
-            // If a logo is uploaded, draw it on the QR code
-            if (logoInput.files && logoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const logo = new Image();
-                    logo.onload = function() {
-                        const logoSize = qrCanvas.width / 6; // Size of the logo (adjust as needed)
-                        const x = (qrCanvas.width - logoSize) / 2;
-                        const y = (qrCanvas.height - logoSize) / 2;
+                // Draw logo if uploaded
+                if (logoInput.files && logoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const logo = new Image();
+                        logo.onload = function () {
+                            const logoSize = qrCanvas.width / 6;
+                            const x = (qrCanvas.width - logoSize) / 2;
+                            const y = (qrCanvas.height - logoSize) / 2;
 
-                        // Draw the logo in the center of the QR code
-                        context.drawImage(logo, x, y, logoSize, logoSize);
+                            if (logoShape === "circle") {
+                                context.save();
+                                context.beginPath();
+                                context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                                context.closePath();
+                                context.clip();
+                            }
 
-                        // Update download link after adding the logo
-                        const downloadLink = document.getElementById("downloadLink");
-                        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-                        downloadLink.download = "qr-code.jpg";
+                            context.drawImage(logo, x, y, logoSize, logoSize);
+
+                            if (logoShape === "circle") {
+                                context.restore();
+                            }
+
+                            finalizeQR();
+                        };
+                        logo.src = event.target.result;
                     };
-                    logo.src = event.target.result;
-                };
-                reader.readAsDataURL(logoInput.files[0]);
-            } else {
-                // If no logo, update the download link directly
+                    reader.readAsDataURL(logoInput.files[0]);
+                } else {
+                    finalizeQR();
+                }
+            };
+
+            function finalizeQR() {
+                // Draw custom text below QR Code
+                context.font = "16px Arial";
+                context.textAlign = "center";
+                context.fillStyle = "black";
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+
                 const downloadLink = document.getElementById("downloadLink");
+                downloadLink.style.display = "block";
                 downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                 downloadLink.download = "qr-code.jpg";
+                qrCanvas.style.display = "block";
             }
-
-            // Show the QR code and download link
-            qrCanvas.style.display = "block";
-            document.getElementById("downloadLink").style.display = "inline-block";
         }
 
-        // PayPal Button Integration
+        // PayPal Integration
         paypal.Buttons({
-            createOrder: function(data, actions) {
+            createOrder: function (data, actions) {
                 return actions.order.create({
                     purchase_units: [{
-                        amount: {
-                            value: '5.00' // Amount for payment
-                        }
+                        amount: { value: '5.00' }
                     }]
                 });
             },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    alert('Payment completed by ' + details.payer.name.given_name);
-                    generateQR(); // Generate and display the QR Code after successful payment
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    alert("Payment completed!");
+                    generateQR();
                 });
-            },
-            onError: function(err) {
-                console.error("PayPal error:", err);
-                alert("An error occurred during payment. Please try again.");
             }
-        }).render('#paypal-button-container');
+        }).render("#paypal-button-container");
+
+        // Update preview dynamically on input changes
+        document.querySelectorAll("#url, #qrColor, #customText").forEach(input => {
+            input.addEventListener("input", updatePreview);
+        });
+
+        updatePreview();
     </script>
 </body>
 </html>
