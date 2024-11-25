@@ -112,180 +112,289 @@
         <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
     </div>
 
-<script>
-    const previewCanvas = document.getElementById('previewCanvas');
-    const previewContext = previewCanvas.getContext('2d');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic QR Code Generator</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=AbP8aGEBpUSbe7x2frrXYzb502UdR7uL3CjpNb-Sp6lk7hy0j9sYRAJORgfzT01owV39NlnKlycB1mcj"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="color"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #previewCanvas {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto 10px auto;
+            background: #f9f9f9;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+        }
+        .download-button, .paypal-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background: #28a745;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .download-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dynamic QR Code Generator</h1>
+    </header>
 
-    // Σχεδιάζει το κείμενο με σκιά
-    function drawTextWithShadow(context, text, x, y, fontSize, textColor, shadowColor, shadowOffset) {
-        context.font = `${fontSize}px Arial`;
-        context.textAlign = "center";
+    <div class="container">
+        <div class="section">
+            <label for="url">URL:</label>
+            <input type="text" id="url" placeholder="Enter the URL for the QR Code">
+        </div>
 
-        // Σχεδίαση σκιάς
-        context.fillStyle = shadowColor;
-        for (let i = 1; i <= shadowOffset; i++) {
-            context.fillText(text, x + i, y + i);
+        <div class="section">
+            <label for="customText">Custom Text (Below QR Code):</label>
+            <input type="text" id="customText" placeholder="Enter custom text">
+        </div>
+
+        <div class="section">
+            <label for="qrColor">QR Code Color:</label>
+            <input type="color" id="qrColor" value="#000000">
+        </div>
+
+        <div class="section">
+            <label for="logo">Upload Logo:</label>
+            <input type="file" id="logo" accept="image/*">
+            <label for="logoShape">Logo Shape:</label>
+            <select id="logoShape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <h4>Preview</h4>
+            <canvas id="previewCanvas" width="150" height="200"></canvas>
+        </div>
+
+        <div id="paypal-button-container"></div>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
+        <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
+    </div>
+
+    <script>
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewContext = previewCanvas.getContext('2d');
+
+        // Update preview dynamically
+        function updatePreview() {
+            const url = document.getElementById("url").value;
+            const qrColor = document.getElementById("qrColor").value;
+            const customText = document.getElementById("customText").value;
+            const logoShape = document.getElementById("logoShape").value;
+            const logoInput = document.getElementById("logo");
+
+            // Clear the canvas
+            previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+            // Generate a simple QR code
+            const qr = new QRious({
+                value: url || "Preview",
+                size: 150,
+                foreground: qrColor
+            });
+
+            const qrImage = new Image();
+            qrImage.src = qr.toDataURL();
+            qrImage.onload = function () {
+                previewContext.drawImage(qrImage, 0, 0, 150, 150);
+
+                // Draw the logo
+                if (logoInput.files && logoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const logo = new Image();
+                        logo.onload = function () {
+                            const logoSize = 40; // Size of logo in preview
+                            const x = (previewCanvas.width - logoSize) / 2;
+                            const y = (150 - logoSize) / 2; // Centered in QR code
+
+                            if (logoShape === "circle") {
+                                previewContext.save();
+                                previewContext.beginPath();
+                                previewContext.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                                previewContext.closePath();
+                                previewContext.clip();
+                            }
+
+                            previewContext.drawImage(logo, x, y, logoSize, logoSize);
+
+                            if (logoShape === "circle") {
+                                previewContext.restore();
+                            }
+                        };
+                        logo.src = event.target.result;
+                    };
+                    reader.readAsDataURL(logoInput.files[0]);
+                }
+
+                // Draw custom text below the QR code
+                previewContext.font = "12px Arial";
+                previewContext.fillStyle = qrColor;
+                previewContext.textAlign = "center";
+                previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, 170);
+            };
         }
 
-        // Σχεδίαση κύριου κειμένου
-        context.fillStyle = textColor;
-        context.fillText(text, x, y);
-    }
+        // Generate final QR Code
+        function generateQR() {
+            const url = document.getElementById("url").value;
+            const qrColor = document.getElementById("qrColor").value;
+            const customText = document.getElementById("customText").value;
+            const logoInput = document.getElementById("logo");
+            const logoShape = document.getElementById("logoShape").value;
+            const qrCanvas = document.getElementById("qrCode");
+            const context = qrCanvas.getContext("2d");
 
-    // Ενημέρωση του preview δυναμικά
-    function updatePreview() {
-        const url = document.getElementById("url").value || "Preview";
-        const qrColor = document.getElementById("qrColor").value || "#000000";
-        const customText = document.getElementById("customText").value || "Custom Text";
-        const logoShape = document.getElementById("logoShape").value;
-        const logoInput = document.getElementById("logo");
-
-        // Εκκαθάριση του canvas
-        previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-        // Δημιουργία QR code
-        const qr = new QRious({
-            value: url,
-            size: 150,
-            foreground: qrColor
-        });
-
-        const qrImage = new Image();
-        qrImage.src = qr.toDataURL();
-        qrImage.onload = function () {
-            previewContext.drawImage(qrImage, 75, 25, 150, 150); // Κέντρο του καμβά
-
-            // Προσθήκη λογοτύπου
-            if (logoInput.files && logoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const logo = new Image();
-                    logo.onload = function () {
-                        const logoSize = 40;
-                        const x = (previewCanvas.width - logoSize) / 2;
-                        const y = (150 - logoSize) / 2 + 25;
-
-                        if (logoShape === "circle") {
-                            previewContext.save();
-                            previewContext.beginPath();
-                            previewContext.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-                            previewContext.clip();
-                        }
-
-                        previewContext.drawImage(logo, x, y, logoSize, logoSize);
-
-                        if (logoShape === "circle") {
-                            previewContext.restore();
-                        }
-                    };
-                    logo.src = event.target.result;
-                };
-                reader.readAsDataURL(logoInput.files[0]);
+            if (!url) {
+                alert("Please provide a valid URL.");
+                return;
             }
 
-            // Προσθήκη προσαρμοσμένου κειμένου με σκιά
-            drawTextWithShadow(previewContext, customText, previewCanvas.width / 2, 200, 16, qrColor, "gray", 2);
-        };
-    }
+            const qr = new QRious({
+                element: qrCanvas,
+                value: url,
+                size: 300,
+                foreground: qrColor
+            });
 
-    // Δημιουργία τελικού QR Code
-    function generateQR() {
-        const url = document.getElementById("url").value || "Generated QR";
-        const qrColor = document.getElementById("qrColor").value || "#000000";
-        const customText = document.getElementById("customText").value || "Generated Text";
-        const logoInput = document.getElementById("logo");
-        const logoShape = document.getElementById("logoShape").value;
-        const qrCanvas = document.getElementById("qrCode");
-        const context = qrCanvas.getContext("2d");
+            const qrImage = new Image();
+            qrImage.src = qrCanvas.toDataURL();
+            qrImage.onload = function () {
+                context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+                context.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
 
-        if (!url) {
-            alert("Please provide a valid URL.");
-            return;
+                // Draw logo if uploaded
+                if (logoInput.files && logoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const logo = new Image();
+                        logo.onload = function () {
+                            const logoSize = qrCanvas.width / 6;
+                            const x = (qrCanvas.width - logoSize) / 2;
+                            const y = (qrCanvas.height - logoSize) / 2;
+
+                            if (logoShape === "circle") {
+                                context.save();
+                                context.beginPath();
+                                context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                                context.closePath();
+                                context.clip();
+                            }
+
+                            context.drawImage(logo, x, y, logoSize, logoSize);
+
+                            if (logoShape === "circle") {
+                                context.restore();
+                            }
+
+                            finalizeQR();
+                        };
+                        logo.src = event.target.result;
+                    };
+                    reader.readAsDataURL(logoInput.files[0]);
+                } else {
+                    finalizeQR();
+                }
+            };
+
+            function finalizeQR() {
+                // Draw custom text below QR Code
+                context.font = "16px Arial";
+                context.textAlign = "center";
+                context.fillStyle = "black";
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height + 20);
+
+                const downloadLink = document.getElementById("downloadLink");
+                downloadLink.style.display = "block";
+                downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+                downloadLink.download = "qr-code.jpg";
+                qrCanvas.style.display = "block";
+            }
         }
 
-        const qr = new QRious({
-            value: url,
-            size: 300,
-            foreground: qrColor
+        // PayPal Integration
+        paypal.Buttons({
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: { value: '5.00' }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    alert("Payment completed!");
+                    generateQR();
+                });
+            }
+        }).render("#paypal-button-container");
+
+        // Update preview dynamically on input changes
+        document.querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape").forEach(input => {
+            input.addEventListener("input", updatePreview);
+            input.addEventListener("change", updatePreview);
         });
 
-        const qrImage = new Image();
-        qrImage.src = qr.toDataURL();
-        qrImage.onload = function () {
-            context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-            context.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
+        updatePreview();
+    </script>
+</body>
+</html>
 
-            // Προσθήκη λογοτύπου
-            if (logoInput.files && logoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const logo = new Image();
-                    logo.onload = function () {
-                        const logoSize = qrCanvas.width / 6;
-                        const x = (qrCanvas.width - logoSize) / 2;
-                        const y = (qrCanvas.height - logoSize) / 2;
-
-                        if (logoShape === "circle") {
-                            context.save();
-                            context.beginPath();
-                            context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-                            context.clip();
-                        }
-
-                        context.drawImage(logo, x, y, logoSize, logoSize);
-
-                        if (logoShape === "circle") {
-                            context.restore();
-                        }
-
-                        finalizeQR();
-                    };
-                    logo.src = event.target.result;
-                };
-                reader.readAsDataURL(logoInput.files[0]);
-            } else {
-                finalizeQR();
-            }
-        };
-
-        function finalizeQR() {
-            // Προσθήκη κειμένου με σκιά κάτω από το QR Code
-            drawTextWithShadow(context, customText, qrCanvas.width / 2, qrCanvas.height + 20, 20, "black", "gray", 3);
-
-            // Δημιουργία συνδέσμου για λήψη
-            const downloadLink = document.getElementById("downloadLink");
-            downloadLink.style.display = "block";
-            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-            downloadLink.download = "qr-code.jpg";
-            qrCanvas.style.display = "block";
-        }
-    }
-
-    // Ενσωμάτωση PayPal
-    paypal.Buttons({
-        createOrder: function (data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: { value: '5.00' }
-                }]
-            });
-        },
-        onApprove: function (data, actions) {
-            return actions.order.capture().then(function (details) {
-                alert("Payment completed!");
-                generateQR();
-            });
-        }
-    }).render("#paypal-button-container");
-
-    // Ενημέρωση preview δυναμικά
-    document.querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape").forEach(input => {
-        input.addEventListener("input", updatePreview);
-        input.addEventListener("change", updatePreview);
-    });
-
-    updatePreview();
-</script>
 
 
 
