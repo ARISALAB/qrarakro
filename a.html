@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My AR Akron QR Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="https://www.paypal.com/sdk/js?client-id=AbP8aGEBpUSbe7x2frrXYzb502UdR7uL3CjpNb-Sp6lk7hy0j9sYRAJORgfzT01owV39NlnKlycB1mcj"></script>
+
     <style>
        body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -312,6 +314,8 @@
         <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
         <br>
         <a id="downloadLink" href="#" class="download-button" style="display:none;">Download QR Code</a>
+                <div id="paypal-button-container" style="margin-top: 20px;"></div>
+
     </div>
 
     <div id="features" class="container hidden">
@@ -378,117 +382,99 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script>
-        let selectedColor = "#000000"; // Default border color
+ <script>
+    let selectedColor = "#000000"; // Default border color
+    let qrReady = false;
 
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll(".container");
-            sections.forEach(section => {
-                if (section.id === sectionId) {
-                    section.classList.remove("hidden");
-                } else {
-                    section.classList.add("hidden");
-                }
-            });
-        }
-
-        function updateColorDisplay(color) {
-            selectedColor = color;
-            document.getElementById('colorDisplay').style.backgroundColor = color;
-        }
-
-        function generateQR() {
-            const name = document.getElementById("name").value;
-            const url = document.getElementById("url").value;
-            const customText = document.getElementById("customText").value;
-            const logoInput = document.getElementById("logo");
-            const qrCanvas = document.getElementById("qrCode");
-            const context = qrCanvas.getContext("2d");
-            const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
-
-            const qrValue = `${url}`;
-            const qr = new QRious({
-                element: qrCanvas,
-                value: qrValue,
-                size: 300,
-                foreground: selectedColor // Set border color
-            });
-
-            qrCanvas.style.display = "block";
-            const downloadLink = document.getElementById("downloadLink");
-            downloadLink.style.display = "inline-block";
-            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-            downloadLink.download = "qr-code.jpg"; // Set the filename for download
-
-            if (logoInput.files && logoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const logo = new Image();
-                    logo.onload = function() {
-                        const logoSize = qrCanvas.width / 6; // Adjust logo size as needed
-                        const x = (qrCanvas.width - logoSize) / 2;
-                        const y = (qrCanvas.height - logoSize) / 2;
-
-                        // Draw QR code first
-                        context.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height);
-
-                        if (logoShape === 'circle') {
-                            // Create a circular clip
-                            context.save();
-                            context.beginPath();
-                            context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
-                            context.closePath();
-                            context.clip();
-                        } else if (logoShape === 'rectangle') {
-                            // Adjust size for rectangle if necessary
-                        }
-
-                        // Draw the logo inside the clipped area
-                        context.drawImage(logo, x, y, logoSize, logoSize);
-
-                        if (logoShape === 'circle') {
-                            // Restore context to remove clipping
-                            context.restore();
-                        }
-
-                        // Draw custom text below the QR code
-                        context.font = "16px Arial";
-                        context.textAlign = "center";
-                        context.fillStyle = "white";
-                        context.lineWidth = 4;
-                        context.strokeStyle = "black";
-                        context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
-                        context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
-
-                        // Update download link with new QR code with logo and text
-                        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-                    };
-                    logo.src = event.target.result;
-                };
-                reader.readAsDataURL(logoInput.files[0]);
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll(".container");
+        sections.forEach(section => {
+            if (section.id === sectionId) {
+                section.classList.remove("hidden");
             } else {
-                // If no logo is uploaded, generate the QR code without a logo
-
-                // Draw custom text below the QR code
-                context.font = "16px Arial";
-                context.textAlign = "center";
-                context.fillStyle = "white";
-                context.lineWidth = 4;
-                context.strokeStyle = "black";
-                context.strokeText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
-                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
-
-                // Update download link with new QR code with text
-                downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+                section.classList.add("hidden");
             }
+        });
+    }
+
+    function updateColorDisplay(color) {
+        selectedColor = color;
+        document.getElementById('colorDisplay').style.backgroundColor = color;
+    }
+
+    function prepareQR() {
+        const name = document.getElementById("name").value;
+        const url = document.getElementById("url").value;
+        const customText = document.getElementById("customText").value;
+        const logoInput = document.getElementById("logo");
+        const qrCanvas = document.getElementById("qrCode");
+        const context = qrCanvas.getContext("2d");
+        const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
+
+        if (!url) {
+            alert("Please provide a valid URL.");
+            return;
         }
 
-        // Close the modal when the user clicks anywhere outside of the modal content
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('colorPickerModal')) {
-                document.getElementById('colorPickerModal').style.display = "none";
-            }
+        const qrValue = `${url}`;
+        const qr = new QRious({
+            element: qrCanvas,
+            value: qrValue,
+            size: 300,
+            foreground: selectedColor // Set border color
+        });
+
+        qrReady = true;
+        alert("QR Code prepared. Complete payment to see it!");
+    }
+
+    function displayQR() {
+        if (!qrReady) {
+            alert("QR Code is not prepared yet.");
+            return;
         }
-    </script>
+
+        const qrCanvas = document.getElementById("qrCode");
+        const downloadLink = document.getElementById("downloadLink");
+
+        qrCanvas.style.display = "block";
+        downloadLink.style.display = "inline-block";
+        downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        downloadLink.download = "qr-code.jpg";
+
+        alert("Your QR Code is now visible!");
+    }
+
+    // Initialize PayPal Button
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '5.00' // Amount for payment
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                alert('Payment completed by ' + details.payer.name.given_name);
+                displayQR(); // Display the QR Code after successful payment
+            });
+        },
+        onError: function(err) {
+            console.error("PayPal error:", err);
+            alert("An error occurred during payment. Please try again.");
+        }
+    }).render('#paypal-button-container');
+
+    // Close the modal when the user clicks anywhere outside of the modal content
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('colorPickerModal')) {
+            document.getElementById('colorPickerModal').style.display = "none";
+        }
+    }
+</script>
+
 </body>
 </html>
