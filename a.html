@@ -3,77 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced QR Generator</title>
+    <title>Dynamic QR Code Generator</title>
     <script src="https://www.paypal.com/sdk/js?client-id=AbP8aGEBpUSbe7x2frrXYzb502UdR7uL3CjpNb-Sp6lk7hy0j9sYRAJORgfzT01owV39NlnKlycB1mcj"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
-       body {
-           font-family: Arial, sans-serif;
-           background: #f4f4f9;
-           margin: 0;
-           padding: 0;
-       }
-       header {
-           background: #333;
-           color: #fff;
-           text-align: center;
-           padding: 10px 0;
-       }
-       .container {
-           max-width: 800px;
-           margin: 20px auto;
-           padding: 20px;
-           background: #fff;
-           border-radius: 10px;
-           box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-       }
-       .section {
-           margin-bottom: 20px;
-       }
-       label {
-           display: block;
-           margin-bottom: 5px;
-           font-weight: bold;
-       }
-       input[type="text"], input[type="color"], select {
-           width: 100%;
-           padding: 8px;
-           margin-bottom: 10px;
-           border: 1px solid #ccc;
-           border-radius: 4px;
-       }
-       #previewCanvas {
-           border: 1px solid #ccc;
-           border-radius: 4px;
-           display: block;
-           margin: 0 auto 10px auto;
-           background: #f9f9f9;
-       }
-       canvas {
-           display: block;
-           margin: 20px auto;
-       }
-       .download-button, .paypal-button {
-           display: block;
-           width: 100%;
-           padding: 10px;
-           text-align: center;
-           text-decoration: none;
-           color: #fff;
-           background: #28a745;
-           border: none;
-           border-radius: 4px;
-           margin-top: 10px;
-           cursor: pointer;
-       }
-       .download-button:hover {
-           background: #218838;
-       }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="color"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #previewCanvas {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto 10px auto;
+            background: #f9f9f9;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+        }
+        .download-button, .paypal-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background: #28a745;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .download-button:hover {
+            background: #218838;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Enhanced QR Generator</h1>
+        <h1>Dynamic QR Code Generator</h1>
     </header>
 
     <div class="container">
@@ -104,7 +104,7 @@
 
         <div class="section">
             <h4>Preview</h4>
-            <canvas id="previewCanvas" width="150" height="150"></canvas>
+            <canvas id="previewCanvas" width="150" height="200"></canvas>
         </div>
 
         <div id="paypal-button-container"></div>
@@ -121,6 +121,8 @@
             const url = document.getElementById("url").value;
             const qrColor = document.getElementById("qrColor").value;
             const customText = document.getElementById("customText").value;
+            const logoShape = document.getElementById("logoShape").value;
+            const logoInput = document.getElementById("logo");
 
             // Clear the canvas
             previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
@@ -128,24 +130,53 @@
             // Generate a simple QR code
             const qr = new QRious({
                 value: url || "Preview",
-                size: previewCanvas.width,
+                size: 150,
                 foreground: qrColor
             });
 
             const qrImage = new Image();
             qrImage.src = qr.toDataURL();
             qrImage.onload = function () {
-                previewContext.drawImage(qrImage, 0, 0, previewCanvas.width, previewCanvas.height);
+                previewContext.drawImage(qrImage, 0, 0, 150, 150);
 
-                // Draw custom text below
+                // Draw the logo
+                if (logoInput.files && logoInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const logo = new Image();
+                        logo.onload = function () {
+                            const logoSize = 40; // Size of logo in preview
+                            const x = (previewCanvas.width - logoSize) / 2;
+                            const y = (150 - logoSize) / 2; // Centered in QR code
+
+                            if (logoShape === "circle") {
+                                previewContext.save();
+                                previewContext.beginPath();
+                                previewContext.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                                previewContext.closePath();
+                                previewContext.clip();
+                            }
+
+                            previewContext.drawImage(logo, x, y, logoSize, logoSize);
+
+                            if (logoShape === "circle") {
+                                previewContext.restore();
+                            }
+                        };
+                        logo.src = event.target.result;
+                    };
+                    reader.readAsDataURL(logoInput.files[0]);
+                }
+
+                // Draw custom text below the QR code
                 previewContext.font = "12px Arial";
                 previewContext.fillStyle = qrColor;
                 previewContext.textAlign = "center";
-                previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, previewCanvas.height - 10);
+                previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, 170);
             };
         }
 
-        // Generate final QR Code with options
+        // Generate final QR Code
         function generateQR() {
             const url = document.getElementById("url").value;
             const qrColor = document.getElementById("qrColor").value;
@@ -212,7 +243,7 @@
                 context.font = "16px Arial";
                 context.textAlign = "center";
                 context.fillStyle = "black";
-                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height - 10);
+                context.fillText(customText, qrCanvas.width / 2, qrCanvas.height + 20);
 
                 const downloadLink = document.getElementById("downloadLink");
                 downloadLink.style.display = "block";
@@ -240,8 +271,9 @@
         }).render("#paypal-button-container");
 
         // Update preview dynamically on input changes
-        document.querySelectorAll("#url, #qrColor, #customText").forEach(input => {
+        document.querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape").forEach(input => {
             input.addEventListener("input", updatePreview);
+            input.addEventListener("change", updatePreview);
         });
 
         updatePreview();
