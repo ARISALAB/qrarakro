@@ -116,7 +116,23 @@
     const previewCanvas = document.getElementById("previewCanvas");
     const previewContext = previewCanvas.getContext("2d");
 
-    // Update preview dynamically
+    // Συνάρτηση για την προσθήκη κειμένου με σκιά
+    function drawTextWithShadow(context, text, x, y, fontSize, color, shadowColor, shadowOffset) {
+        context.font = `${fontSize}px Arial`;
+        context.textAlign = "center";
+        context.fillStyle = shadowColor;
+
+        // Σχεδίαση σκιάς
+        for (let i = 1; i <= shadowOffset; i++) {
+            context.fillText(text, x + i, y + i);
+        }
+
+        // Σχεδίαση κύριου κειμένου
+        context.fillStyle = color;
+        context.fillText(text, x, y);
+    }
+
+    // Δυναμική ενημέρωση της προεπισκόπησης
     function updatePreview() {
         const url = document.getElementById("url").value;
         const qrColor = document.getElementById("qrColor").value;
@@ -124,10 +140,10 @@
         const logoShape = document.getElementById("logoShape").value;
         const logoInput = document.getElementById("logo");
 
-        // Clear the canvas
+        // Εκκαθάριση καμβά
         previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
-        // Generate a simple QR code
+        // Δημιουργία QR Code
         const qr = new QRious({
             value: url || "Preview",
             size: 150,
@@ -137,17 +153,17 @@
         const qrImage = new Image();
         qrImage.src = qr.toDataURL();
         qrImage.onload = function () {
-            previewContext.drawImage(qrImage, 75, 20, 150, 150); // Center the QR
+            previewContext.drawImage(qrImage, 75, 25, 150, 150);
 
-            // Draw the logo
+            // Προσθήκη λογότυπου αν υπάρχει
             if (logoInput.files && logoInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     const logo = new Image();
                     logo.onload = function () {
-                        const logoSize = 40; // Size of logo in preview
+                        const logoSize = 40;
                         const x = (previewCanvas.width - logoSize) / 2;
-                        const y = (150 - logoSize) / 2; // Centered in QR code
+                        const y = (150 - logoSize) / 2 + 25;
 
                         if (logoShape === "circle") {
                             previewContext.save();
@@ -174,15 +190,12 @@
                 reader.readAsDataURL(logoInput.files[0]);
             }
 
-            // Draw custom text below the QR code
-            previewContext.font = "16px Arial";
-            previewContext.fillStyle = "black";
-            previewContext.textAlign = "center";
-            previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, 200);
+            // Προσθήκη κειμένου με σκιά κάτω από το QR Code
+            drawTextWithShadow(previewContext, customText, previewCanvas.width / 2, 220, 14, "black", "gray", 4);
         };
     }
 
-    // Generate final QR Code
+    // Δημιουργία τελικού QR Code
     function generateQR() {
         const url = document.getElementById("url").value;
         const qrColor = document.getElementById("qrColor").value;
@@ -207,9 +220,9 @@
         qrImage.src = qr.toDataURL();
         qrImage.onload = function () {
             context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-            context.drawImage(qrImage, 0, 0, qrCanvas.width, 300); // QR Code centered
+            context.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
 
-            // Draw logo if uploaded
+            // Προσθήκη λογότυπου αν υπάρχει
             if (logoInput.files && logoInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
@@ -217,7 +230,7 @@
                     logo.onload = function () {
                         const logoSize = qrCanvas.width / 6;
                         const x = (qrCanvas.width - logoSize) / 2;
-                        const y = (300 - logoSize) / 2;
+                        const y = (qrCanvas.height - logoSize) / 2;
 
                         if (logoShape === "circle") {
                             context.save();
@@ -239,34 +252,29 @@
                         if (logoShape === "circle") {
                             context.restore();
                         }
+
                         finalizeQR();
                     };
-                    logo.src = event.target.result;
+                    reader.readAsDataURL(logoInput.files[0]);
                 };
-                reader.readAsDataURL(logoInput.files[0]);
             } else {
                 finalizeQR();
             }
         };
 
         function finalizeQR() {
-            // Draw custom text below QR Code
-            context.font = "16px Arial";
-            context.textAlign = "center";
-            context.fillStyle = "black";
-            context.fillText(customText, qrCanvas.width / 2, 330);
+            // Προσθήκη κειμένου με σκιά κάτω από το QR Code
+            drawTextWithShadow(context, customText, qrCanvas.width / 2, qrCanvas.height + 20, 16, "black", "gray", 4);
 
+            // Σύνδεσμος για λήψη
             const downloadLink = document.getElementById("downloadLink");
             downloadLink.style.display = "block";
-            downloadLink.href = qrCanvas
-                .toDataURL("image/jpeg")
-                .replace("image/jpeg", "image/octet-stream");
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
             downloadLink.download = "qr-code.jpg";
-            qrCanvas.style.display = "block";
         }
     }
 
-    // PayPal Integration
+    // Ενσωμάτωση PayPal κουμπιού
     paypal.Buttons({
         createOrder: function (data, actions) {
             return actions.order.create({
@@ -285,16 +293,15 @@
         },
     }).render("#paypal-button-container");
 
-    // Update preview dynamically on input changes
-    document
-        .querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape")
-        .forEach((input) => {
-            input.addEventListener("input", updatePreview);
-            input.addEventListener("change", updatePreview);
-        });
+    // Δυναμική ενημέρωση προεπισκόπησης
+    document.querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape").forEach((input) => {
+        input.addEventListener("input", updatePreview);
+        input.addEventListener("change", updatePreview);
+    });
 
     updatePreview();
 </script>
+
 
 </body>
 </html>
