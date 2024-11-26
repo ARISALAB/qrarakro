@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Upload and QR Code Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 10px;
+        }
+        h1 {
+            color: #343A40;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        canvas {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #28A745;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Upload PDF and Generate QR Code</h1>
+    <p>Please upload your PDF file:</p>
+    <input type="file" id="pdfUpload" accept="application/pdf" />
+
+    <h2>QR Code Preview:</h2>
+    <canvas id="previewCanvas" width="200" height="200"></canvas>
+
+    <a id="downloadLink" href="#" download>Download QR Code</a>
+
+    <script>
+        document.getElementById('pdfUpload').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+
+            if (file && file.type === 'application/pdf') {
+                // Δημιουργία FormData για την αποστολή του PDF
+                const formData = new FormData();
+                formData.append('pdf', file);
+
+                try {
+                    // Αποστολή του PDF στο Netlify Function
+                    const response = await fetch('/.netlify/functions/uploadPDF', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        // Εκτύπωση του URL του ανεβασμένου PDF
+                        const fileURL = result.url;
+                        console.log("PDF uploaded successfully:", fileURL);
+
+                        // Δημιουργία QR code για το PDF URL
+                        const qr = new QRious({
+                            value: fileURL,
+                            size: 200,
+                            foreground: "#000000",
+                        });
+
+                        const qrImage = new Image();
+                        qrImage.src = qr.toDataURL();
+                        qrImage.onload = function () {
+                            // Προβολή του QR code
+                            const previewCanvas = document.getElementById('previewCanvas');
+                            const previewContext = previewCanvas.getContext('2d');
+                            previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                            previewContext.drawImage(qrImage, 0, 0);
+
+                            // Εμφάνιση του συνδέσμου λήψης του QR code
+                            const downloadLink = document.getElementById('downloadLink');
+                            downloadLink.style.display = "block";
+                            downloadLink.href = qr.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                            downloadLink.download = "qr-code.png";
+                        };
+                    } else {
+                        console.error("Error uploading PDF:", result.error);
+                    }
+                } catch (error) {
+                    console.error("Error during file upload:", error);
+                }
+            } else {
+                alert("Please upload a valid PDF file.");
+            }
+        });
+    </script>
+
+</body>
+</html>
