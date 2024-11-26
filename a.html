@@ -168,11 +168,21 @@
                 reader.readAsDataURL(logoInput.files[0]);
             }
 
-            // Draw custom text below the QR code
-            previewContext.font = "12px Arial";
+            // Draw custom text below the QR code with shadow
+            previewContext.font = "16px Arial";
             previewContext.fillStyle = qrColor;
             previewContext.textAlign = "center";
+
+            // Shadow properties
+            previewContext.shadowColor = "rgba(0, 0, 0, 0.5)";
+            previewContext.shadowBlur = 4;
+            previewContext.shadowOffsetX = 2;
+            previewContext.shadowOffsetY = 2;
+
             previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, 170);
+
+            // Reset shadow for future drawings
+            previewContext.shadowColor = "transparent";
         };
     }
 
@@ -244,11 +254,21 @@
         };
 
         function finalizeQR() {
-            // Draw custom text below QR Code
+            // Draw custom text below QR Code with shadow
             context.font = "16px Arial";
             context.textAlign = "center";
-            context.fillStyle = qrColor; // Use the selected QR color for the text
+            context.fillStyle = qrColor;
+
+            // Shadow properties
+            context.shadowColor = "rgba(0, 0, 0, 0.5)";
+            context.shadowBlur = 4;
+            context.shadowOffsetX = 2;
+            context.shadowOffsetY = 2;
+
             context.fillText(customText, qrCanvas.width / 2, qrSize + 25);
+
+            // Reset shadow for future drawings
+            context.shadowColor = "transparent";
 
             const downloadLink = document.getElementById("downloadLink");
             downloadLink.style.display = "block";
@@ -283,6 +303,7 @@
 
     updatePreview();
 </script>
+
 
 
 </body>
