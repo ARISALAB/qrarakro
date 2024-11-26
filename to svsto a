@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic QR Code Generator</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=AbP8aGEBpUSbe7x2frrXYzb502UdR7uL3CjpNb-Sp6lk7hy0j9sYRAJORgfzT01owV39NlnKlycB1mcj"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #00008b, #ffd700);
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+        header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        nav {
+            margin-top: 10px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: black;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+}
+
+        h2 {
+            color: #ffffff;
+        }
+        .section {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+    position: relative;
+    background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
+}
+
+.section label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.section input[type="text"], .section input[type="file"], .section input[type="color"], .section textarea {
+    width: calc(100% - 40px);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.section .icon-left {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #ffd700;
+    left: 10px;
+}
+
+.section .icon-right {
+    display: none;
+}
+
+
+
+.section.logo-section {
+    background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+}
+
+        .section.logo-section i {
+            font-size: 24px;
+            color: #ffd700;
+            margin-right: 10px;
+        }
+        .section.logo-section label {
+            margin-left: 10px;
+            line-height: 1.5;
+            margin-right: 10px;
+            text-align: center;
+        }
+        .section.logo-section input[type="file"] {
+            display: inline-block;
+            width: auto;
+        }
+        .section.logo-shape-section {
+            background-color: #f3e5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .section.color-section {
+            background-color: #e1f5fe;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .section.contact-section {
+            background-color: #e1f5fe;
+        }
+        .button-generate {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 5px;
+        }
+        .button-generate:hover {
+            background-color: #372188;
+        }
+        .button-color-picker {
+            background-color: #dede19;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button-color-picker:hover {
+            background-color: #0056b3;
+        }
+        #qrCode {
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .color-display {
+            width: 15px;
+            height: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #000;
+            display: inline-block;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .download-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        footer {
+            background-color: #000000;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: 20px;
+        }
+        footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        .text-center {
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dynamic QR Code Generator</h1>
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <label for="url">URL:</label>
+            <input type="text" id="url" placeholder="Enter the URL for the QR Code">
+        </div>
+
+        <div class="section">
+            <label for="customText">Custom Text (Below QR Code):</label>
+            <input type="text" id="customText" placeholder="Enter custom text">
+        </div>
+
+        <div class="section">
+            <label for="qrColor">QR Code Color:</label>
+            <input type="color" id="qrColor" value="#000000">
+        </div>
+
+        <div class="section">
+            <label for="logo">Upload Logo:</label>
+            <input type="file" id="logo" accept="image/*">
+            <label for="logoShape">Logo Shape:</label>
+            <select id="logoShape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <h4>Preview</h4>
+            <canvas id="previewCanvas" width="150" height="200"></canvas>
+        </div>
+
+        <div id="paypal-button-container"></div>
+        <canvas id="qrCode" width="300" height="300" style="display:none;"></canvas>
+        <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
+    </div>
+
+ <script>
+    const previewCanvas = document.getElementById('previewCanvas');
+    const previewContext = previewCanvas.getContext('2d');
+
+    // Update preview dynamically
+    function updatePreview() {
+        const url = document.getElementById("url").value;
+        const qrColor = document.getElementById("qrColor").value;
+        const customText = document.getElementById("customText").value;
+        const logoShape = document.getElementById("logoShape").value;
+        const logoInput = document.getElementById("logo");
+
+        // Clear the canvas
+        previewContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+        // Generate a simple QR code
+        const qr = new QRious({
+            value: url || "Preview",
+            size: 150,
+            foreground: qrColor
+        });
+
+        const qrImage = new Image();
+        qrImage.src = qr.toDataURL();
+        qrImage.onload = function () {
+            previewContext.drawImage(qrImage, 0, 0, 150, 150);
+
+            // Draw the logo
+            if (logoInput.files && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const logo = new Image();
+                    logo.onload = function () {
+                        const logoSize = 40; // Size of logo in preview
+                        const x = (previewCanvas.width - logoSize) / 2;
+                        const y = (150 - logoSize) / 2; // Centered in QR code
+
+                        if (logoShape === "circle") {
+                            previewContext.save();
+                            previewContext.beginPath();
+                            previewContext.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                            previewContext.closePath();
+                            previewContext.clip();
+                        }
+
+                        previewContext.drawImage(logo, x, y, logoSize, logoSize);
+
+                        if (logoShape === "circle") {
+                            previewContext.restore();
+                        }
+                    };
+                    logo.src = event.target.result;
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            }
+
+            // Draw custom text below the QR code with white background and shadow
+            const textYPosition = 170;
+            const textHeight = 20;
+            const textWidth = previewCanvas.width;
+
+            // White background rectangle
+            previewContext.fillStyle = "white";
+            previewContext.fillRect(0, textYPosition - textHeight + 5, textWidth, textHeight);
+
+            // Text with shadow
+            previewContext.font = "16px Arial";
+            previewContext.fillStyle = qrColor;
+            previewContext.textAlign = "center";
+            previewContext.shadowColor = "rgba(0, 0, 0, 0.5)";
+            previewContext.shadowBlur = 4;
+            previewContext.shadowOffsetX = 2;
+            previewContext.shadowOffsetY = 2;
+
+            previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, textYPosition);
+
+            // Reset shadow
+            previewContext.shadowColor = "transparent";
+        };
+    }
+
+    // Generate final QR Code
+    function generateQR() {
+        const url = document.getElementById("url").value;
+        const qrColor = document.getElementById("qrColor").value;
+        const customText = document.getElementById("customText").value;
+        const logoInput = document.getElementById("logo");
+        const logoShape = document.getElementById("logoShape").value;
+        const qrCanvas = document.getElementById("qrCode");
+        const context = qrCanvas.getContext("2d");
+
+        if (!url) {
+            alert("Please provide a valid URL.");
+            return;
+        }
+
+        // Adjust the canvas size to include space for the text
+        const qrSize = 300;
+        const textHeight = 40; // Space for the text
+        qrCanvas.width = qrSize;
+        qrCanvas.height = qrSize + textHeight;
+
+        const qr = new QRious({
+            value: url,
+            size: qrSize,
+            foreground: qrColor
+        });
+
+        const qrImage = new Image();
+        qrImage.src = qr.toDataURL();
+        qrImage.onload = function () {
+            context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+            context.drawImage(qrImage, 0, 0, qrSize, qrSize);
+
+            // Draw logo if uploaded
+            if (logoInput.files && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const logo = new Image();
+                    logo.onload = function () {
+                        const logoSize = qrSize / 6;
+                        const x = (qrSize - logoSize) / 2;
+                        const y = (qrSize - logoSize) / 2;
+
+                        if (logoShape === "circle") {
+                            context.save();
+                            context.beginPath();
+                            context.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, true);
+                            context.closePath();
+                            context.clip();
+                        }
+
+                        context.drawImage(logo, x, y, logoSize, logoSize);
+
+                        if (logoShape === "circle") {
+                            context.restore();
+                        }
+
+                        finalizeQR();
+                    };
+                    logo.src = event.target.result;
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            } else {
+                finalizeQR();
+            }
+        };
+
+        function finalizeQR() {
+            // Draw custom text below QR Code with white background and shadow
+            const textYPosition = qrSize + 25;
+            const textHeight = 30;
+
+            // White background rectangle
+            context.fillStyle = "white";
+            context.fillRect(0, qrSize + 10, qrCanvas.width, textHeight);
+
+            // Text with shadow
+            context.font = "16px Arial";
+            context.textAlign = "center";
+            context.fillStyle = qrColor;
+            context.shadowColor = "rgba(0, 0, 0, 0.5)";
+            context.shadowBlur = 4;
+            context.shadowOffsetX = 2;
+            context.shadowOffsetY = 2;
+
+            context.fillText(customText, qrCanvas.width / 2, textYPosition);
+
+            // Reset shadow
+            context.shadowColor = "transparent";
+
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.style.display = "block";
+            downloadLink.href = qrCanvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+            downloadLink.download = "qr-code.jpg";
+            qrCanvas.style.display = "block";
+        }
+    }
+
+    // PayPal Integration
+    paypal.Buttons({
+        createOrder: function (data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: { value: '5.00' }
+                }]
+            });
+        },
+        onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+                alert("Payment completed!");
+                generateQR();
+            });
+        }
+    }).render("#paypal-button-container");
+
+    // Update preview dynamically on input changes
+    document.querySelectorAll("#url, #qrColor, #customText, #logo, #logoShape").forEach(input => {
+        input.addEventListener("input", updatePreview);
+        input.addEventListener("change", updatePreview);
+    });
+
+    updatePreview();
+</script>
+
+
+
+
+</body>
+</html>
