@@ -292,7 +292,7 @@
         <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
     </div>
 
-  <script>
+ <script>
     const previewCanvas = document.getElementById('previewCanvas');
     const previewContext = previewCanvas.getContext('2d');
 
@@ -348,20 +348,27 @@
                 reader.readAsDataURL(logoInput.files[0]);
             }
 
-            // Draw custom text below the QR code with shadow
+            // Draw custom text below the QR code with white background and shadow
+            const textYPosition = 170;
+            const textHeight = 20;
+            const textWidth = previewCanvas.width;
+
+            // White background rectangle
+            previewContext.fillStyle = "white";
+            previewContext.fillRect(0, textYPosition - textHeight + 5, textWidth, textHeight);
+
+            // Text with shadow
             previewContext.font = "16px Arial";
             previewContext.fillStyle = qrColor;
             previewContext.textAlign = "center";
-
-            // Shadow properties
             previewContext.shadowColor = "rgba(0, 0, 0, 0.5)";
             previewContext.shadowBlur = 4;
             previewContext.shadowOffsetX = 2;
             previewContext.shadowOffsetY = 2;
 
-            previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, 170);
+            previewContext.fillText(customText || "Custom Text", previewCanvas.width / 2, textYPosition);
 
-            // Reset shadow for future drawings
+            // Reset shadow
             previewContext.shadowColor = "transparent";
         };
     }
@@ -434,20 +441,26 @@
         };
 
         function finalizeQR() {
-            // Draw custom text below QR Code with shadow
+            // Draw custom text below QR Code with white background and shadow
+            const textYPosition = qrSize + 25;
+            const textHeight = 30;
+
+            // White background rectangle
+            context.fillStyle = "white";
+            context.fillRect(0, qrSize + 10, qrCanvas.width, textHeight);
+
+            // Text with shadow
             context.font = "16px Arial";
             context.textAlign = "center";
             context.fillStyle = qrColor;
-
-            // Shadow properties
             context.shadowColor = "rgba(0, 0, 0, 0.5)";
             context.shadowBlur = 4;
             context.shadowOffsetX = 2;
             context.shadowOffsetY = 2;
 
-            context.fillText(customText, qrCanvas.width / 2, qrSize + 25);
+            context.fillText(customText, qrCanvas.width / 2, textYPosition);
 
-            // Reset shadow for future drawings
+            // Reset shadow
             context.shadowColor = "transparent";
 
             const downloadLink = document.getElementById("downloadLink");
@@ -483,6 +496,7 @@
 
     updatePreview();
 </script>
+
 
 
 
