@@ -112,7 +112,7 @@
         <a id="downloadLink" class="download-button" href="#" style="display:none;">Download QR Code</a>
     </div>
 
-   <script>
+  <script>
     const previewCanvas = document.getElementById('previewCanvas');
     const previewContext = previewCanvas.getContext('2d');
 
@@ -191,18 +191,23 @@
             return;
         }
 
+        // Adjust the canvas size to include space for the text
+        const qrSize = 300;
+        const textHeight = 40; // Space for the text
+        qrCanvas.width = qrSize;
+        qrCanvas.height = qrSize + textHeight;
+
         const qr = new QRious({
-            element: qrCanvas,
             value: url,
-            size: 300,
+            size: qrSize,
             foreground: qrColor
         });
 
         const qrImage = new Image();
-        qrImage.src = qrCanvas.toDataURL();
+        qrImage.src = qr.toDataURL();
         qrImage.onload = function () {
             context.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-            context.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
+            context.drawImage(qrImage, 0, 0, qrSize, qrSize);
 
             // Draw logo if uploaded
             if (logoInput.files && logoInput.files[0]) {
@@ -210,9 +215,9 @@
                 reader.onload = function (event) {
                     const logo = new Image();
                     logo.onload = function () {
-                        const logoSize = qrCanvas.width / 6;
-                        const x = (qrCanvas.width - logoSize) / 2;
-                        const y = (qrCanvas.height - logoSize) / 2;
+                        const logoSize = qrSize / 6;
+                        const x = (qrSize - logoSize) / 2;
+                        const y = (qrSize - logoSize) / 2;
 
                         if (logoShape === "circle") {
                             context.save();
@@ -242,8 +247,8 @@
             // Draw custom text below QR Code
             context.font = "16px Arial";
             context.textAlign = "center";
-            context.fillStyle = qrColor; // Use selected color for the text
-            context.fillText(customText, qrCanvas.width / 2, qrCanvas.height + 20);
+            context.fillStyle = qrColor; // Use the selected QR color for the text
+            context.fillText(customText, qrCanvas.width / 2, qrSize + 25);
 
             const downloadLink = document.getElementById("downloadLink");
             downloadLink.style.display = "block";
@@ -278,6 +283,7 @@
 
     updatePreview();
 </script>
+
 
 </body>
 </html>
