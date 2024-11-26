@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic QR Code Generator</title>
+    <title>QR Code to PDF</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
         body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              background: linear-gradient(to bottom, #00008b, #ffd700);
-              margin: 0;
-              padding: 0;
-              color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #00008b, #ffd700);
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
         }
-        /* Styles for layout */
+
+        header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
         .container {
             width: 90%;
             max-width: 800px;
@@ -23,15 +34,15 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            position: relative;
         }
+
         .section {
             padding: 15px;
-            border-radius: 8px;
             margin-bottom: 20px;
-            text-align: left;
-            background: linear-gradient(to bottom, #4b0082, #ff0000); /* Από μωβ σκούρο σε κόκκινο */
+            background: linear-gradient(to bottom, #4b0082, #ff0000);
+            border-radius: 8px;
         }
+
         .button-generate {
             background-color: #28a745;
             color: white;
@@ -42,9 +53,7 @@
             font-size: 16px;
             margin: 20px 5px;
         }
-        .button-generate:hover {
-            background-color: #372188;
-        }
+
         #qrCode {
             margin: 20px auto;
             border: 1px solid #ddd;
@@ -54,69 +63,44 @@
 </head>
 <body>
     <header>
-        <h1>Dynamic QR Code Generator</h1>
+        <h1>QR Code to PDF</h1>
     </header>
 
     <div class="container">
         <div class="section">
-            <label for="pdfUpload">Upload PDF:</label>
-            <input type="file" id="pdfUpload" accept="application/pdf">
+            <label for="pdfFile">Upload your PDF:</label>
+            <input type="file" id="pdfFile" accept="application/pdf">
         </div>
 
-        <div class="section">
-            <label for="customText">Custom Text (Below QR Code):</label>
-            <input type="text" id="customText" placeholder="Enter custom text">
-        </div>
+        <button class="button-generate" onclick="generateQRCode()">Generate QR Code</button>
 
-        <div class="section">
-            <label for="qrColor">QR Code Color:</label>
-            <input type="color" id="qrColor" value="#000000">
-        </div>
-
-        <button class="button-generate" onclick="generateQR()">Generate QR Code</button>
-
-        <div id="qrPreview">
+        <div id="qrCodeContainer">
             <canvas id="qrCode" width="300" height="300"></canvas>
-            <p id="customTextPreview" style="color: white;"></p>
         </div>
     </div>
 
     <script>
-        // Function to generate the QR code
-        function generateQR() {
-            const qrColor = document.getElementById("qrColor").value;
-            const customText = document.getElementById("customText").value;
-            const pdfFileInput = document.getElementById("pdfUpload");
-
-            if (pdfFileInput.files.length === 0) {
-                alert("Please upload a PDF file.");
-                return;
-            }
-
-            const pdfFile = pdfFileInput.files[0];
-            const pdfUrl = URL.createObjectURL(pdfFile); // Create a URL for the uploaded PDF
-
-            // Generate the QR code pointing to the uploaded PDF
+        function generateQRCode() {
+            const pdfFileInput = document.getElementById("pdfFile");
+            const qrCanvas = document.getElementById("qrCode");
             const qr = new QRious({
-                value: pdfUrl, // Set the value of the QR code to the PDF URL
+                element: qrCanvas,
                 size: 300,
-                foreground: qrColor
             });
 
-            const qrCanvas = document.getElementById("qrCode");
-            const qrContext = qrCanvas.getContext("2d");
-            const qrImage = new Image();
-            qrImage.src = qr.toDataURL();
+            // Check if the user has uploaded a file
+            if (pdfFileInput.files && pdfFileInput.files[0]) {
+                const file = pdfFileInput.files[0];
+                const url = URL.createObjectURL(file); // Create a URL for the uploaded PDF
 
-            // Clear previous QR code
-            qrContext.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-            qrImage.onload = function () {
-                qrContext.drawImage(qrImage, 0, 0, qrCanvas.width, qrCanvas.height);
-            };
+                // Set the QR code's value to the PDF URL
+                qr.value = url;
 
-            // Update the custom text preview
-            const textPreview = document.getElementById("customTextPreview");
-            textPreview.textContent = customText || "Scan this QR code to view the PDF";
+                // Optionally, you can show a message or do additional things after generating the QR code
+                alert("QR Code generated! Scan to access your PDF.");
+            } else {
+                alert("Please upload a PDF file first.");
+            }
         }
     </script>
 </body>
