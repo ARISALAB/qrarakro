@@ -16,6 +16,7 @@
 
     <div id="status"></div>
     <div id="qrcode"></div> <!-- QR Code θα εμφανίζεται εδώ -->
+    <div id="fileLink"></div> <!-- Θα εμφανιστεί το link για το raw αρχείο -->
 
     <script>
         // GitHub API URL και το προσωπικό GitHub token
@@ -63,6 +64,10 @@
                 
                 // Δημιουργία QR Code
                 generateQRCode(result.content.html_url); // Δημιουργεί QR Code με το URL του αρχείου
+
+                // Εμφάνιση του raw URL για πλήρη προβολή του αρχείου
+                const rawUrl = result.content.download_url;  // Αυτό το URL θα δείχνει το raw περιεχόμενο του αρχείου
+                document.getElementById("fileLink").innerHTML = `<p>Μπορείτε να δείτε το αρχείο σε πλήρη οθόνη <a href="${rawUrl}" target="_blank">εδώ</a>.</p>`;
             } else {
                 document.getElementById("status").textContent = `Σφάλμα: ${result.message}`;
             }
