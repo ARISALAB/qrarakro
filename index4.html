@@ -1,144 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF QR Code Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to bottom, #00008b, #ffd700);
-            margin: 0;
-            padding: 0;
-            color: #ffffff;
-            text-align: center;
-        }
-        header {
-            background-color: #000000;
-            color: #ffffff;
-            padding: 10px 0;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: black;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .section {
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: left;
-            background: linear-gradient(to bottom, #4b0082, #ff0000);
-            border-radius: 8px;
-        }
-        .section label, .section select, .section input {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .section input[type="color"] {
-            max-width: 200px;
-        }
-        canvas {
-            display: block;
-            margin: 20px auto;
-        }
-        .download-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .download-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Ανέβασμα Αρχείων</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+    <style>
+       /* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+input[type="file"] {
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#output {
+    margin-top: 20px;
+    color: #28a745;
+    font-weight: bold;
+}
+ 
+    </style>
 <body>
-    <header>
-        <h1>PDF QR Code Generator</h1>
-    </header>
     <div class="container">
-        <!-- Επιλογή PDF -->
-        <div class="section">
-            <label for="pdfName">Select a PDF:</label>
-            <select id="pdfName">
-                <option value="document1.pdf">Document 1</option>
-                <option value="example.pdf">Example PDF</option>
-            </select>
-        </div>
-
-        <!-- Επιλογή Χρώματος QR Code -->
-        <div class="section">
-            <label for="qrColor">QR Code Color:</label>
-            <input type="color" id="qrColor" value="#000000">
-        </div>
-
-        <!-- Προεπισκόπηση QR Code -->
-        <div class="section">
-            <h4>QR Code Preview</h4>
-            <canvas id="previewCanvas" width="300" height="300"></canvas>
-        </div>
-
-        <!-- Κουμπί Λήψης -->
-        <button id="downloadLink" class="download-button" style="display:none;">Download QR Code</button>
+        <h1>Ανέβασμα Αρχείων</h1>
+        <form id="uploadForm">
+            <label for="fileUpload">Επιλέξτε το αρχείο σας:</label>
+            <input type="file" id="fileUpload" accept=".pdf,.doc,.docx" required>
+            <button type="submit">Ανέβασμα</button>
+        </form>
+        <div id="output"></div>
     </div>
-
+    <script src="script.js"></script>
     <script>
-        // Βασική URL για το GitHub Pages
-        const baseURL = "https://<username>.github.io/<repository-name>/pdfs/";
+        // script.js
+document.getElementById('uploadForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('fileUpload');
+    const file = fileInput.files[0];
 
-        // Επιλογή στοιχείων
-        const pdfSelect = document.getElementById("pdfName");
-        const colorInput = document.getElementById("qrColor");
-        const canvas = document.getElementById("previewCanvas");
-        const context = canvas.getContext("2d");
-        const downloadButton = document.getElementById("downloadLink");
+    if (!file) {
+        alert('Παρακαλώ επιλέξτε ένα αρχείο.');
+        return;
+    }
 
-        // Ενημέρωση QR Code
-        function updatePreview() {
-            const selectedPDF = pdfSelect.value;
-            const qrColor = colorInput.value;
+    const allowedExtensions = ['pdf', 'doc', 'docx'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
 
-            const fullURL = baseURL + selectedPDF;
+    if (!allowedExtensions.includes(fileExtension)) {
+        alert('Μόνο αρχεία PDF και DOC επιτρέπονται.');
+        return;
+    }
 
-            const qr = new QRious({
-                value: fullURL,
-                size: 300,
-                foreground: qrColor,
-            });
+    // Εδώ μπορείτε να στείλετε το αρχείο στον server μέσω AJAX, αν χρειάζεται.
+    document.getElementById('output').textContent = `Το αρχείο "${file.name}" φορτώθηκε επιτυχώς!`;
+});
 
-            // Καθαρισμός και σχεδίαση QR Code στο canvas
-            const qrImage = new Image();
-            qrImage.src = qr.toDataURL();
-            qrImage.onload = function () {
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.drawImage(qrImage, 0, 0);
-
-                // Ενεργοποίηση κουμπιού λήψης
-                downloadButton.style.display = "inline-block";
-                downloadButton.href = canvas.toDataURL("image/png");
-                downloadButton.download = "qr-code.png";
-            };
-        }
-
-        // Ενημέρωση QR Code όταν αλλάζει το PDF ή το χρώμα
-        pdfSelect.addEventListener("change", updatePreview);
-        colorInput.addEventListener("input", updatePreview);
-
-        // Αρχική Προεπισκόπηση
-        updatePreview();
     </script>
 </body>
 </html>
