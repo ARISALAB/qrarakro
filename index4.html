@@ -6,7 +6,87 @@
     <title>Upload Files to GitHub with QR Code</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-   
+    <style>
+        /* Γενικό στυλ για το σώμα της σελίδας */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD; /* Ελαφρύ μπλε για το φόντο */
+            color: #0D47A1; /* Σκούρο μπλε για το κείμενο */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0D47A1; /* Σκούρο μπλε για τίτλο */
+            margin-top: 50px;
+        }
+
+        /* Στυλ για τη φόρμα */
+        form {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin-right: 10px;
+            border: 2px solid #0D47A1; /* Σκούρο μπλε περίγραμμα */
+            border-radius: 5px;
+            background-color: #FFEB3B; /* Κίτρινο για το κουμπί */
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #FFEB3B; /* Κίτρινο για το κουμπί */
+            color: #0D47A1; /* Σκούρο μπλε κείμενο */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #FFD600; /* Σκούρο κίτρινο στο hover */
+        }
+
+        /* Στυλ για τα μηνύματα κατάστασης */
+        #status {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 18px;
+            color: #388E3C; /* Πράσινο για το επιτυχές μήνυμα */
+        }
+
+        #status.error {
+            color: #D32F2F; /* Κόκκινο για το σφάλμα */
+        }
+
+        /* Στυλ για τον QR Code */
+        #qrcode {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Στυλ για το σύνδεσμο πλήρους προβολής αρχείου */
+        #fileLink {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #0D47A1;
+        }
+
+        #fileLink a {
+            color: #FFEB3B; /* Κίτρινος σύνδεσμος */
+            text-decoration: none;
+        }
+
+        #fileLink a:hover {
+            color: #FFD600; /* Σκούρο κίτρινο στο hover */
+        }
+    </style>
 </head>
 <body>
     <h1>Upload Files to GitHub</h1>
