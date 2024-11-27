@@ -3,151 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload PDF and Generate QR Code</title>
+    <title>PDF QR Code Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script type="module">
-        // Import Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA0oLrWu04w1PUjFbcQh12sxC38Ub-7gJk",
-            authDomain: "myakorncashier.firebaseapp.com",
-            projectId: "myakorncashier",
-            storageBucket: "myakorncashier.appspot.com",
-            messagingSenderId: "58579009346",
-            appId: "1:58579009346:web:29053890cf5c0b774f92db",
-            measurementId: "G-GQG4GEB6PM"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
-
-        // Function to upload PDF to Firebase Storage
-        async function uploadPDF(file) {
-            if (!file) {
-                alert("Please select a PDF file to upload.");
-                return null;
-            }
-
-            try {
-                // Reference in Firebase Storage
-                const storageRef = ref(storage, `pdfs/${file.name}`);
-
-                // Upload file
-                await uploadBytes(storageRef, file);
-
-                // Get file URL
-                const fileUrl = await getDownloadURL(storageRef);
-
-                alert("File uploaded successfully!");
-                return fileUrl;
-            } catch (error) {
-                console.error("Upload error:", error);
-                alert("Failed to upload the file. Please try again.");
-                return null;
-            }
-        }
-
-        // Event listener for upload and QR Code generation
-        document.addEventListener("DOMContentLoaded", () => {
-            const uploadButton = document.getElementById("uploadButton");
-            uploadButton.addEventListener("click", async () => {
-                const pdfInput = document.getElementById("pdfFile").files[0];
-
-                // Upload PDF
-                const fileUrl = await uploadPDF(pdfInput);
-
-                if (fileUrl) {
-                    // Generate QR Code
-                    const qrCanvas = document.getElementById("qrCanvas");
-                    const qrCode = new QRious({
-                        element: qrCanvas,
-                        value: fileUrl,
-                        size: 300,
-                    });
-
-                    // Enable download button for QR Code
-                    const downloadLink = document.getElementById("downloadQR");
-                    downloadLink.style.display = "block";
-                    downloadLink.href = qrCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-                    downloadLink.download = "qr-code.png";
-                }
-            });
-        });
-    </script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #00008b, #ffd700);
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .container {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
             text-align: center;
         }
-
-        .container input,
-        .container button {
-            margin: 10px 0;
-            padding: 10px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 0;
         }
-
-        .container button {
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            font-size: 16px;
+        header h1 {
+            margin: 0;
+            font-size: 24px;
         }
-
-        .container button:hover {
-            background-color: #0056b3;
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: black;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
-        #qrCanvas {
-            margin-top: 20px;
+        .section {
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            background: linear-gradient(to bottom, #4b0082, #ff0000);
+            border-radius: 8px;
+        }
+        .section label, .section select, .section input {
             display: block;
+            width: 100%;
+            margin-bottom: 10px;
         }
-
+        .section input[type="color"] {
+            max-width: 200px;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+        }
         .download-button {
-            margin-top: 10px;
-            background-color: #28a745;
+            background-color: #007bff;
             color: white;
-            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            display: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
         }
-
         .download-button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>PDF QR Code Generator</h1>
+    </header>
     <div class="container">
-        <h1>Upload PDF and Generate QR Code</h1>
-        <input type="file" id="pdfFile" accept="application/pdf">
-        <button id="uploadButton">Upload and Generate QR Code</button>
-        <canvas id="qrCanvas" width="300" height="300"></canvas>
-        <a id="downloadQR" class="download-button">Download QR Code</a>
+        <!-- Επιλογή PDF -->
+        <div class="section">
+            <label for="pdfName">Select a PDF:</label>
+            <select id="pdfName">
+                <option value="document1.pdf">Document 1</option>
+                <option value="example.pdf">Example PDF</option>
+            </select>
+        </div>
+
+        <!-- Επιλογή Χρώματος QR Code -->
+        <div class="section">
+            <label for="qrColor">QR Code Color:</label>
+            <input type="color" id="qrColor" value="#000000">
+        </div>
+
+        <!-- Προεπισκόπηση QR Code -->
+        <div class="section">
+            <h4>QR Code Preview</h4>
+            <canvas id="previewCanvas" width="300" height="300"></canvas>
+        </div>
+
+        <!-- Κουμπί Λήψης -->
+        <button id="downloadLink" class="download-button" style="display:none;">Download QR Code</button>
     </div>
+
+    <script>
+        // Βασική URL για το GitHub Pages
+        const baseURL = "https://<username>.github.io/<repository-name>/pdfs/";
+
+        // Επιλογή στοιχείων
+        const pdfSelect = document.getElementById("pdfName");
+        const colorInput = document.getElementById("qrColor");
+        const canvas = document.getElementById("previewCanvas");
+        const context = canvas.getContext("2d");
+        const downloadButton = document.getElementById("downloadLink");
+
+        // Ενημέρωση QR Code
+        function updatePreview() {
+            const selectedPDF = pdfSelect.value;
+            const qrColor = colorInput.value;
+
+            const fullURL = baseURL + selectedPDF;
+
+            const qr = new QRious({
+                value: fullURL,
+                size: 300,
+                foreground: qrColor,
+            });
+
+            // Καθαρισμός και σχεδίαση QR Code στο canvas
+            const qrImage = new Image();
+            qrImage.src = qr.toDataURL();
+            qrImage.onload = function () {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(qrImage, 0, 0);
+
+                // Ενεργοποίηση κουμπιού λήψης
+                downloadButton.style.display = "inline-block";
+                downloadButton.href = canvas.toDataURL("image/png");
+                downloadButton.download = "qr-code.png";
+            };
+        }
+
+        // Ενημέρωση QR Code όταν αλλάζει το PDF ή το χρώμα
+        pdfSelect.addEventListener("change", updatePreview);
+        colorInput.addEventListener("input", updatePreview);
+
+        // Αρχική Προεπισκόπηση
+        updatePreview();
+    </script>
 </body>
 </html>
