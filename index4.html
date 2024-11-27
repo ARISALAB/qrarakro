@@ -20,7 +20,7 @@
 
     <script>
         // GitHub API URL και το προσωπικό GitHub token
-        const GITHUB_API_URL = "https://api.github.com/repos/ARISALAB/qrarakro/contents/";
+        const GITHUB_API_URL = "https://api.github.com/repos/ARISALAB/qrarakro/contents/uploads/"; // Δημιουργία φακέλου "uploads"
         const GITHUB_TOKEN = "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";  // Αντικατέστησε με το προσωπικό σου GitHub token
 
         // Σύνδεση φόρμας με το JavaScript
@@ -39,11 +39,11 @@
             const fileContent = await readFileAsArrayBuffer(file);
             const fileBase64 = arrayBufferToBase64(fileContent);  // Μετατροπή του περιεχομένου σε Base64
 
-            const path = file.name;  // Το όνομα του αρχείου στο GitHub repository
+            const path = "uploads/" + file.name;  // Αποθήκευση στον φάκελο "uploads"
             const message = "Ανέβασμα αρχείου μέσω εφαρμογής";
 
             // Αίτηση προς το GitHub API για να ανεβάσουμε το αρχείο
-            const response = await fetch(GITHUB_API_URL + path, {
+            const response = await fetch(GITHUB_API_URL + file.name, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${GITHUB_TOKEN}`,
