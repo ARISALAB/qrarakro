@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Files to GitHub</title>
+    <title>Upload Files to GitHub with QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
 <body>
     <h1>Upload Files to GitHub</h1>
@@ -13,6 +15,7 @@
     </form>
 
     <div id="status"></div>
+    <div id="qrcode"></div> <!-- QR Code θα εμφανίζεται εδώ -->
 
     <script>
         // GitHub API URL και το προσωπικό GitHub token
@@ -55,7 +58,11 @@
             const result = await response.json();
 
             if (response.ok) {
+                // Εμφάνιση μηνύματος επιτυχίας
                 document.getElementById("status").textContent = `Αρχείο ανέβηκε με επιτυχία: ${result.content.html_url}`;
+                
+                // Δημιουργία QR Code
+                generateQRCode(result.content.html_url); // Δημιουργεί QR Code με το URL του αρχείου
             } else {
                 document.getElementById("status").textContent = `Σφάλμα: ${result.message}`;
             }
@@ -80,6 +87,22 @@
                 binary += String.fromCharCode(bytes[i]);
             }
             return window.btoa(binary);  // Χρησιμοποιούμε btoa για να μετατρέψουμε σε Base64
+        }
+
+        // Δημιουργία QR Code με το URL
+        function generateQRCode(url) {
+            const qrcodeContainer = document.getElementById("qrcode");
+            // Καθαρίζει τυχόν προηγούμενα QR codes
+            qrcodeContainer.innerHTML = '';
+            // Δημιουργεί το νέο QR Code
+            new QRCode(qrcodeContainer, {
+                text: url,  // Το URL που θα χρησιμοποιηθεί για τον QR Code
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
         }
     </script>
 </body>
