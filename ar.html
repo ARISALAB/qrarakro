@@ -3,121 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vCard Generator</title>
+    <title>V-Card Creator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #00008b, #ffd700);
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
+            padding: 0;
+            color: #ffffff;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1 {
+        
+        header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 0;
             text-align: center;
-            color: #333;
         }
-        form {
-            display: flex;
-            flex-direction: column;
+        header h1 {
+            margin: 0;
+            font-size: 24px;
         }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: black;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        h2 {
+            color: #ffd700;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
         label {
-            margin-top: 10px;
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
         }
-        input, button {
-            margin-top: 5px;
+
+        input[type="text"], input[type="email"], input[type="file"] {
+            width: calc(100% - 20px);
             padding: 10px;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 4px;
+            margin-bottom: 10px;
         }
-        button {
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #qr-code {
-            margin-top: 20px;
+
+        .v-card {
+            background-color: white;
+            color: black;
+            border-radius: 8px;
+            padding: 20px;
             text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-        img {
-            max-width: 100%;
-            height: auto;
+
+        .v-card img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            background-color: #000000;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Create Your V-Card</h1>
+    </header>
+
     <div class="container">
-        <h1>vCard Generator</h1>
-        <form id="vcard-form">
-            <label for="company">Company Name:</label>
-            <input type="text" id="company" name="company" required>
+        <h2>Enter Your Information</h2>
+        <form id="vCardForm">
+            <div class="form-section">
+                <label for="companyName">Company Name:</label>
+                <input type="text" id="companyName" placeholder="Enter your company name" required>
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <div class="form-section">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
 
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
+            <div class="form-section">
+                <label for="address">Address:</label>
+                <input type="text" id="address" placeholder="Enter your address">
+            </div>
 
-            <label for="phone">Phone:</label>
-            <input type="tel" id="phone" name="phone" required>
+            <div class="form-section">
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" placeholder="Enter your phone number">
+            </div>
 
-            <label for="website">Website:</label>
-            <input type="url" id="website" name="website">
+            <div class="form-section">
+                <label for="website">Website:</label>
+                <input type="text" id="website" placeholder="Enter your website">
+            </div>
 
-            <label for="logo">Upload Logo:</label>
-            <input type="file" id="logo" accept="image/*">
+            <div class="form-section">
+                <label for="logo">Upload Logo:</label>
+                <input type="file" id="logo" accept="image/*">
+            </div>
 
-            <label for="profile">Upload Profile Picture:</label>
-            <input type="file" id="profile" accept="image/*">
+            <div class="form-section">
+                <label for="profilePicture">Upload Profile Picture:</label>
+                <input type="file" id="profilePicture" accept="image/*">
+            </div>
 
-            <button type="button" id="generate-button">Generate vCard</button>
+            <button type="button" class="button" onclick="generateVCard()">Create V-Card</button>
         </form>
 
-        <div id="qr-code"></div>
+        <div id="vCard" class="v-card" style="display:none;">
+            <img id="profileImage" src="" alt="Profile Picture">
+            <h2 id="vCompanyName"></h2>
+            <p id="vEmail"></p>
+            <p id="vAddress"></p>
+            <p id="vPhone"></p>
+            <p id="vWebsite"></p>
+        </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <footer>
+        &copy; 2024 V-Card Creator
+    </footer>
+
     <script>
-      document.getElementById('generate-button').addEventListener('click', () => {
-    const company = document.getElementById('company').value;
-    const email = document.getElementById('email').value;
-    const address = document.getElementById('address').value;
-    const phone = document.getElementById('phone').value;
-    const website = document.getElementById('website').value;
+        function generateVCard() {
+            const companyName = document.getElementById('companyName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            const website = document.getElementById('website').value;
 
-    if (!company || !email || !address || !phone) {
-        alert('Please fill in all required fields.');
-        return;
-    }
+            const profilePicture = document.getElementById('profilePicture').files[0];
+            const profileImage = document.getElementById('profileImage');
 
-    const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${company}\nEMAIL:${email}\nTEL:${phone}\nADR:${address}\nURL:${website}\nEND:VCARD`;
+            if (profilePicture) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImage.src = e.target.result;
+                };
+                reader.readAsDataURL(profilePicture);
+            } else {
+                profileImage.src = '';
+            }
 
-    if (vCardData.length > 1576) {
-        alert('The data exceeds the maximum length for a QR Code. Please shorten your input.');
-        return;
-    }
+            document.getElementById('vCompanyName').textContent = companyName;
+            document.getElementById('vEmail').textContent = `Email: ${email}`;
+            document.getElementById('vAddress').textContent = `Address: ${address}`;
+            document.getElementById('vPhone').textContent = `Phone: ${phone}`;
+            document.getElementById('vWebsite').textContent = `Website: ${website}`;
 
-    const qrCodeContainer = document.getElementById('qr-code');
-    qrCodeContainer.innerHTML = '';
-
-    new QRCode(qrCodeContainer, {
-        text: vCardData,
-        width: 200,
-        height: 200,
-        correctLevel: QRCode.CorrectLevel.H // Higher error correction level
-    });
-});
-
+            document.getElementById('vCard').style.display = 'block';
+        }
     </script>
 </body>
 </html>
