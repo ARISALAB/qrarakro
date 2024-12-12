@@ -38,7 +38,11 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        #qrcode {
+            margin-top: 20px;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
     <h1>V-Card Generator</h1>
@@ -71,6 +75,7 @@
     </div>
 
     <div id="preview" class="preview" style="display: none;"></div>
+    <div id="qrcode" style="display: none;"></div>
 
     <script>
         function generateVCardURL() {
@@ -110,6 +115,15 @@
                 <p><strong>Website:</strong> ${website}</p>
                 <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
             `;
+
+            // Generate QR Code
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.style.display = 'block';
+            qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
+            QRCode.toCanvas(document.createElement('canvas'), vCardURL, function (error, canvas) {
+                if (error) console.error(error);
+                qrcodeDiv.appendChild(canvas);
+            });
         }
 
         // If URL has parameters, display the V-Card
