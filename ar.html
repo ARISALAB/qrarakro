@@ -132,126 +132,128 @@
     <div id="qrcode" style="display: none;"></div>
 
     <script>
+        let profilePictureBase64 = "";
+        let backCoverBase64 = "";
     
-               let profilePictureBase64 = "";
-let backCoverBase64 = "";
-
-document.getElementById('profilePicture').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function () {
-        profilePictureBase64 = reader.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-document.getElementById('backCover').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function () {
-        backCoverBase64 = reader.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-function generateVCardURL() {
-    // Get form values
-    const companyName = document.getElementById('companyName').value;
-    const email = document.getElementById('email').value;
-    const address = document.getElementById('address').value;
-    const phone = document.getElementById('phone').value;
-    const website = document.getElementById('website').value;
-
-    // Validate inputs
-    if (!companyName || !email || !address || !phone || !website) {
-        alert('Please fill in all fields.');
-        return;
-    }
-
-    // Create a JSON object to hold the data (without images)
-    const vCardData = {
-        companyName,
-        email,
-        address,
-        phone,
-        website,
-    };
-
-    // Save images in sessionStorage
-    sessionStorage.setItem('profilePictureBase64', profilePictureBase64);
-    sessionStorage.setItem('backCoverBase64', backCoverBase64);
-
-    // Generate a shareable URL
-    const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
-
-    // Display preview
-    const preview = document.getElementById('preview');
-    preview.style.display = 'block';
-    preview.innerHTML = `
-        <div class="vcard-container">
-            <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
-            <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
-            <div class="vcard-content">
-                <h2>${companyName}</h2>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Address:</strong> ${address}</p>
-                <p><strong>Phone:</strong> ${phone}</p>
-                <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
-            </div>
-        </div>
-        <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
-    `;
-
-    // Generate QR Code (only with the URL)
-    const qrcodeDiv = document.getElementById('qrcode');
-    qrcodeDiv.style.display = 'block';
-    qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
-    QRCode.toCanvas(vCardURL, { errorCorrectionLevel: 'H' }, function (error, canvas) {
-        if (error) {
-            console.error(error);
-            alert('Failed to generate QR code. The data might be too large.');
-            qrcodeDiv.innerHTML += '<p style="color: red;">QR Code generation failed. Try reducing the amount of data.</p>';
-            return;
-        }
-        qrcodeDiv.appendChild(canvas);
-    });
-}
-
-// On page load, parse the data from the URL
-window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    const data = params.get('data');
-    if (data) {
-        const vCardData = JSON.parse(decodeURIComponent(data));
-        const { companyName, email, address, phone, website } = vCardData;
-
-        // Retrieve images from sessionStorage
-        const profilePictureBase64 = sessionStorage.getItem('profilePictureBase64') || '';
-        const backCoverBase64 = sessionStorage.getItem('backCoverBase64') || '';
-
-        const preview = document.getElementById('preview');
-        preview.style.display = 'block';
-        preview.innerHTML = `
-            <div class="vcard-container">
-                <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
-                <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
-                <div class="vcard-content">
-                    <h2>${companyName}</h2>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Address:</strong> ${address}</p>
-                    <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+        // Χρησιμοποίηση GitHub URL για εμφάνιση εικόνας
+        const githubBaseURL = "https://raw.githubusercontent.com/ARISALAB/qrarakro/main/uploads/";
+    
+        document.getElementById('profilePicture').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                // Χρησιμοποίησε το URL του GitHub για να αποθηκεύσεις το URL της εικόνας
+                profilePictureBase64 = githubBaseURL + file.name;
+            };
+            reader.readAsDataURL(file);
+        });
+    
+        document.getElementById('backCover').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                // Χρησιμοποίησε το URL του GitHub για να αποθηκεύσεις το URL της εικόνας
+                backCoverBase64 = githubBaseURL + file.name;
+            };
+            reader.readAsDataURL(file);
+        });
+    
+        function generateVCardURL() {
+            // Πάρε τις τιμές από τη φόρμα
+            const companyName = document.getElementById('companyName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            const website = document.getElementById('website').value;
+    
+            // Έλεγχος εγκυρότητας εισόδων
+            if (!companyName || !email || !address || !phone || !website) {
+                alert('Please fill in all fields.');
+                return;
+            }
+    
+            // Δημιουργία αντικειμένου vCard (χωρίς τις εικόνες)
+            const vCardData = {
+                companyName,
+                email,
+                address,
+                phone,
+                website,
+            };
+    
+            // Αποθήκευση των εικόνων στο sessionStorage
+            sessionStorage.setItem('profilePictureBase64', profilePictureBase64);
+            sessionStorage.setItem('backCoverBase64', backCoverBase64);
+    
+            // Δημιουργία URL για το shareable vCard
+            const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
+    
+            // Προεπισκόπηση
+            const preview = document.getElementById('preview');
+            preview.style.display = 'block';
+            preview.innerHTML = `
+                <div class="vcard-container">
+                    <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
+                    <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
+                    <div class="vcard-content">
+                        <h2>${companyName}</h2>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Address:</strong> ${address}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
+                        <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+                    </div>
                 </div>
-            </div>
-        `;
-
-        document.getElementById('vcard-form').style.display = 'none';
-    }
-};
-        
+                <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
+            `;
     
-        
+            // Δημιουργία QR Code (μόνο με το URL)
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.style.display = 'block';
+            qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
+            QRCode.toCanvas(vCardURL, { errorCorrectionLevel: 'H' }, function (error, canvas) {
+                if (error) {
+                    console.error(error);
+                    alert('Failed to generate QR code. The data might be too large.');
+                    qrcodeDiv.innerHTML += '<p style="color: red;">QR Code generation failed. Try reducing the amount of data.</p>';
+                    return;
+                }
+                qrcodeDiv.appendChild(canvas);
+            });
+        }
+    
+        // Κατά την φόρτωση της σελίδας, αν υπάρχει δεδομένα στο URL, εμφάνιση της vCard
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            if (data) {
+                const vCardData = JSON.parse(decodeURIComponent(data));
+                const { companyName, email, address, phone, website } = vCardData;
+    
+                // Ανάκτηση εικόνων από το sessionStorage
+                const profilePictureBase64 = sessionStorage.getItem('profilePictureBase64') || '';
+                const backCoverBase64 = sessionStorage.getItem('backCoverBase64') || '';
+    
+                const preview = document.getElementById('preview');
+                preview.style.display = 'block';
+                preview.innerHTML = `
+                    <div class="vcard-container">
+                        <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
+                        <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
+                        <div class="vcard-content">
+                            <h2>${companyName}</h2>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Address:</strong> ${address}</p>
+                            <p><strong>Phone:</strong> ${phone}</p>
+                            <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+                        </div>
+                    </div>
+                `;
+    
+                document.getElementById('vcard-form').style.display = 'none';
+            }
+        };
     </script>
+    
     
 </body>
 </html>
