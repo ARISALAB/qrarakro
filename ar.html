@@ -41,7 +41,11 @@
         #qrcode {
             margin-top: 20px;
         }
-       
+        .image-preview {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
     </style>
     <style>
         .vcard-container {
@@ -121,11 +125,10 @@
             <label for="backCover">Back Cover</label>
             <input type="file" id="backCover" accept="image/*">
         </div>
-        <div id="preview" class="preview" style="display: none;"></div>
-
         <button class="button" onclick="generateVCardURL()">Preview & Generate URL</button>
     </div>
 
+    <div id="preview" class="preview" style="display: none;"></div>
     <div id="qrcode" style="display: none;"></div>
 
     <script>
@@ -164,18 +167,17 @@
         return;
     }
 
-    // Create URL parameters
-    const params = new URLSearchParams({
+    // Create a JSON object to hold the data
+    const vCardData = {
         companyName,
         email,
         address,
         phone,
         website,
-        profilePicture: profilePictureBase64,
-        backCover: backCoverBase64
-    }).toString();
+    };
 
-    const vCardURL = `${window.location.origin}${window.location.pathname}?${params}`;
+    // Generate a shareable URL
+    const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
 
     // Display preview
     const preview = document.getElementById('preview');
@@ -195,29 +197,29 @@
         <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
     `;
 
-    // Generate QR Code
+    // Generate QR Code (only with the URL)
     const qrcodeDiv = document.getElementById('qrcode');
     qrcodeDiv.style.display = 'block';
     qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
-    QRCode.toCanvas(document.createElement('canvas'), vCardURL, function (error, canvas) {
-        if (error) console.error(error);
+    QRCode.toCanvas(vCardURL, { errorCorrectionLevel: 'H' }, function (error, canvas) {
+        if (error) {
+            console.error(error);
+            alert('Failed to generate QR code. The data might be too large.');
+            qrcodeDiv.innerHTML += '<p style="color: red;">QR Code generation failed. Try reducing the amount of data.</p>';
+            return;
+        }
         qrcodeDiv.appendChild(canvas);
     });
 }
 
 
+// On page load, parse the data from the URL
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
-    if (params.toString()) {
-        const companyName = params.get('companyName');
-        const email = params.get('email');
-        const address = params.get('address');
-        const phone = params.get('phone');
-        const website = params.get('website');
-        const profilePicture = params.get('profilePicture');
-        const backCover = params.get('backCover');
-        
-        console.log(companyName, email, address, phone, website); // Ελέγξτε αν τα δεδομένα ανακτώνται σωστά
+    const data = params.get('data');
+    if (data) {
+        const vCardData = JSON.parse(decodeURIComponent(data));
+        const { companyName, email, address, phone, website } = vCardData;
 
         const preview = document.getElementById('preview');
         preview.style.display = 'block';
@@ -228,11 +230,9 @@ window.onload = () => {
             <p><strong>Address:</strong> ${address}</p>
             <p><strong>Phone:</strong> ${phone}</p>
             <p><strong>Website:</strong> ${website}</p>
-            <p><strong>Profile Picture:</strong></p>
-            <img src="${profilePicture}" alt="Profile Picture" class="image-preview">
-            <p><strong>Back Cover:</strong></p>
-            <img src="${backCover}" alt="Back Cover" class="image-preview">
         `;
+
+        document.getElementById('vcard-form').style.display = 'none';
     }
 };
 
