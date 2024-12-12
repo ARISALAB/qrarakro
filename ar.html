@@ -88,29 +88,36 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        document.getElementById('generate-button').addEventListener('click', () => {
-            const company = document.getElementById('company').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const phone = document.getElementById('phone').value;
-            const website = document.getElementById('website').value;
+      document.getElementById('generate-button').addEventListener('click', () => {
+    const company = document.getElementById('company').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const phone = document.getElementById('phone').value;
+    const website = document.getElementById('website').value;
 
-            if (!company || !email || !address || !phone) {
-                alert('Please fill in all required fields.');
-                return;
-            }
+    if (!company || !email || !address || !phone) {
+        alert('Please fill in all required fields.');
+        return;
+    }
 
-            const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${company}\nEMAIL:${email}\nTEL:${phone}\nADR:${address}\nURL:${website}\nEND:VCARD`;
+    const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${company}\nEMAIL:${email}\nTEL:${phone}\nADR:${address}\nURL:${website}\nEND:VCARD`;
 
-            const qrCodeContainer = document.getElementById('qr-code');
-            qrCodeContainer.innerHTML = '';
+    if (vCardData.length > 1576) {
+        alert('The data exceeds the maximum length for a QR Code. Please shorten your input.');
+        return;
+    }
 
-            new QRCode(qrCodeContainer, {
-                text: vCardData,
-                width: 200,
-                height: 200,
-            });
-        });
+    const qrCodeContainer = document.getElementById('qr-code');
+    qrCodeContainer.innerHTML = '';
+
+    new QRCode(qrCodeContainer, {
+        text: vCardData,
+        width: 200,
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.H // Higher error correction level
+    });
+});
+
     </script>
 </body>
 </html>
