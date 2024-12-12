@@ -126,7 +126,6 @@
         <button class="button" onclick="generateVCardURL()">Preview & Generate URL</button>
     </div>
 
-    <div id="preview" class="preview" style="display: none;"></div>
     <div id="qrcode" style="display: none;"></div>
 
     <script>
@@ -207,36 +206,36 @@
 }
 
 
-        // If URL has parameters, display the V-Card
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.toString()) {
-                const companyName = params.get('companyName');
-                const email = params.get('email');
-                const address = params.get('address');
-                const phone = params.get('phone');
-                const website = params.get('website');
-                const profilePicture = params.get('profilePicture');
-                const backCover = params.get('backCover');
+window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.toString()) {
+        const companyName = params.get('companyName');
+        const email = params.get('email');
+        const address = params.get('address');
+        const phone = params.get('phone');
+        const website = params.get('website');
+        const profilePicture = params.get('profilePicture');
+        const backCover = params.get('backCover');
+        
+        console.log(companyName, email, address, phone, website); // Ελέγξτε αν τα δεδομένα ανακτώνται σωστά
 
-                const preview = document.getElementById('preview');
-                preview.style.display = 'block';
-                preview.innerHTML = `
-                    <h2>V-Card</h2>
-                    <p><strong>Company Name:</strong> ${companyName}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Address:</strong> ${address}</p>
-                    <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Website:</strong> ${website}</p>
-                    <p><strong>Profile Picture:</strong></p>
-                    <img src="${profilePicture}" alt="Profile Picture" class="image-preview">
-                    <p><strong>Back Cover:</strong></p>
-                    <img src="${backCover}" alt="Back Cover" class="image-preview">
-                `;
+        const preview = document.getElementById('preview');
+        preview.style.display = 'block';
+        preview.innerHTML = `
+            <h2>V-Card</h2>
+            <p><strong>Company Name:</strong> ${companyName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Address:</strong> ${address}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Website:</strong> ${website}</p>
+            <p><strong>Profile Picture:</strong></p>
+            <img src="${profilePicture}" alt="Profile Picture" class="image-preview">
+            <p><strong>Back Cover:</strong></p>
+            <img src="${backCover}" alt="Back Cover" class="image-preview">
+        `;
+    }
+};
 
-                document.getElementById('vcard-form').style.display = 'none';
-            }
-        };
     </script>
 </body>
 </html>
