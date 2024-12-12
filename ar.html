@@ -132,70 +132,156 @@
     <div id="qrcode" style="display: none;"></div>
 
     <script>
-        let profilePictureBase64 = "";
-        let backCoverBase64 = "";
-    
-        // Χρησιμοποίηση GitHub URL για εμφάνιση εικόνας
-         const GITHUB_API_URL = "https://api.github.com/repos/ARISALAB/qrarakro/contents/uploads/"; // Δημιουργία φακέλου "uploads"
-        const GITHUB_TOKEN = "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";  // Αντικαταστήστε με το προσωπικό σας GitHub token
-    
-        document.getElementById('profilePicture').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function () {
-                // Χρησιμοποίησε το URL του GitHub για να αποθηκεύσεις το URL της εικόνας
-                profilePictureBase64 = githubBaseURL + file.name;
-            };
-            reader.readAsDataURL(file);
+     
+    const GITHUB_API_URL = "https://api.github.com/repos/ARISALAB/qrarakro/contents/uploads/";
+    const GITHUB_RAW_URL = "https://raw.githubusercontent.com/ARISALAB/qrarakro/main/uploads/";
+    const GITHUB_TOKEN = "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";
+
+    let profilePictureURL = "";
+    let backCoverURL = "";
+
+    // Διαχείριση επιλογής εικόνας προφίλ
+    document.getElementById('profilePicture').addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            profilePictureURL = await uploadToGitHub(file);
+        }
+    });
+
+    // Διαχείριση επιλογής back cover
+    document.getElementById('backCover').addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            backCoverURL = await uploadToGitHub(file);
+        }
+    });
+
+    // Συνάρτηση για ανέβασμα αρχείου στο GitHub
+    async function uploadToGitHub(file) {
+        const fileContent = await readFileAsArrayBuffer(file);
+        const fileBase64 = arrayBufferToBase64(fileContent);
+
+        const response = await fetch(GITHUB_API_URL + file.name, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                message: "Ανέβασμα αρχείου μέσω εφαρμογής",
+                content: fileBase64,
+                branch: "main"
+            }),
         });
-    
-        document.getElementById('backCover').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function () {
-                // Χρησιμοποίησε το URL του GitHub για να αποθηκεύσεις το URL της εικόνας
-                backCoverBase64 = githubBaseURL + file.name;
-            };
-            reader.readAsDataURL(file);
-        });
-    
-        function generateVCardURL() {
-            // Πάρε τις τιμές από τη φόρμα
-            const companyName = document.getElementById('companyName').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const phone = document.getElementById('phone').value;
-            const website = document.getElementById('website').value;
-    
-            // Έλεγχος εγκυρότητας εισόδων
-            if (!companyName || !email || !address || !phone || !website) {
-                alert('Please fill in all fields.');
+
+        if (response.ok) {
+            const rawURL = `${GITHUB_RAW_URL}${file.name}`;
+            alert(`Η εικόνα ${file.name} ανέβηκε με επιτυχία: ${rawURL}`);
+            return rawURL;
+        } else {
+            alert(`Αποτυχία ανεβάσματος της εικόνας ${file.name}`);
+            return "";
+        }
+    }
+
+    // Δημιουργία VCard URL και QR Code
+    function generateVCardURL() {
+        const companyName = document.getElementById('companyName').value;
+        const email = document.getElementById('email').value;
+        const address = document.getElementById('address').value;
+        const phone = document.getElementById('phone').value;
+        const website = document.getElementById('website').value;
+
+        if (!companyName || !email || !address || !phone || !website) {
+            alert('Παρακαλώ συμπληρώστε όλα τα πεδία.');
+            return;
+        }
+
+        const vCardData = {
+            companyName,
+            email,
+            address,
+            phone,
+            website,
+            profilePictureURL,
+            backCoverURL,
+        };
+
+        const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
+
+        // Εμφάνιση προεπισκόπησης
+        const preview = document.getElementById('preview');
+        preview.style.display = 'block';
+        preview.innerHTML = `
+            <div class="vcard-container">
+                <div class="vcard-backcover" style="background-image: url('${backCoverURL}')"></div>
+                <div class="vcard-profile-picture" style="background-image: url('${profilePictureURL}')"></div>
+                <div class="vcard-content">
+                    <h2>${companyName}</h2>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Address:</strong> ${address}</p>
+                    <p><strong>Phone:</strong> ${phone}</p>
+                    <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+                </div>
+            </div>
+            <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
+        `;
+
+        // Δημιουργία QR Code
+        generateQRCode(vCardURL);
+    }
+
+    // Συνάρτηση δημιουργίας QR Code
+    function generateQRCode(vCardURL) {
+        const qrcodeDiv = document.getElementById('qrcode');
+        qrcodeDiv.style.display = 'block';
+        qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
+
+        QRCode.toCanvas(vCardURL, { errorCorrectionLevel: 'H' }, function (error, canvas) {
+            if (error) {
+                console.error(error);
+                alert('Αποτυχία δημιουργίας QR Code. Τα δεδομένα μπορεί να είναι πολύ μεγάλα.');
+                qrcodeDiv.innerHTML += '<p style="color: red;">QR Code generation failed. Try reducing the amount of data.</p>';
                 return;
             }
-    
-            // Δημιουργία αντικειμένου vCard (χωρίς τις εικόνες)
-            const vCardData = {
-                companyName,
-                email,
-                address,
-                phone,
-                website,
-            };
-    
-            // Αποθήκευση των εικόνων στο sessionStorage
-            sessionStorage.setItem('profilePictureBase64', profilePictureBase64);
-            sessionStorage.setItem('backCoverBase64', backCoverBase64);
-    
-            // Δημιουργία URL για το shareable vCard
-            const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
-    
-            // Προεπισκόπηση
+            qrcodeDiv.appendChild(canvas);
+        });
+    }
+
+    // Διαβάζει αρχείο ως ArrayBuffer
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // Μετατροπή ArrayBuffer σε Base64
+    function arrayBufferToBase64(buffer) {
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+    }
+
+    // Ανάκτηση δεδομένων από URL
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get("data");
+        if (data) {
+            const vCardData = JSON.parse(decodeURIComponent(data));
+            const { companyName, email, address, phone, website, profilePictureURL, backCoverURL } = vCardData;
+
             const preview = document.getElementById('preview');
             preview.style.display = 'block';
             preview.innerHTML = `
                 <div class="vcard-container">
-                    <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
-                    <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
+                    <div class="vcard-backcover" style="background-image: url('${backCoverURL}')"></div>
+                    <div class="vcard-profile-picture" style="background-image: url('${profilePictureURL}')"></div>
                     <div class="vcard-content">
                         <h2>${companyName}</h2>
                         <p><strong>Email:</strong> ${email}</p>
@@ -204,57 +290,10 @@
                         <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
                     </div>
                 </div>
-                <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
             `;
-    
-            // Δημιουργία QR Code (μόνο με το URL)
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.style.display = 'block';
-            qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
-            QRCode.toCanvas(vCardURL, { errorCorrectionLevel: 'H' }, function (error, canvas) {
-                if (error) {
-                    console.error(error);
-                    alert('Failed to generate QR code. The data might be too large.');
-                    qrcodeDiv.innerHTML += '<p style="color: red;">QR Code generation failed. Try reducing the amount of data.</p>';
-                    return;
-                }
-                qrcodeDiv.appendChild(canvas);
-            });
         }
-    
-        // Κατά την φόρτωση της σελίδας, αν υπάρχει δεδομένα στο URL, εμφάνιση της vCard
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            const data = params.get('data');
-            if (data) {
-                const vCardData = JSON.parse(decodeURIComponent(data));
-                const { companyName, email, address, phone, website } = vCardData;
-    
-                // Ανάκτηση εικόνων από το sessionStorage
-                const profilePictureBase64 = sessionStorage.getItem('profilePictureBase64') || '';
-                const backCoverBase64 = sessionStorage.getItem('backCoverBase64') || '';
-    
-                const preview = document.getElementById('preview');
-                preview.style.display = 'block';
-                preview.innerHTML = `
-                    <div class="vcard-container">
-                        <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
-                        <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
-                        <div class="vcard-content">
-                            <h2>${companyName}</h2>
-                            <p><strong>Email:</strong> ${email}</p>
-                            <p><strong>Address:</strong> ${address}</p>
-                            <p><strong>Phone:</strong> ${phone}</p>
-                            <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
-                        </div>
-                    </div>
-                `;
-    
-                document.getElementById('vcard-form').style.display = 'none';
-            }
-        };
-    </script>
-    
-    
+    };
+</script>
+
 </body>
 </html>
