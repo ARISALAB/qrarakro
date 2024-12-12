@@ -243,7 +243,10 @@
                     <div class="action-buttons">
                         <a id="emailButton" href="#" class="action-button"><span>✉️</span><span>Email</span></a>
                         <a id="phoneButton" href="#" class="action-button"><span>📞</span><span>Call</span></a>
+
                     </div>
+                    <button type="button" class="button" onclick="downloadVCard()">Download V-Card</button>
+
                 </div>
             </div>
         </div>
@@ -304,7 +307,49 @@
             // Close the modal
             document.getElementById('vCardModal').style.display = 'none';
         }
+        function downloadVCard() {
+    const companyName = document.getElementById('companyName').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const phone = document.getElementById('phone').value;
+    const website = document.getElementById('website').value;
+
+    // Create a vCard string
+    let vCard = `BEGIN:VCARD\nVERSION:3.0\n`;
+    vCard += `FN:${companyName}\n`;
+    vCard += `EMAIL:${email}\n`;
+    vCard += `TEL:${phone}\n`;
+    vCard += `ADR:${address}\n`;
+    vCard += `URL:${website}\n`;
+
+    // Add profile picture if available
+    const profilePicture = document.getElementById('profilePicture').files[0];
+    if (profilePicture) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const base64Image = e.target.result.split(',')[1]; // Extract Base64
+            vCard += `PHOTO;ENCODING=b;TYPE=JPEG:${base64Image}\n`;
+            finishDownload(vCard);
+        };
+        reader.readAsDataURL(profilePicture);
+    } else {
+        finishDownload(vCard);
+    }
+}
+
+function finishDownload(vCard) {
+    vCard += `END:VCARD`;
+
+    // Create a blob and download it
+    const blob = new Blob([vCard], { type: 'text/vcard' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'vcard.vcf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
     </script>
 </body>
 </html>
-
