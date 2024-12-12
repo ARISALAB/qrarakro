@@ -41,6 +41,11 @@
         #qrcode {
             margin-top: 20px;
         }
+        .image-preview {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
@@ -71,6 +76,10 @@
             <label for="profilePicture">Profile Picture</label>
             <input type="file" id="profilePicture" accept="image/*">
         </div>
+        <div class="form-group">
+            <label for="backCover">Back Cover</label>
+            <input type="file" id="backCover" accept="image/*">
+        </div>
         <button class="button" onclick="generateVCardURL()">Preview & Generate URL</button>
     </div>
 
@@ -78,6 +87,27 @@
     <div id="qrcode" style="display: none;"></div>
 
     <script>
+        let profilePictureBase64 = "";
+        let backCoverBase64 = "";
+
+        document.getElementById('profilePicture').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                profilePictureBase64 = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('backCover').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                backCoverBase64 = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
         function generateVCardURL() {
             // Get form values
             const companyName = document.getElementById('companyName').value;
@@ -98,7 +128,9 @@
                 email,
                 address,
                 phone,
-                website
+                website,
+                profilePicture: profilePictureBase64,
+                backCover: backCoverBase64
             }).toString();
 
             const vCardURL = `${window.location.origin}${window.location.pathname}?${params}`;
@@ -113,6 +145,10 @@
                 <p><strong>Address:</strong> ${address}</p>
                 <p><strong>Phone:</strong> ${phone}</p>
                 <p><strong>Website:</strong> ${website}</p>
+                <p><strong>Profile Picture:</strong></p>
+                <img src="${profilePictureBase64}" alt="Profile Picture" class="image-preview">
+                <p><strong>Back Cover:</strong></p>
+                <img src="${backCoverBase64}" alt="Back Cover" class="image-preview">
                 <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
             `;
 
@@ -135,6 +171,8 @@
                 const address = params.get('address');
                 const phone = params.get('phone');
                 const website = params.get('website');
+                const profilePicture = params.get('profilePicture');
+                const backCover = params.get('backCover');
 
                 const preview = document.getElementById('preview');
                 preview.style.display = 'block';
@@ -145,6 +183,10 @@
                     <p><strong>Address:</strong> ${address}</p>
                     <p><strong>Phone:</strong> ${phone}</p>
                     <p><strong>Website:</strong> ${website}</p>
+                    <p><strong>Profile Picture:</strong></p>
+                    <img src="${profilePicture}" alt="Profile Picture" class="image-preview">
+                    <p><strong>Back Cover:</strong></p>
+                    <img src="${backCover}" alt="Back Cover" class="image-preview">
                 `;
 
                 document.getElementById('vcard-form').style.display = 'none';
