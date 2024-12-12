@@ -111,6 +111,31 @@
             background-color: #218838;
         }
 
+        .action-buttons {
+            margin-top: 10px;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-button span {
+            margin-left: 5px;
+        }
+
         footer {
             background-color: #000000;
             color: #fff;
@@ -175,6 +200,10 @@
                 <p><span class="icon">📍</span><span id="vAddress"></span></p>
                 <p><span class="icon">📞</span><span id="vPhone"></span></p>
                 <p><span class="icon">🌐</span><span id="vWebsite"></span></p>
+                <div class="action-buttons">
+                    <a id="emailButton" href="#" class="action-button"><span>✉️</span><span>Email</span></a>
+                    <a id="phoneButton" href="#" class="action-button"><span>📞</span><span>Call</span></a>
+                </div>
             </div>
         </div>
     </div>
@@ -222,6 +251,9 @@
             document.getElementById('vAddress').textContent = address;
             document.getElementById('vPhone').textContent = phone;
             document.getElementById('vWebsite').textContent = website;
+
+            document.getElementById('emailButton').href = `mailto:${email}`;
+            document.getElementById('phoneButton').href = `tel:${phone}`;
 
             document.getElementById('vCard').style.display = 'block';
         }
