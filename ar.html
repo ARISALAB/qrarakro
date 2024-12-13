@@ -3,238 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V-Card Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input[type="text"], input[type="email"], input[type="file"] {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        .button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .button:hover {
-            background-color: #218838;
-        }
-        .preview {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        #qrcode {
-            margin-top: 20px;
-        }
-       
-    </style>
+    <title>V-Card Generator with QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <style>
         .vcard-container {
-            position: relative;
-            width: 100%;
+            border: 1px solid #ccc;
+            padding: 20px;
             max-width: 400px;
             margin: 20px auto;
             text-align: center;
-            color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .vcard-backcover {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 150px;
+
+        .vcard-profile-picture, .vcard-backcover {
             background-size: cover;
             background-position: center;
-            z-index: 1;
-        }
-        .vcard-profile-picture {
-            position: relative;
-            margin-top: 75px; /* Center relative to backcover */
             width: 100px;
             height: 100px;
-            border: 3px solid #fff;
+            margin: 0 auto 10px;
             border-radius: 50%;
-            background-size: cover;
-            background-position: center;
-            z-index: 2;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .vcard-content {
-            position: relative;
-            z-index: 3;
-            background: #fff;
-            color: #000;
-            padding: 20px;
-            border-top: 1px solid #ccc;
+
+        .vcard-backcover {
+            width: 100%;
+            height: 150px;
+            border-radius: 0;
+        }
+
+        #qrcode, #vcard-link, #title {
+            display: none;
+        }
+
+        /* Hiding the form when the vCard data is available */
+        #vcard-form {
+            display: block;
+        }
+
+        #preview {
+            display: none;
         }
     </style>
-    
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-    <h1>V-Card Generator</h1>
-    <div id="vcard-form">
-        <div class="form-group">
-            <label for="companyName">Company Name</label>
-            <input type="text" id="companyName" placeholder="Enter company name">
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="Enter email">
-        </div>
-        <div class="form-group">
-            <label for="address">Address</label>
-            <input type="text" id="address" placeholder="Enter address">
-        </div>
-        <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" placeholder="Enter phone number">
-        </div>
-        <div class="form-group">
-            <label for="website">Website</label>
-            <input type="text" id="website" placeholder="Enter website URL">
-        </div>
-        <div class="form-group">
-            <label for="profilePicture">Profile Picture</label>
-            <input type="file" id="profilePicture" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label for="backCover">Back Cover</label>
-            <input type="file" id="backCover" accept="image/*">
-        </div>
-        <div id="preview" class="preview" style="display: none;"></div>
+    <h1 id="title">V-Card Generator with QR Code</h1>
+    <form id="vcard-form">
+        <label>Company Name: <input type="text" id="companyName" required></label><br>
+        <label>Email: <input type="email" id="email" required></label><br>
+        <label>Address: <input type="text" id="address" required></label><br>
+        <label>Phone: <input type="text" id="phone" required></label><br>
+        <label>Website: <input type="url" id="website" required></label><br>
+        <label>Profile Picture: <input type="file" id="profilePicture" accept="image/*"></label><br>
+        <label>Back Cover: <input type="file" id="backCover" accept="image/*"></label><br>
+        <button type="button" onclick="generateVCard()">Generate V-Card</button>
+    </form>
 
-        <button class="button" onclick="generateVCardURL()">Preview & Generate URL</button>
-    </div>
-
-    <div id="preview" class="preview" style="display: none;"></div>
+    <div id="preview" style="display: none;"></div>
     <div id="qrcode" style="display: none;"></div>
+    <div id="vcard-link" style="display: none;"></div>
 
     <script>
-        let profilePictureBase64 = "";
-        let backCoverBase64 = "";
-
-        document.getElementById('profilePicture').addEventListener('change', function (event) {
-            const file = event.target.files[0];
+        const GITHUB_API_URL = "https://api.github.com/repos/ARISALAB/qrarakro/contents/uploads/";
+        const GITHUB_TOKEN = "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";
+    
+        async function uploadToGitHub(file, fileName) {
             const reader = new FileReader();
-            reader.onload = function () {
-                profilePictureBase64 = reader.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        document.getElementById('backCover').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function () {
-                backCoverBase64 = reader.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function generateVCardURL() {
-    // Get form values
-    const companyName = document.getElementById('companyName').value;
-    const email = document.getElementById('email').value;
-    const address = document.getElementById('address').value;
-    const phone = document.getElementById('phone').value;
-    const website = document.getElementById('website').value;
-
-    // Validate inputs
-    if (!companyName || !email || !address || !phone || !website) {
-        alert('Please fill in all fields.');
-        return;
-    }
-
-    // Create URL parameters
-    const params = new URLSearchParams({
-        companyName,
-        email,
-        address,
-        phone,
-        website,
-        profilePicture: profilePictureBase64,
-        backCover: backCoverBase64
-    }).toString();
-
-    const vCardURL = `${window.location.origin}${window.location.pathname}?${params}`;
-
-    // Display preview
-    const preview = document.getElementById('preview');
-    preview.style.display = 'block';
-    preview.innerHTML = `
-        <div class="vcard-container">
-            <div class="vcard-backcover" style="background-image: url('${backCoverBase64}')"></div>
-            <div class="vcard-profile-picture" style="background-image: url('${profilePictureBase64}')"></div>
-            <div class="vcard-content">
-                <h2>${companyName}</h2>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Address:</strong> ${address}</p>
-                <p><strong>Phone:</strong> ${phone}</p>
-                <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
-            </div>
-        </div>
-        <p><a href="${vCardURL}" target="_blank">Shareable V-Card Link</a></p>
-    `;
-
-    // Generate QR Code
-    const qrcodeDiv = document.getElementById('qrcode');
-    qrcodeDiv.style.display = 'block';
-    qrcodeDiv.innerHTML = '<h2>QR Code</h2>';
-    QRCode.toCanvas(document.createElement('canvas'), vCardURL, function (error, canvas) {
-        if (error) console.error(error);
-        qrcodeDiv.appendChild(canvas);
-    });
-}
-
-
-        // If URL has parameters, display the V-Card
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.toString()) {
-                const companyName = params.get('companyName');
-                const email = params.get('email');
-                const address = params.get('address');
-                const phone = params.get('phone');
-                const website = params.get('website');
-                const profilePicture = params.get('profilePicture');
-                const backCover = params.get('backCover');
-
+            return new Promise((resolve, reject) => {
+                reader.onload = async (event) => {
+                    const base64Image = event.target.result.split(',')[1];
+                    const response = await fetch(`${GITHUB_API_URL}${fileName}`, {
+                        method: "PUT",
+                        headers: {
+                            Authorization: `Bearer ${GITHUB_TOKEN}`,
+                            Accept: "application/vnd.github.v3+json",
+                        },
+                        body: JSON.stringify({
+                            message: `Uploaded ${fileName}`,
+                            content: base64Image,
+                        }),
+                    });
+    
+                    if (response.ok) {
+                        const result = await response.json();
+                        resolve(result.content.download_url);
+                    } else {
+                        const error = await response.json();
+                        reject(error);
+                    }
+                };
+    
+                reader.onerror = () => reject("Error reading file");
+                reader.readAsDataURL(file);
+            });
+        }
+    
+        async function generateVCard() {
+            const companyName = document.getElementById('companyName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            const website = document.getElementById('website').value;
+    
+            const profilePictureFile = document.getElementById('profilePicture').files[0];
+            const backCoverFile = document.getElementById('backCover').files[0];
+    
+            if (!companyName || !email || !address || !phone || !website || !profilePictureFile || !backCoverFile) {
+                alert("Please fill all fields and upload images.");
+                return;
+            }
+    
+            try {
+                // Upload images to GitHub
+                const profilePictureURL = await uploadToGitHub(profilePictureFile, `profile_${Date.now()}.jpg`);
+                const backCoverURL = await uploadToGitHub(backCoverFile, `backcover_${Date.now()}.jpg`);
+    
+                // Generate V-Card preview
+                const vCardData = { companyName, email, address, phone, website, profilePictureURL, backCoverURL };
+                const vCardURL = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(vCardData))}`;
+    
+                // Display V-Card link
+                const vCardLinkContainer = document.getElementById('vcard-link');
+                vCardLinkContainer.style.display = 'block';
+                vCardLinkContainer.innerHTML = `<p>Share your V-Card: <a href="${vCardURL}" target="_blank">V-Card Link</a></p>`;
+    
+                // Generate QR code for V-Card link
+                const qrCodeContainer = document.getElementById('qrcode');
+                qrCodeContainer.style.display = 'block';
+                qrCodeContainer.innerHTML = ""; // Clear previous QR code
+                const qrCanvas = document.createElement('canvas');
+                qrCodeContainer.appendChild(qrCanvas); // Append canvas to container
+    
+                QRCode.toCanvas(qrCanvas, vCardURL, { width: 200, margin: 2 }, (error) => {
+                    if (error) console.error("Error generating QR Code:", error);
+                });
+    
+                // Hide the form and show the V-Card preview
+                const form = document.getElementById('vcard-form');
+                form.style.display = 'none';
                 const preview = document.getElementById('preview');
                 preview.style.display = 'block';
                 preview.innerHTML = `
-                    <h2>V-Card</h2>
-                    <p><strong>Company Name:</strong> ${companyName}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Address:</strong> ${address}</p>
-                    <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Website:</strong> ${website}</p>
-                    <p><strong>Profile Picture:</strong></p>
-                    <img src="${profilePicture}" alt="Profile Picture" class="image-preview">
-                    <p><strong>Back Cover:</strong></p>
-                    <img src="${backCover}" alt="Back Cover" class="image-preview">
+                    <div class="vcard-container">
+                        <div class="vcard-backcover" style="background-image: url('${backCoverURL}')"></div>
+                        <div class="vcard-profile-picture" style="background-image: url('${profilePictureURL}')"></div>
+                        <div class="vcard-content">
+                            <h2>${companyName}</h2>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Address:</strong> ${address}</p>
+                            <p><strong>Phone:</strong> ${phone}</p>
+                            <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+                        </div>
+                    </div>
                 `;
+            } catch (error) {
+                console.error("Error generating V-Card:", error);
+                alert("Failed to generate V-Card. Check console for details.");
+            }
+        }
+    
+        // Parse data from URL on page load
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            const title = document.getElementById('title');
+            if (data) {
+                // Hide title, form, and QR code if on the V-Card page
+                title.style.display = 'none';
+                const form = document.getElementById('vcard-form');
+                form.style.display = 'none';
+                const qrCodeContainer = document.getElementById('qrcode');
+                qrCodeContainer.style.display = 'none';
+                const preview = document.getElementById('preview');
+                preview.style.display = 'block';
+                
+                const vCardData = JSON.parse(decodeURIComponent(data));
+                const { companyName, email, address, phone, website, profilePictureURL, backCoverURL } = vCardData;
 
-                document.getElementById('vcard-form').style.display = 'none';
+                preview.innerHTML = `
+                    <div class="vcard-container">
+                        <div class="vcard-backcover" style="background-image: url('${backCoverURL}')"></div>
+                        <div class="vcard-profile-picture" style="background-image: url('${profilePictureURL}')"></div>
+                        <div class="vcard-content">
+                            <h2>${companyName}</h2>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Address:</strong> ${address}</p>
+                            <p><strong>Phone:</strong> ${phone}</p>
+                            <p><strong>Website:</strong> <a href="${website}" target="_blank">${website}</a></p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show the title only when it's the main page
+                title.style.display = 'block';
             }
         };
     </script>
