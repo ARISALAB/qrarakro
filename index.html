@@ -1,176 +1,1033 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator from AR Akron Services</title>
-    <style>
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-20px);
-            }
-            60% {
-                transform: translateY(-10px);
-            }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AR Akron QR Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: rgba(255,255,255,0.07);
+    --gold: #f0b429;
+    --gold2: #ffd700;
+    --white: #f0eff5;
+    --muted: #6b6a7a;
+    --accent: #3d5afe;
+    --success: #00e676;
+    --danger: #ff1744;
+    --radius: 16px;
+    --transition: 0.25s cubic-bezier(.4,0,.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: black; /* Αλλαγή χρώματος φόντου σε μαύρο */
-            color: white; /* Αλλαγή χρώματος κειμένου σε λευκό για καλύτερη αντίθεση */
-        }
-        .container {
-            max-width: 800px;
-            width: 100%; /* Ensure the container takes full width up to max-width */
-            background: linear-gradient(to right, #ffcccc, #ffff99); /* Μίξη χρωμάτων στο background */
-            padding: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 0;
-            color: black; /* Χρώμα κειμένου εντός container */
-        }
-        .description {
-            margin-bottom: 0;
-        }
-        .description img {
-            width: 200px; /* Adjust the width as needed */
-            height: auto; /* Maintain aspect ratio */
-            margin-top: 0;
-        }
-        .description1 {
-            margin-bottom: 0;
-            background: linear-gradient(to right, blue, purple); /* Μίξη χρωμάτων στο background */
-            color: #fff;
-            h2 {
-                color: #fff;
-            }
-        }
-        .description1 img {
-            width: 200px; /* Adjust the width as needed */
-            height: auto; /* Maintain aspect ratio */
-            margin-top: 10px;
-        }
-        h2 {
-            display: flex;
-            align-items: center;
-            color: black; /* Χρώμα κεφαλίδων */
-        }
-        .bouncing-hand {
-            width: 40px;
-            height: auto;
-            margin-left: 10px;
-            animation: bounce 2s infinite;
-        }
-        .bouncing-image {
-            animation: bounce 2s infinite;
-        }
-        .main-button {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            padding: 10px 20px;
-            margin: 20px auto;
-            font-size: 16px;
-            color: white;
-            background-color: #4285f4;
-            border: none;
-            border-radius: 4px;
-            text-align: center;
-            text-decoration: none;
-        }
-        .main-button:hover {
-            background-color: #357ae8;
-        }
-           /* Media query για κινητές οθόνες */
-        @media only screen and (max-width: 768px) {
-            .description {
-                flex-direction: column; /* Αλλαγή διάταξης σε στήλη */
-                text-align: left; /* Κεντραρισμένο κείμενο */
-            }
-            .description img {
-                order: 2; /* Η εικόνα μετακινείται στη δεύτερη θέση */
-                max-width: 100%; /* Αλλαγή μέγιστου πλάτους της εικόνας */
-                margin: 20px 0; /* Αλλαγή διαστήματος γύρω από την εικόνα */
-            }
-            .description-text {
-                order: 3; /* Το κείμενο μετακινείται στην τρίτη θέση */
-                max-width: 80%; /* Αλλαγή μέγιστου πλάτους του κειμένου */
-                margin: 0; /* Αφαίρεση αριστερού margin */
-            }
-            h2 {
-                order: 1; /* Η επικεφαλίδα μετακινείται στην πρώτη θέση */
-            }
-        }
-        .welcome {
-            display: flex;
-            align-items: center;
-        }
-        .welcome-text {
-            margin-left: 20px;
-        }
-    </style>
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 64px;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px; letter-spacing: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .logo span { color: var(--white); -webkit-text-fill-color: var(--white); opacity: .5; font-size: 13px; display: block; letter-spacing: 6px; font-family: 'DM Sans'; font-weight: 300; margin-top: -4px; }
+  .header-badge {
+    background: linear-gradient(135deg, var(--gold), #ff8c00);
+    color: #000; font-size: 11px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px; letter-spacing: 1px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative; z-index:1;
+    padding: 80px 40px 60px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero::before {
+    content:'';
+    position:absolute; top:-200px; left:50%; transform:translateX(-50%);
+    width:700px; height:700px; border-radius:50%;
+    background: radial-gradient(ellipse, rgba(240,180,41,0.12) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    letter-spacing: 4px; line-height: 1;
+    background: linear-gradient(135deg, #fff 40%, var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    color: var(--muted); font-size: 17px; max-width: 540px;
+    margin: 16px auto 0; font-weight: 300; line-height: 1.7;
+  }
+  .pricing-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 28px;
+    background: rgba(240,180,41,0.1);
+    border: 1px solid rgba(240,180,41,0.3);
+    padding: 10px 22px; border-radius: 30px;
+    font-size: 14px; color: var(--gold);
+  }
+  .pricing-pill i { font-size: 16px; }
+
+  /* ── NAV TABS ── */
+  .tabs-wrapper {
+    position: relative; z-index:1;
+    display: flex; justify-content: center;
+    padding: 0 40px 40px;
+    gap: 8px; flex-wrap: wrap;
+  }
+  .tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted); cursor: pointer;
+    font-family: 'DM Sans'; font-size: 14px; font-weight: 500;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  .tab-btn i { font-size: 14px; }
+  .tab-btn:hover { border-color: rgba(240,180,41,0.4); color: var(--white); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--gold), #ff8c00);
+    border-color: transparent; color: #000; font-weight: 600;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative; z-index:1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  .panel {
+    display: none;
+    animation: fadeIn 0.35s ease;
+  }
+  .panel.active { display: grid; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 2px;
+    color: var(--gold); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title i { font-size: 18px; }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block; font-size: 13px; font-weight: 500;
+    color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="url"],
+  .field input[type="tel"],
+  .field input[type="password"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: 'DM Sans'; font-size: 15px;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    outline: none;
+  }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(240,180,41,0.1);
+  }
+  .field input[type="color"] {
+    height: 46px; width: 100%; border-radius: 10px;
+    border: 1px solid var(--border); cursor: pointer;
+    background: var(--surface2); padding: 4px;
+  }
+  .field select option { background: #1a1a26; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 28px; border-radius: 10px;
+    border: none; cursor: pointer;
+    font-family: 'DM Sans'; font-size: 15px; font-weight: 600;
+    transition: var(--transition); text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), #ff8c00);
+    color: #000;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(240,180,41,0.3); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--white);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-success {
+    background: linear-gradient(135deg, #00c853, #00e676);
+    color: #000;
+  }
+  .btn-success:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,200,83,0.3); }
+  .btn-sm { padding: 8px 18px; font-size: 13px; }
+
+  /* ── QR OUTPUT ── */
+  .qr-output {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 20px;
+  }
+  .qr-frame {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .qr-frame canvas { display: block; }
+  .qr-label {
+    text-align: center;
+    font-size: 13px; font-weight: 600;
+    color: #333; margin-top: 8px; letter-spacing: 1px;
+  }
+  #preview-placeholder {
+    width: 200px; height: 200px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--surface2); border-radius: 14px;
+    color: var(--muted); gap: 10px; font-size: 13px;
+    border: 2px dashed var(--border);
+  }
+  #preview-placeholder i { font-size: 32px; }
+
+  /* ── URL PANEL ── */
+  #panel-url { grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+  /* ── VCARD PANEL ── */
+  #panel-vcard { grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+  /* ── SINGLE COLUMN PANELS ── */
+  #panel-home { grid-template-columns: 1fr; gap: 24px; }
+
+  /* ── FEATURE GRID ── */
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin-top: 8px;
+  }
+  .feature-card {
+    background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 16px; text-align: center; cursor: pointer;
+    transition: var(--transition);
+  }
+  .feature-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .feature-card i { font-size: 28px; color: var(--gold); margin-bottom: 10px; display: block; }
+  .feature-card strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .feature-card span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── HOW TO STEPS ── */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    counter-increment: step;
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 16px; background: var(--surface2);
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  .step::before {
+    content: counter(step);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; color: var(--gold);
+    min-width: 28px; text-align: center; line-height: 1;
+  }
+  .step p { font-size: 14px; color: var(--muted); margin:0; line-height: 1.6; }
+  .step p strong { color: var(--white); }
+
+  /* ── PRICING ── */
+  .pricing-card {
+    background: linear-gradient(135deg, rgba(240,180,41,0.08), rgba(255,140,0,0.04));
+    border: 1px solid rgba(240,180,41,0.25); border-radius: var(--radius);
+    padding: 40px; text-align: center;
+  }
+  .price-amount {
+    font-family: 'Bebas Neue', sans-serif; font-size: 72px;
+    color: var(--gold); line-height: 1; margin: 16px 0 4px;
+  }
+  .price-period { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .price-features { list-style: none; margin-bottom: 32px; }
+  .price-features li {
+    padding: 8px 0; color: var(--white); font-size: 15px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .price-features li i { color: var(--success); font-size: 14px; }
+
+  /* ── NOTIFICATION ── */
+  .notification {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 20px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    font-size: 14px; transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+    max-width: 320px;
+  }
+  .notification.show { transform: none; }
+  .notification.success { border-color: rgba(0,230,118,0.3); }
+  .notification.success i { color: var(--success); }
+  .notification.error { border-color: rgba(255,23,68,0.3); }
+  .notification.error i { color: var(--danger); }
+
+  /* ── VCARD PREVIEW ── */
+  .vcard-preview {
+    background: linear-gradient(135deg, #1a0a3d, #0d0d1a);
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(240,180,41,0.2);
+    font-size: 14px; color: var(--white);
+  }
+  .vcard-cover {
+    height: 100px; background: linear-gradient(135deg, #1a1a3e, #3d1a6e);
+    background-size: cover; background-position: center;
+  }
+  .vcard-body { padding: 16px; }
+  .vcard-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 3px solid var(--gold); margin-top: -30px; margin-bottom: 10px;
+    background: #333; background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--gold);
+  }
+  .vcard-name { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+  .vcard-info { color: var(--muted); font-size: 13px; line-height: 1.8; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index:1;
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 32px;
+    color: var(--muted); font-size: 13px;
+  }
+  footer strong { color: var(--gold); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    header { padding: 0 20px; }
+    .hero { padding: 50px 20px 40px; }
+    .tabs-wrapper { padding: 0 16px 28px; }
+    main { padding: 0 16px 60px; }
+    #panel-url, #panel-vcard { grid-template-columns: 1fr; }
+    .row2 { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--border); margin: 24px 0;
+  }
+
+  /* ── FILE UPLOAD ── */
+  .file-upload-area {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 24px; text-align: center; cursor: pointer;
+    transition: var(--transition); color: var(--muted);
+    font-size: 13px;
+  }
+  .file-upload-area:hover { border-color: var(--gold); color: var(--gold); }
+  .file-upload-area i { display: block; font-size: 24px; margin-bottom: 8px; }
+  .file-upload-area input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .loading {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #000; border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-    <div class="container description welcome">
-        <img src="1.png" alt="Example QR Code">
-        <div class="welcome-text">
-            <h2>Welcome to QR Code Generator from AR Akron Services</h2>
-            <p>Create your personalized QR codes effortlessly. Our application provides you with multiple customization options to make your QR codes unique and professional.</p>
-        </div>
-    </div>
-    <div class="container description1">
-        <h2>How to Create Your QR Code:</h2>
-        <ol>
-            <li>Enter the name, URL, and any custom text you want to include.</li>
-            <li>Upload your logo if you have one. This will be embedded in the center of the QR code.</li>
-            <li>Choose your preferred border color for the QR code from the available options.</li>
-            <li>Click the "Generate" button to create your QR code.</li>
-            <li>Once generated, click the "Download" button to save your QR code as a JPG file.</li>
-        </ol>
-    </div>
-    <div class="container description">
-        <h2>Types of QR Codes You Can Generate:
-            <img src="3.png" alt="QR Code Types" class="bouncing-image">
-        </h2>
-        <p>Our application allows you to create different types of QR codes based on your needs:</p>
-        <ul>
-            <li><strong>Website URL:</strong> Direct users to your event's website or any other URL.</li>
-            <li><strong>Contact Information:</strong> Share your contact details, including phone number and email address.</li>
-            <li><strong>Event Details:</strong> Provide detailed information about your event, such as date, time, and location.</li>
-            <li><strong>Custom Text:</strong> Encode any custom message or information you want to share.</li>
-            <li><strong>Wi-Fi Access:</strong> Allow users to connect to your Wi-Fi network by scanning the QR code.</li>
-            <li><strong>Social Media Links:</strong> Link to your social media profiles to boost engagement.</li>
-        </ul>
-    </div>
-    <div class="container description1">
-        <h2>Pricing Information</h2>
-        <p>Create unlimited QR codes for a one-time fee of €80.</p>
-        <p>Our premium plan offers unlimited QR code generation for a lifetime. Take advantage of this special offer to enhance your marketing strategies and streamline your business operations. Whether you're a small business owner, marketer, or event organizer, our QR code generator is a valuable tool to engage your audience and boost conversions.</p>
-        <p>Unlock the full potential of QR codes today by subscribing to our premium plan!</p>
-    </div>
-    <a href="main.html" class="main-button">Go to QR Code Generator</a>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-    <script>
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-    </script>
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    AR AKRON<span>QR STUDIO</span>
+  </div>
+  <span class="header-badge">⚡ PROFESSIONAL</span>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>QR CODE<br>STUDIO</h1>
+  <p>Δημιούργησε επαγγελματικά QR codes για URL, επαγγελματικές κάρτες, events, Wi-Fi και πολλά άλλα.</p>
+  <div class="pricing-pill">
+    <i class="fas fa-infinity"></i>
+    Απεριόριστη δημιουργία QR — €80 εφάπαξ
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrapper">
+  <button class="tab-btn active" onclick="showPanel('home')" data-panel="home">
+    <i class="fas fa-home"></i> Αρχική
+  </button>
+  <button class="tab-btn" onclick="showPanel('url')" data-panel="url">
+    <i class="fas fa-globe"></i> Website URL
+  </button>
+  <button class="tab-btn" onclick="showPanel('vcard')" data-panel="vcard">
+    <i class="fas fa-address-card"></i> V-Card / Επαφή
+  </button>
+  <button class="tab-btn" onclick="showPanel('wifi')" data-panel="wifi">
+    <i class="fas fa-wifi"></i> Wi-Fi
+  </button>
+  <button class="tab-btn" onclick="showPanel('custom')" data-panel="custom">
+    <i class="fas fa-pencil-alt"></i> Custom Text
+  </button>
+  <button class="tab-btn" onclick="showPanel('pricing')" data-panel="pricing">
+    <i class="fas fa-tag"></i> Τιμολόγηση
+  </button>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HOME PANEL -->
+  <div class="panel active" id="panel-home">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-qrcode"></i> Τύποι QR Code</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.7;">Επίλεξε τον τύπο QR code που θέλεις να δημιουργήσεις και ξεκίνα αμέσως.</p>
+      <div class="feature-grid">
+        <div class="feature-card" onclick="showPanel('url')">
+          <i class="fas fa-globe"></i>
+          <strong>Website URL</strong>
+          <span>Σύνδεσε σε οποιοδήποτε URL ή website</span>
+        </div>
+        <div class="feature-card" onclick="showPanel('vcard')">
+          <i class="fas fa-address-card"></i>
+          <strong>Επαγγελματική Κάρτα</strong>
+          <span>Κοινοποίησε στοιχεία επικοινωνίας</span>
+        </div>
+        <div class="feature-card" onclick="showPanel('wifi')">
+          <i class="fas fa-wifi"></i>
+          <strong>Wi-Fi Access</strong>
+          <span>Σύνδεση στο δίκτυο με scan</span>
+        </div>
+        <div class="feature-card" onclick="showPanel('custom')">
+          <i class="fas fa-pencil-alt"></i>
+          <strong>Custom Text</strong>
+          <span>Οποιοδήποτε κείμενο ή μήνυμα</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list-ol"></i> Πώς να Δημιουργήσεις</div>
+      <div class="steps">
+        <div class="step"><p><strong>Επίλεξε τύπο</strong> — Κλικ στην κατηγορία QR που θέλεις από τα tabs παραπάνω.</p></div>
+        <div class="step"><p><strong>Συμπλήρωσε τα στοιχεία</strong> — URL, στοιχεία επικοινωνίας ή δίκτυο Wi-Fi.</p></div>
+        <div class="step"><p><strong>Προσάρμοσε</strong> — Χρώμα, λογότυπο και κείμενο κάτω από τον κώδικα.</p></div>
+        <div class="step"><p><strong>Δημιούργησε & κατέβασε</strong> — Κλικ "Generate" και αποθήκευσε ως JPG.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL PANEL -->
+  <div class="panel" id="panel-url">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-globe"></i> Website URL QR</div>
+
+      <div class="field">
+        <label>URL *</label>
+        <input type="url" id="url-input" placeholder="https://example.com">
+      </div>
+      <div class="field">
+        <label>Κείμενο κάτω από το QR</label>
+        <input type="text" id="url-text" placeholder="π.χ. Scan me!">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Χρώμα QR</label>
+          <input type="color" id="url-color" value="#000000">
+        </div>
+        <div class="field">
+          <label>Μορφή Λογοτύπου</label>
+          <select id="url-logo-shape">
+            <option value="square">Τετράγωνο</option>
+            <option value="circle">Κύκλος</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ανέβασε Λογότυπο (προαιρετικό)</label>
+        <div class="file-upload-area" onclick="document.getElementById('url-logo').click()" id="url-logo-area">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span id="url-logo-name">Κλικ για επιλογή εικόνας</span>
+          <input type="file" id="url-logo" accept="image/*" onchange="handleLogoChange('url')">
+        </div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="generateURLQR()">
+        <i class="fas fa-qrcode"></i> Δημιούργησε QR
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-eye"></i> Preview & Λήψη</div>
+      <div class="qr-output">
+        <div id="url-preview-placeholder" class="qr-frame" style="background:var(--surface2);border:2px dashed var(--border);">
+          <div style="width:200px;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:10px;">
+            <i class="fas fa-qrcode" style="font-size:48px;opacity:0.3;"></i>
+            <span style="font-size:13px;">Συμπλήρωσε τα πεδία<br>και κλικ Generate</span>
+          </div>
+        </div>
+        <div id="url-qr-frame" class="qr-frame" style="display:none;">
+          <canvas id="url-qr-canvas"></canvas>
+          <div class="qr-label" id="url-qr-label"></div>
+        </div>
+        <a id="url-download" class="btn btn-success" style="display:none;" download="qr-url.jpg">
+          <i class="fas fa-download"></i> Κατέβασε JPG
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- VCARD PANEL -->
+  <div class="panel" id="panel-vcard">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-address-card"></i> Επαγγελματική Κάρτα</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Εταιρεία / Όνομα *</label>
+          <input type="text" id="vc-company" placeholder="AR Akron Services">
+        </div>
+        <div class="field">
+          <label>Email *</label>
+          <input type="email" id="vc-email" placeholder="info@example.com">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Τηλέφωνο *</label>
+          <input type="tel" id="vc-phone" placeholder="+30 210 0000000">
+        </div>
+        <div class="field">
+          <label>Website</label>
+          <input type="url" id="vc-website" placeholder="https://example.com">
+        </div>
+      </div>
+      <div class="field">
+        <label>Διεύθυνση</label>
+        <input type="text" id="vc-address" placeholder="Οδός, Πόλη, ΤΚ">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Profile Picture</label>
+          <div class="file-upload-area" onclick="document.getElementById('vc-profile').click()">
+            <i class="fas fa-user-circle"></i>
+            <span id="vc-profile-name">Φωτογραφία προφίλ</span>
+            <input type="file" id="vc-profile" accept="image/*" onchange="handleVcardImg('vc-profile','vc-profile-name','vc-avatar')">
+          </div>
+        </div>
+        <div class="field">
+          <label>Εξώφυλλο</label>
+          <div class="file-upload-area" onclick="document.getElementById('vc-cover').click()">
+            <i class="fas fa-image"></i>
+            <span id="vc-cover-name">Εικόνα φόντου</span>
+            <input type="file" id="vc-cover" accept="image/*" onchange="handleVcardImg('vc-cover','vc-cover-name','vc-bg')">
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="generateVCard()">
+        <i class="fas fa-qrcode"></i> Δημιούργησε V-Card QR
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-eye"></i> Preview</div>
+      <div class="qr-output">
+        <div class="vcard-preview" id="vc-preview-card" style="width:100%;max-width:280px;">
+          <div class="vcard-cover" id="vc-bg"></div>
+          <div class="vcard-body">
+            <div class="vcard-avatar" id="vc-avatar"><i class="fas fa-user"></i></div>
+            <div class="vcard-name" id="vc-preview-name">Εταιρεία / Όνομα</div>
+            <div class="vcard-info" id="vc-preview-info">
+              <div><i class="fas fa-envelope" style="color:var(--gold);width:18px;"></i> email@example.com</div>
+              <div><i class="fas fa-phone" style="color:var(--gold);width:18px;"></i> +30 210...</div>
+              <div><i class="fas fa-globe" style="color:var(--gold);width:18px;"></i> website.com</div>
+            </div>
+          </div>
+        </div>
+        <div id="vc-qr-frame" class="qr-frame" style="display:none;">
+          <canvas id="vc-qr-canvas"></canvas>
+        </div>
+        <div id="vc-links" style="display:none;text-align:center;">
+          <a id="vc-share-link" href="#" style="color:var(--gold);font-size:13px;display:block;margin-bottom:10px;word-break:break-all;"></a>
+          <a id="vc-download" class="btn btn-success btn-sm" download="vcard-qr.png">
+            <i class="fas fa-download"></i> Κατέβασε QR
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIFI PANEL -->
+  <div class="panel" id="panel-wifi" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-wifi"></i> Wi-Fi QR Code</div>
+      <div class="field">
+        <label>Όνομα Δικτύου (SSID) *</label>
+        <input type="text" id="wifi-ssid" placeholder="MyNetwork">
+      </div>
+      <div class="field">
+        <label>Κωδικός</label>
+        <input type="password" id="wifi-pass" placeholder="••••••••">
+      </div>
+      <div class="field">
+        <label>Τύπος Ασφάλειας</label>
+        <select id="wifi-enc">
+          <option value="WPA">WPA/WPA2</option>
+          <option value="WEP">WEP</option>
+          <option value="nopass">Χωρίς κωδικό</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Χρώμα QR</label>
+        <input type="color" id="wifi-color" value="#000000">
+      </div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="generateWifiQR()">
+        <i class="fas fa-qrcode"></i> Δημιούργησε QR
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-eye"></i> Preview & Λήψη</div>
+      <div class="qr-output">
+        <div id="wifi-placeholder" style="width:200px;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:10px;">
+          <i class="fas fa-wifi" style="font-size:48px;opacity:0.3;"></i>
+          <span style="font-size:13px;text-align:center;">Συμπλήρωσε δίκτυο<br>και κλικ Generate</span>
+        </div>
+        <div id="wifi-qr-frame" class="qr-frame" style="display:none;">
+          <canvas id="wifi-qr-canvas"></canvas>
+          <div class="qr-label">Scan to Connect</div>
+        </div>
+        <a id="wifi-download" class="btn btn-success" style="display:none;" download="wifi-qr.jpg">
+          <i class="fas fa-download"></i> Κατέβασε JPG
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM TEXT PANEL -->
+  <div class="panel" id="panel-custom" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-pencil-alt"></i> Custom Text QR</div>
+      <div class="field">
+        <label>Κείμενο / Μήνυμα *</label>
+        <textarea id="custom-text" placeholder="Γράψε οποιοδήποτε κείμενο ή μήνυμα εδώ..."></textarea>
+      </div>
+      <div class="field">
+        <label>Label κάτω από QR</label>
+        <input type="text" id="custom-label" placeholder="Custom Message">
+      </div>
+      <div class="field">
+        <label>Χρώμα QR</label>
+        <input type="color" id="custom-color" value="#000000">
+      </div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="generateCustomQR()">
+        <i class="fas fa-qrcode"></i> Δημιούργησε QR
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-eye"></i> Preview & Λήψη</div>
+      <div class="qr-output">
+        <div id="custom-placeholder" style="width:200px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:10px;">
+          <i class="fas fa-pencil-alt" style="font-size:48px;opacity:0.3;"></i>
+          <span style="font-size:13px;text-align:center;">Γράψε κείμενο<br>και κλικ Generate</span>
+        </div>
+        <div id="custom-qr-frame" class="qr-frame" style="display:none;">
+          <canvas id="custom-qr-canvas"></canvas>
+          <div class="qr-label" id="custom-qr-label"></div>
+        </div>
+        <a id="custom-download" class="btn btn-success" style="display:none;" download="custom-qr.jpg">
+          <i class="fas fa-download"></i> Κατέβασε JPG
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING PANEL -->
+  <div class="panel" id="panel-pricing" style="grid-template-columns:1fr;gap:24px;">
+    <div class="pricing-card">
+      <div style="display:inline-block;background:linear-gradient(135deg,var(--gold),#ff8c00);color:#000;padding:6px 18px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:8px;">PREMIUM PLAN</div>
+      <h2 style="font-family:'Bebas Neue';font-size:28px;letter-spacing:2px;color:var(--white);">Απεριόριστη Δημιουργία QR Codes</h2>
+      <div class="price-amount">€80</div>
+      <div class="price-period">Εφάπαξ πληρωμή · Ισόβια χρήση</div>
+      <ul class="price-features" style="max-width:400px;margin:0 auto 32px;">
+        <li><i class="fas fa-check-circle"></i> Απεριόριστα QR codes</li>
+        <li><i class="fas fa-check-circle"></i> Όλοι οι τύποι (URL, V-Card, Wi-Fi, Custom)</li>
+        <li><i class="fas fa-check-circle"></i> Λογότυπο μέσα στο QR code</li>
+        <li><i class="fas fa-check-circle"></i> Λήψη σε JPG/PNG</li>
+        <li><i class="fas fa-check-circle"></i> Χωρίς συνδρομή, χωρίς κρυφές χρεώσεις</li>
+        <li><i class="fas fa-check-circle"></i> Τεχνική υποστήριξη</li>
+      </ul>
+      <a href="mailto:info@arakronservices.com" class="btn btn-primary" style="font-size:16px;padding:16px 40px;">
+        <i class="fas fa-envelope"></i> Επικοινωνία για Αγορά
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <strong>AR AKRON SERVICES</strong> · QR Studio &copy; 2025 · Επαγγελματική δημιουργία QR codes
+</footer>
+
+<!-- NOTIFICATION -->
+<div id="notification" class="notification">
+  <i id="notif-icon" class="fas fa-check-circle"></i>
+  <span id="notif-msg">Επιτυχία!</span>
+</div>
+
+<script>
+// ── TABS ──────────────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelector('[data-panel="' + name + '"]').classList.add('active');
+}
+
+// ── NOTIFICATION ──────────────────────────────────────
+function notify(msg, type='success') {
+  const n = document.getElementById('notification');
+  const icon = document.getElementById('notif-icon');
+  const msgEl = document.getElementById('notif-msg');
+  n.className = 'notification ' + type;
+  icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+  msgEl.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+// ── LOGO HANDLER ──────────────────────────────────────
+function handleLogoChange(prefix) {
+  const file = document.getElementById(prefix + '-logo').files[0];
+  if (file) {
+    document.getElementById(prefix + '-logo-name').textContent = file.name;
+  }
+}
+
+// ── URL QR ────────────────────────────────────────────
+function generateURLQR() {
+  const url = document.getElementById('url-input').value.trim();
+  const text = document.getElementById('url-text').value.trim();
+  const color = document.getElementById('url-color').value;
+  const shape = document.getElementById('url-logo-shape').value;
+  const logoFile = document.getElementById('url-logo').files[0];
+
+  if (!url) { notify('Παρακαλώ εισάγετε URL', 'error'); return; }
+
+  const canvas = document.getElementById('url-qr-canvas');
+  const qrSize = 280;
+  const textH = text ? 40 : 0;
+  canvas.width = qrSize;
+  canvas.height = qrSize + textH;
+  const ctx = canvas.getContext('2d');
+
+  const qr = new QRious({ value: url, size: qrSize, foreground: color, background: '#ffffff' });
+  const img = new Image();
+  img.src = qr.toDataURL();
+  img.onload = () => {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, qrSize, qrSize);
+
+    const drawText = () => {
+      if (text) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, qrSize, qrSize, textH);
+        ctx.font = 'bold 15px DM Sans, Arial';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.fillText(text, qrSize / 2, qrSize + 26);
+      }
+      finalize();
+    };
+
+    if (logoFile) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const logo = new Image();
+        logo.onload = () => {
+          const ls = qrSize / 6;
+          const lx = (qrSize - ls) / 2, ly = (qrSize - ls) / 2;
+          ctx.save();
+          if (shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(lx + ls/2, ly + ls/2, ls/2, 0, Math.PI*2);
+            ctx.closePath();
+            ctx.clip();
+          }
+          ctx.drawImage(logo, lx, ly, ls, ls);
+          ctx.restore();
+          drawText();
+        };
+        logo.src = e.target.result;
+      };
+      reader.readAsDataURL(logoFile);
+    } else {
+      drawText();
+    }
+
+    function finalize() {
+      document.getElementById('url-preview-placeholder').style.display = 'none';
+      document.getElementById('url-qr-frame').style.display = 'block';
+      document.getElementById('url-qr-label').textContent = text || '';
+      const dl = document.getElementById('url-download');
+      dl.style.display = 'inline-flex';
+      dl.href = canvas.toDataURL('image/jpeg', 0.95);
+      notify('QR Code δημιουργήθηκε επιτυχώς!');
+    }
+  };
+}
+
+// Live preview for URL
+['url-input','url-color','url-text'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', debouncePreview);
+});
+
+let previewTimer;
+function debouncePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) return;
+    // lightweight preview
+  }, 600);
+}
+
+// ── VCARD ────────────────────────────────────────────
+let vcProfileURL = '', vcCoverURL = '';
+
+function handleVcardImg(inputId, nameId, previewId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  document.getElementById(nameId).textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    if (previewId === 'vc-avatar') {
+      vcProfileURL = url;
+      const av = document.getElementById('vc-avatar');
+      av.style.backgroundImage = `url(${url})`;
+      av.innerHTML = '';
+    } else {
+      vcCoverURL = url;
+      document.getElementById('vc-bg').style.backgroundImage = `url(${url})`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// Live vcard preview
+['vc-company','vc-email','vc-phone','vc-website'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateVcardPreview);
+});
+function updateVcardPreview() {
+  const company = document.getElementById('vc-company').value || 'Εταιρεία / Όνομα';
+  const email = document.getElementById('vc-email').value || 'email@example.com';
+  const phone = document.getElementById('vc-phone').value || '+30 210...';
+  const website = document.getElementById('vc-website').value || 'website.com';
+  document.getElementById('vc-preview-name').textContent = company;
+  document.getElementById('vc-preview-info').innerHTML = `
+    <div><i class="fas fa-envelope" style="color:var(--gold);width:18px;"></i> ${email}</div>
+    <div><i class="fas fa-phone" style="color:var(--gold);width:18px;"></i> ${phone}</div>
+    <div><i class="fas fa-globe" style="color:var(--gold);width:18px;"></i> ${website}</div>
+  `;
+}
+
+async function generateVCard() {
+  const company = document.getElementById('vc-company').value.trim();
+  const email = document.getElementById('vc-email').value.trim();
+  const phone = document.getElementById('vc-phone').value.trim();
+  const website = document.getElementById('vc-website').value.trim();
+  const address = document.getElementById('vc-address').value.trim();
+
+  if (!company || !email || !phone) {
+    notify('Συμπλήρωσε εταιρεία, email και τηλέφωνο', 'error');
+    return;
+  }
+
+  const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${company}\nORG:${company}\nEMAIL:${email}\nTEL:${phone}\nADR:;;${address};;;;\nURL:${website}\nEND:VCARD`;
+
+  const canvas = document.getElementById('vc-qr-canvas');
+  canvas.width = 220; canvas.height = 220;
+
+  try {
+    await QRCode.toCanvas(canvas, vcard, { width: 220, margin: 2, color: { dark: '#000000', light: '#ffffff' } });
+    document.getElementById('vc-qr-frame').style.display = 'block';
+
+    const vcardData = { company, email, phone, website, address, profilePictureURL: vcProfileURL, backCoverURL: vcCoverURL };
+    const shareURL = window.location.href.split('?')[0] + '?vcard=' + encodeURIComponent(JSON.stringify(vcardData));
+    const shareEl = document.getElementById('vc-share-link');
+    shareEl.textContent = 'Link V-Card: ' + shareURL.substring(0, 60) + '...';
+    shareEl.href = shareURL;
+
+    document.getElementById('vc-links').style.display = 'block';
+    document.getElementById('vc-download').href = canvas.toDataURL('image/png');
+    notify('V-Card QR δημιουργήθηκε!');
+  } catch(e) {
+    notify('Σφάλμα δημιουργίας QR', 'error');
+  }
+}
+
+// ── WIFI QR ────────────────────────────────────────────
+function generateWifiQR() {
+  const ssid = document.getElementById('wifi-ssid').value.trim();
+  const pass = document.getElementById('wifi-pass').value;
+  const enc = document.getElementById('wifi-enc').value;
+  const color = document.getElementById('wifi-color').value;
+
+  if (!ssid) { notify('Παρακαλώ εισάγετε SSID δικτύου', 'error'); return; }
+
+  const wifiStr = `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+  const canvas = document.getElementById('wifi-qr-canvas');
+  const qr = new QRious({ value: wifiStr, size: 280, foreground: color, background: '#ffffff' });
+  canvas.width = 280; canvas.height = 280;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.src = qr.toDataURL();
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0);
+    document.getElementById('wifi-placeholder').style.display = 'none';
+    document.getElementById('wifi-qr-frame').style.display = 'block';
+    const dl = document.getElementById('wifi-download');
+    dl.style.display = 'inline-flex';
+    dl.href = canvas.toDataURL('image/jpeg', 0.95);
+    notify('Wi-Fi QR δημιουργήθηκε!');
+  };
+}
+
+// ── CUSTOM QR ─────────────────────────────────────────
+function generateCustomQR() {
+  const text = document.getElementById('custom-text').value.trim();
+  const label = document.getElementById('custom-label').value.trim();
+  const color = document.getElementById('custom-color').value;
+
+  if (!text) { notify('Παρακαλώ εισάγετε κείμενο', 'error'); return; }
+
+  const canvas = document.getElementById('custom-qr-canvas');
+  const qrSize = 280;
+  const textH = label ? 40 : 0;
+  canvas.width = qrSize;
+  canvas.height = qrSize + textH;
+  const ctx = canvas.getContext('2d');
+
+  const qr = new QRious({ value: text, size: qrSize, foreground: color, background: '#ffffff' });
+  const img = new Image();
+  img.src = qr.toDataURL();
+  img.onload = () => {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, qrSize, qrSize);
+    if (label) {
+      ctx.font = 'bold 15px DM Sans, Arial';
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.fillText(label, qrSize / 2, qrSize + 26);
+    }
+    document.getElementById('custom-placeholder').style.display = 'none';
+    document.getElementById('custom-qr-frame').style.display = 'block';
+    document.getElementById('custom-qr-label').textContent = label;
+    const dl = document.getElementById('custom-download');
+    dl.style.display = 'inline-flex';
+    dl.href = canvas.toDataURL('image/jpeg', 0.95);
+    notify('Custom QR δημιουργήθηκε!');
+  };
+}
+
+// ── VCARD SHARED VIEW ─────────────────────────────────
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const vcData = params.get('vcard');
+  if (vcData) {
+    try {
+      const d = JSON.parse(decodeURIComponent(vcData));
+      document.querySelector('.hero').style.display = 'none';
+      document.querySelector('.tabs-wrapper').style.display = 'none';
+      document.querySelectorAll('.panel').forEach(p => { p.classList.remove('active'); p.style.display='none'; });
+      const shared = document.createElement('div');
+      shared.style.cssText = 'max-width:400px;margin:40px auto;';
+      shared.innerHTML = `
+        <div class="vcard-preview">
+          <div class="vcard-cover" style="background-image:url('${d.backCoverURL || ''}')"></div>
+          <div class="vcard-body">
+            <div class="vcard-avatar" style="background-image:url('${d.profilePictureURL || ''}')">
+              ${!d.profilePictureURL ? '<i class="fas fa-user"></i>' : ''}
+            </div>
+            <div class="vcard-name">${d.company}</div>
+            <div class="vcard-info">
+              <div><i class="fas fa-envelope" style="color:var(--gold);width:18px;"></i> ${d.email}</div>
+              <div><i class="fas fa-phone" style="color:var(--gold);width:18px;"></i> ${d.phone}</div>
+              ${d.website ? `<div><i class="fas fa-globe" style="color:var(--gold);width:18px;"></i> <a href="${d.website}" style="color:var(--gold);">${d.website}</a></div>` : ''}
+              ${d.address ? `<div><i class="fas fa-map-marker-alt" style="color:var(--gold);width:18px;"></i> ${d.address}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      document.querySelector('main').appendChild(shared);
+    } catch(e) {}
+  }
+});
+</script>
 </body>
 </html>
