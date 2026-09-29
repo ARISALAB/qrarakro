@@ -22,8 +22,8 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
-import { firebaseConfig, SITE, TEST_SCANS, premiumState } from './firebase-config.js';
-import { hrefFor } from './profile-render.js';
+import { firebaseConfig, SITE, TEST_SCANS, premiumState } from '/firebase-config.js';
+import { hrefFor } from '/profile-render.js';
 
 const db = getFirestore(initializeApp(firebaseConfig));
 const el = lang => (navigator.language || 'el').toLowerCase().startsWith('el');

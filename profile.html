@@ -26,8 +26,8 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
-import { firebaseConfig, SITE, premiumState } from './firebase-config.js';
-import { renderProfile, visitorLang } from './profile-render.js';
+import { firebaseConfig, SITE, premiumState } from '/firebase-config.js';
+import { renderProfile, visitorLang } from '/profile-render.js';
 
 const db = getFirestore(initializeApp(firebaseConfig));
 const root = document.getElementById('root');

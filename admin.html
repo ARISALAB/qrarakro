@@ -479,8 +479,8 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from './firebase-config.js';
-import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from './profile-render.js';
+import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
+import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
