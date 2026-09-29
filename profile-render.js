@@ -106,10 +106,8 @@ export function vcardFor(p) {
 
 const CSS = `
 .pf{--pf-bg:#fff;--pf-accent:#3F4B27;--pf-on:#fff;--pf-ink:#1B1C17;--pf-muted:#63655C;--pf-line:rgba(27,28,23,.1);--pf-surface:rgba(255,255,255,.78);--pf-tint:rgba(63,75,39,.1);
-  --pf-display:'Noto Serif Display','Iowan Old Style',Georgia,serif;
-  background:var(--pf-bg);color:var(--pf-ink);font-family:'Commissioner','Segoe UI',Roboto,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background:var(--pf-bg);color:var(--pf-ink);font-family:'Manrope','Segoe UI',Roboto,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
   min-height:100%;display:flex;justify-content:center}
-.pf.sans{--pf-display:'Commissioner','Segoe UI',Roboto,Arial,sans-serif}
 .pf *{box-sizing:border-box}
 .pf-card{position:relative;width:100%;max-width:480px;padding-bottom:34px;background:var(--pf-bg)}
 .pf-cover{position:relative;height:220px;background:var(--pf-accent) center/cover no-repeat}
@@ -119,9 +117,8 @@ const CSS = `
 .pf-logo{width:116px;height:116px;margin:0 auto;border-radius:50%;background:#fff center/contain no-repeat;background-origin:content-box;padding:14px;
   box-shadow:0 0 0 4px var(--pf-bg),0 0 0 5px var(--pf-line),0 18px 34px -18px rgba(0,0,0,.45)}
 .pf-logo.photo{background-size:cover;padding:0}
-.pf-logo.empty{display:flex;align-items:center;justify-content:center;font-family:var(--pf-display);font-size:44px;font-weight:600;color:var(--pf-on);background:var(--pf-accent)}
-.pf-name{margin:18px 0 0;font-family:var(--pf-display);font-size:32px;line-height:1.08;font-weight:600;letter-spacing:-.015em;overflow-wrap:anywhere}
-.pf.sans .pf-name{font-weight:800;letter-spacing:-.025em}
+.pf-logo.empty{display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;color:var(--pf-on);background:var(--pf-accent)}
+.pf-name{margin:18px 0 0;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.035em;overflow-wrap:anywhere}
 .pf-bio{margin:10px auto 0;max-width:34ch;color:var(--pf-muted);font-size:15.5px;white-space:pre-line;overflow-wrap:anywhere}
 .pf-rule{width:36px;height:1px;margin:22px auto 0;background:var(--pf-accent);opacity:.5}
 .pf-main{display:grid;gap:10px;padding:22px 22px 0}
@@ -181,8 +178,8 @@ export function renderProfile(root, p, opts = {}) {
   injectCss();
   const L = LABELS[opts.lang || visitorLang()];
   root.innerHTML = '';
-  const wrap = el('div', 'pf' + (p.font === 'sans' ? ' sans' : '') + (opts.preview ? '' : ' page'));
-  const bg = p.bg || '#FFFFFF', accent = p.accent || '#4B5A2E';
+  const wrap = el('div', 'pf' + (opts.preview ? '' : ' page'));
+  const bg = p.bg || '#FFFFFF', accent = p.accent || '#15161A';
   wrap.style.setProperty('--pf-bg', bg);
   wrap.style.setProperty('--pf-accent', accent);
   wrap.style.setProperty('--pf-on', textOn(accent));
