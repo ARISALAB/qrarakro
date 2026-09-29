@@ -163,6 +163,17 @@ service cloud.firestore {
       }
     }
 
+    // ----- Λογότυπο ανά δυναμικό QR (το βλέπει μόνο ο ιδιοκτήτης) -----
+    match /qrlogos/{code} {
+      allow get: if signedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create, update: if verified()
+        && request.resource.data.keys().hasOnly(['ownerUid', 'img'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && get(/databases/$(db)/documents/qrs/$(code)).data.ownerUid == request.auth.uid
+        && request.resource.data.img is string && request.resource.data.img.size() <= 200000;
+      allow delete: if verified() && resource.data.ownerUid == request.auth.uid;
+    }
+
     // ----- Αναφορές από επισκέπτες -----
     match /reports/{rid} {
       allow create: if request.resource.data.keys().hasOnly(['pid', 'reason', 'createdAt'])

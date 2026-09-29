@@ -71,7 +71,7 @@ async function go() {
       updateDoc(ref, { [field]: increment(1) }),
       field === 'scans' ? setDoc(doc(db, 'qrs', code, 'days', today()), { n: increment(1) }, { merge: true }) : null
     ]).catch(() => {}),
-    new Promise(r => setTimeout(r, 900))   // η μέτρηση δεν καθυστερεί ποτέ την ανακατεύθυνση πάνω από ~1 δευτ.
+    new Promise(r => setTimeout(r, 3000))  // περιμένουμε να καταγραφεί το σκανάρισμα (συνήθως < 0,5 δευτ.), το πολύ 3 δευτ.
   ]);
 
   if (st.usable) {                          // Premium ενεργό ή σε περίοδο χάριτος

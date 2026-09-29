@@ -404,12 +404,18 @@
                     <label class="color-pick"><input type="color" id="qFg"><span>Χρώμα QR<br><span class="hex" id="qFgHex"></span></span></label>
                     <label class="color-pick"><input type="color" id="qBg"><span>Φόντο<br><span class="hex" id="qBgHex"></span></span></label>
                   </div>
-                  <label class="check"><input type="checkbox" id="qLogo"> Λογότυπο στη μέση (από το προφίλ σου)</label>
+                  <div class="field"><span class="lbl">Λογότυπο στη μέση</span>
+                    <div class="img-row"><span class="thumb" id="qLogoThumb"></span>
+                      <button type="button" class="btn line small" id="qLogoUp">Ανέβασε λογότυπο</button>
+                      <button type="button" class="btn line small" id="qLogoProf" hidden>Από το προφίλ μου</button>
+                      <button type="button" class="link" id="qLogoDel" hidden>Χωρίς λογότυπο</button>
+                      <input type="file" id="qLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" hidden></div>
+                    <p class="err" id="qLogoErr" hidden></p></div>
                   <div class="field"><label for="qCaption">Κείμενο κάτω από το QR <span class="opt">(προαιρετικό)</span></label><input type="text" id="qCaption" maxlength="60" placeholder="π.χ. Δες το μενού μας"></div>
                 </div>
               </section>
               <section class="card">
-                <h2>Σκαναρίσματα</h2>
+                <h2 style="display:flex;justify-content:space-between;align-items:center">Σκαναρίσματα <button type="button" class="link" id="qRefresh">Ανανέωση</button></h2>
                 <p class="sub" id="qTotal"></p>
                 <div class="bars" id="qBars"></div>
                 <div class="bars-x"><span id="qBarsFrom"></span><span>σήμερα</span></div>
@@ -472,7 +478,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, doc, getDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from './firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from './profile-render.js';
 
@@ -985,7 +991,7 @@ function renderPlan() {
 const QTYPES = [['link', 'Ιστοσελίδα'], ['menu', 'Μενού / Κατάλογος'], ['booking', 'Κράτηση'], ['review', 'Κριτική Google'], ['whatsapp', 'WhatsApp'], ['phone', 'Τηλέφωνο'], ['email', 'Email'], ['map', 'Χάρτης'], ['profile', 'Το προφίλ μου']];
 const QPH = { link: 'www.to-magazi-mou.gr', menu: 'Link του μενού σου', booking: 'Link κρατήσεων', review: 'Link κριτικών Google', whatsapp: '69X XXX XXXX', phone: '210 123 4567', email: 'info@to-magazi-mou.gr', map: 'Διεύθυνση ή link από Google Maps' };
 $('qType').innerHTML = QTYPES.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
-let qrs = [], cur = null, curCode = null, qLogoImg = null, qLogoSrc = '';
+let qrs = [], cur = null, curCode = null, qLogoImg = null, qLogoSrc = '', qCustom = '', qCustomSaved = '';
 const shortUrl = code => SITE + '/q/' + code;
 const qDest = q => q.t === 'profile' ? SITE + '/p/' + pid : hrefFor({ t: q.t, v: q.v });
 let introSeen = false; try { introSeen = localStorage.getItem('qrIntroSeen') === '1'; } catch (e) {}
@@ -1054,10 +1060,11 @@ function openQr(code) {
   curCode = code; cur = { ...q };
   $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false;
   $('qName').value = cur.name; $('qType').value = cur.t; $('qValue').value = cur.v; $('qCaption').value = cur.caption;
-  $('qLogo').checked = !!cur.logo; $('qLogo').disabled = !saved.logo;
+  qCustom = ''; qCustomSaved = ''; msg('qLogoErr');
   $('qLink').textContent = shortUrl(code).replace('https://', '');
   $('qSaveMsg').textContent = '';
   syncQ(); loadStats(code); window.scrollTo({ top: 0 });
+  getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
 }
 $('qrBack').addEventListener('click', () => showQrList());
 function syncQ() {
@@ -1075,10 +1082,16 @@ function syncQ() {
   $('qDownload').className = P.usable ? 'btn' : 'btn line';
   $('qTemplates').hidden = !P.usable;
   $('qTemplates').href = SITE + '/?url=' + encodeURIComponent(shortUrl(curCode));
+  const lg = logoFor();
+  $('qLogoThumb').style.backgroundImage = lg ? 'url("' + lg + '")' : 'none';
+  $('qLogoProf').hidden = !saved.logo || (cur.logo && !qCustom);
+  $('qLogoDel').hidden = !cur.logo;
+  $('qLogoUp').textContent = qCustom ? 'Άλλαξε λογότυπο' : 'Ανέβασε λογότυπο';
   drawQPreview();
 }
+function logoFor() { return !cur.logo ? '' : (qCustom || saved.logo || ''); }
 async function drawQPreview() {
-  const want = cur.logo && saved.logo ? saved.logo : '';
+  const want = logoFor();
   if (want !== qLogoSrc) { qLogoSrc = want; qLogoImg = want ? await loadImg(want).catch(() => null) : null; }
   drawCode($('qCanvas'), 600, shortUrl(curCode), cur.fg, cur.bg, qLogoImg);
 }
@@ -1088,12 +1101,24 @@ $('qValue').addEventListener('input', e => { cur.v = e.target.value; $('qValueEr
 $('qCaption').addEventListener('input', e => { cur.caption = e.target.value; syncQ(); });
 $('qFg').addEventListener('input', e => { cur.fg = e.target.value.toUpperCase(); syncQ(); });
 $('qBg').addEventListener('input', e => { cur.bg = e.target.value.toUpperCase(); syncQ(); });
-$('qLogo').addEventListener('change', e => { cur.logo = e.target.checked; syncQ(); });
+$('qLogoUp').addEventListener('click', () => $('qLogoFile').click());
+$('qLogoFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return; msg('qLogoErr');
+  try { qCustom = await processImage(f, 400, 400, 190000, true); cur.logo = true; syncQ(); $('qSaveMsg').textContent = 'Πάτα «Αποθήκευση» για να κρατηθεί το λογότυπο.'; }
+  catch (err) { msg('qLogoErr', 'Δεν μπορέσαμε να ανοίξουμε αυτή την εικόνα. Δοκίμασε αρχείο PNG, JPG ή SVG.'); }
+});
+$('qLogoProf').addEventListener('click', () => { qCustom = ''; cur.logo = true; syncQ(); });
+$('qLogoDel').addEventListener('click', () => { qCustom = ''; cur.logo = false; syncQ(); });
 
 async function saveQ(extra) {
   const data = { name: (cur.name || '').trim().slice(0, 60) || 'QR', t: cur.t, v: cur.t === 'profile' ? '' : (cur.v || '').trim().slice(0, 500),
     fg: cur.fg, bg: cur.bg, caption: (cur.caption || '').trim().slice(0, 60), logo: !!cur.logo, paused: !!cur.paused, ...extra, updatedAt: serverTimestamp() };
   await updateDoc(doc(db, 'qrs', curCode), data);
+  if (qCustom !== qCustomSaved) {
+    if (qCustom) await setDoc(doc(db, 'qrlogos', curCode), { ownerUid: user.uid, img: qCustom });
+    else await deleteDoc(doc(db, 'qrlogos', curCode)).catch(() => {});
+    qCustomSaved = qCustom;
+  }
   Object.assign(cur, data, { updatedAt: null });
   const i = qrs.findIndex(x => x.code === curCode); if (i > -1) qrs[i] = { ...cur };
 }
@@ -1112,6 +1137,7 @@ $('qDelete').addEventListener('click', async () => {
   if (!confirm('Να διαγραφεί το «' + cur.name + '»; Αν είναι τυπωμένο, θα σταματήσει να λειτουργεί.')) return;
   try {
     const b = writeBatch(db);
+    if (qCustomSaved) await deleteDoc(doc(db, 'qrlogos', curCode)).catch(() => {});
     b.delete(doc(db, 'qrs', curCode));
     b.update(doc(db, 'users', user.uid), { qrCount: increment(-1) });
     await b.commit();
@@ -1127,6 +1153,21 @@ $('qDownload').addEventListener('click', async () => {
   if (cap) { const x = c.getContext('2d'); x.fillStyle = cur.fg; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 60px Manrope, Arial, sans-serif'; x.fillText(cap, W / 2, W + capH / 2 - 20, W * 0.86); }
   c.toBlob(bl => { const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'qr-' + curCode + '.png'; document.body.append(a); a.click(); a.remove(); }, 'image/png');
 });
+
+/* Ανανέωση αριθμών: με κουμπί και όταν επιστρέφεις στη σελίδα (π.χ. μετά από σκανάρισμα με το κινητό) */
+async function refreshCounts() {
+  if (curSect !== 'sQr') return;
+  if ($('qrEditView').hidden) return showQrList();
+  try {
+    const d = await getDoc(doc(db, 'qrs', curCode)); if (!d.exists()) return;
+    const fresh = d.data(); cur.scans = fresh.scans; cur.testScans = fresh.testScans;
+    const i = qrs.findIndex(x => x.code === curCode); if (i > -1) Object.assign(qrs[i], { scans: fresh.scans, testScans: fresh.testScans });
+    syncQ(); loadStats(curCode);
+  } catch (e) { console.error(e); }
+}
+$('qRefresh').addEventListener('click', refreshCounts);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshCounts(); });
+window.addEventListener('focus', refreshCounts);
 
 /* Σκαναρίσματα: τελευταίες 14 μέρες */
 async function loadStats(code) {
