@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // ----- Βοηθητικές -----
+    function signedIn() { return request.auth != null; }
+    function verified() { return signedIn() && request.auth.token.email_verified == true; }
+    // Διαχειριστής: αν αλλάξει, άλλαξέ το ΚΑΙ στο firebase-config.js
+    function isAdmin() { return verified() && request.auth.token.email == 'aris.alampourinos@gmail.com'; }
+    function reserved(s) { return s in ['p', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets']; }
+    function validSlug(s) { return s.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$') && !reserved(s); }
+    function hex(c) { return c is string && c.matches('^#[0-9A-Fa-f]{6}$'); }
+    function validProfile(d) {
+      return d.keys().hasOnly(['ownerUid', 'slug', 'status', 'name', 'bio', 'logo', 'logoPhoto', 'cover', 'accent', 'bg',
+                               'buttons', 'socials', 'address', 'hours', 'createdAt', 'updatedAt'])
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 80
+        && d.bio is string && d.bio.size() <= 300
+        && d.logo is string && d.logo.size() <= 200000
+        && d.logoPhoto is bool
+        && d.cover is string && d.cover.size() <= 400000
+        && hex(d.accent) && hex(d.bg)
+        && d.buttons is list && d.buttons.size() <= 12
+        && d.socials is map && d.socials.size() <= 8
+        && d.address is string && d.address.size() <= 200
+        && d.hours is string && d.hours.size() <= 400
+        && d.updatedAt == request.time;
+    }
+    function profilePath(pid) { return /databases/$(db)/documents/profiles/$(pid); }
+    function slugPath(s) { return /databases/$(db)/documents/slugs/$(s); }
+    function userPath(uid) { return /databases/$(db)/documents/users/$(uid); }
+
+    // ----- Προφίλ -----
+    match /profiles/{pid} {
+      // Όλοι βλέπουν ένα ενεργό προφίλ. Ο ιδιοκτήτης και ο διαχειριστής βλέπουν και τα ανενεργά.
+      allow get: if resource.data.status == 'active'
+                 || (signedIn() && resource.data.ownerUid == request.auth.uid)
+                 || isAdmin();
+      allow list: if isAdmin();
+
+      // Ένα προφίλ ανά λογαριασμό, μόνο με επιβεβαιωμένο email.
+      allow create: if verified()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'active'
+        && request.resource.data.createdAt == request.time
+        && validProfile(request.resource.data)
+        && validSlug(request.resource.data.slug)
+        && !exists(userPath(request.auth.uid))
+        && getAfter(userPath(request.auth.uid)).data.profileId == pid
+        && getAfter(slugPath(request.resource.data.slug)).data.pid == pid;
+
+      // Ο ιδιοκτήτης αλλάζει το περιεχόμενο, όχι την κατάσταση. Ο διαχειριστής αλλάζει μόνο την κατάσταση.
+      allow update: if (verified()
+          && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.createdAt == resource.data.createdAt
+          && validProfile(request.resource.data)
+          && (request.resource.data.slug == resource.data.slug
+              || (validSlug(request.resource.data.slug)
+                  && getAfter(slugPath(request.resource.data.slug)).data.pid == pid)))
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+          && request.resource.data.status in ['active', 'disabled']);
+
+      allow delete: if false;
+    }
+
+    // ----- Όμορφες διευθύνσεις (π.χ. /plaki-meze) -----
+    match /slugs/{slug} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if verified() && validSlug(slug)
+        && request.resource.data.keys().hasOnly(['pid', 'ownerUid'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && getAfter(profilePath(request.resource.data.pid)).data.ownerUid == request.auth.uid
+        && getAfter(profilePath(request.resource.data.pid)).data.slug == slug;
+      allow delete: if verified()
+        && resource.data.ownerUid == request.auth.uid
+        && getAfter(profilePath(resource.data.pid)).data.slug != slug;
+      allow update: if false;
+    }
+
+    // ----- Λογαριασμοί -----
+    match /users/{uid} {
+      allow get: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if verified() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['profileId', 'email', 'createdAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && getAfter(profilePath(request.resource.data.profileId)).data.ownerUid == uid;
+      allow update, delete: if false;
+    }
+
+    // ----- Αναφορές από επισκέπτες -----
+    match /reports/{rid} {
+      allow create: if request.resource.data.keys().hasOnly(['pid', 'reason', 'createdAt'])
+        && request.resource.data.pid is string && request.resource.data.pid.size() <= 20
+        && request.resource.data.reason is string && request.resource.data.reason.size() >= 1
+        && request.resource.data.reason.size() <= 500
+        && request.resource.data.createdAt == request.time;
+      allow read, delete: if isAdmin();
+    }
+  }
+}

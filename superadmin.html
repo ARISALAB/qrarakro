@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Διαχείριση | AR Akron QR</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#FBF9F4; --ink:#22241C; --muted:#62655A; --olive:#4B5A2E; --clay:#A9492A; --clay-soft:#F6E4DC; --line:#DDD6C6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Commissioner','Segoe UI',Roboto,Arial,sans-serif; line-height: 1.5; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 28px; margin: 10px 0 4px; letter-spacing: -0.02em; }
+  h2 { font-size: 20px; margin: 36px 0 12px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .btn { padding: 9px 14px; border-radius: 9px; border: 1px solid var(--line); background: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:hover { border-color: var(--ink); }
+  .btn.main { background: var(--olive); border-color: var(--olive); color: #fff; }
+  .btn.warn { color: var(--clay); }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; min-width: 130px; }
+  .stat b { display: block; font-size: 24px; }
+  input[type=search] { width: 100%; max-width: 360px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; font: inherit; margin-top: 16px; }
+  .list { display: grid; gap: 8px; margin-top: 12px; }
+  .row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .row.off { background: var(--clay-soft); }
+  .logo { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: #f3f1ea center/contain no-repeat; flex: none; }
+  .row .info { flex: 1; min-width: 0; }
+  .row .info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .info a { font-size: 13px; color: var(--olive); }
+  .row .info small { color: var(--muted); font-size: 12px; }
+  .msg { padding: 14px; border-radius: 10px; background: var(--clay-soft); color: #6E2C16; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Διαχείριση προφίλ</h1><p class="muted" id="who"></p></div>
+    <div><button class="btn" id="login" hidden>Σύνδεση με Google</button> <button class="btn" id="logout" hidden>Αποσύνδεση</button></div>
+  </div>
+  <p class="msg" id="deny" hidden>Αυτή η σελίδα είναι μόνο για τον διαχειριστή.</p>
+
+  <div id="panel" hidden>
+    <div class="stats">
+      <div class="stat"><b id="nAll">0</b><span class="muted">προφίλ</span></div>
+      <div class="stat"><b id="nOff">0</b><span class="muted">απενεργοποιημένα</span></div>
+      <div class="stat"><b id="nRep">0</b><span class="muted">αναφορές</span></div>
+    </div>
+
+    <h2>Αναφορές</h2>
+    <div class="list" id="reports"><p class="muted">Καμία αναφορά.</p></div>
+
+    <h2>Προφίλ</h2>
+    <input type="search" id="q" placeholder="Αναζήτηση με όνομα ή διεύθυνση">
+    <div class="list" id="profiles"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, query, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { firebaseConfig, ADMIN_EMAIL, SITE } from './firebase-config.js';
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+let profiles = [];
+
+$('login').onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(() => {});
+$('logout').onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async u => {
+  $('login').hidden = !!u; $('logout').hidden = !u;
+  $('who').textContent = u ? u.email : 'Συνδέσου με τον λογαριασμό του διαχειριστή.';
+  const isAdmin = !!u && u.email === ADMIN_EMAIL && u.emailVerified;
+  $('deny').hidden = !u || isAdmin; $('panel').hidden = !isAdmin;
+  if (isAdmin) load();
+});
+
+function fmt(ts) { try { return ts.toDate().toLocaleDateString('el-GR'); } catch (e) { return ''; } }
+
+async function load() {
+  const ps = await getDocs(query(collection(db, 'profiles'), orderBy('createdAt', 'desc'), limit(500)));
+  profiles = ps.docs.map(d => ({ id: d.id, ...d.data() }));
+  const rs = await getDocs(query(collection(db, 'reports'), orderBy('createdAt', 'desc'), limit(100)));
+  $('nAll').textContent = profiles.length;
+  $('nOff').textContent = profiles.filter(p => p.status === 'disabled').length;
+  $('nRep').textContent = rs.size;
+  const rep = $('reports'); rep.innerHTML = '';
+  if (!rs.size) rep.innerHTML = '<p class="muted">Καμία αναφορά.</p>';
+  rs.docs.forEach(d => {
+    const r = d.data(), p = profiles.find(x => x.id === r.pid);
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = '<div class="info"><b></b><small></small></div><button class="btn">Διαγραφή αναφοράς</button>';
+    row.querySelector('b').textContent = r.reason;
+    row.querySelector('small').textContent = (p ? p.name + ' (' + p.slug + ')' : r.pid) + ' · ' + fmt(r.createdAt);
+    row.querySelector('button').onclick = async () => { await deleteDoc(doc(db, 'reports', d.id)); load(); };
+    rep.appendChild(row);
+  });
+  renderProfiles();
+}
+
+function renderProfiles() {
+  const q = $('q').value.trim().toLowerCase();
+  const box = $('profiles'); box.innerHTML = '';
+  profiles.filter(p => !q || (p.name || '').toLowerCase().includes(q) || (p.slug || '').includes(q)).forEach(p => {
+    const off = p.status === 'disabled';
+    const row = document.createElement('div'); row.className = 'row' + (off ? ' off' : '');
+    row.innerHTML = '<span class="logo"></span><div class="info"><b></b><a target="_blank" rel="noopener"></a> <small></small></div><button class="btn"></button>';
+    if (p.logo) row.querySelector('.logo').style.backgroundImage = 'url("' + p.logo + '")';
+    row.querySelector('b').textContent = p.name;
+    const a = row.querySelector('a'); a.href = SITE + '/p/' + p.id; a.textContent = SITE.replace('https://', '') + '/' + p.slug;
+    row.querySelector('small').textContent = ' · ' + fmt(p.createdAt) + (off ? ' · απενεργοποιημένο' : '');
+    const b = row.querySelector('button');
+    b.textContent = off ? 'Ενεργοποίηση' : 'Απενεργοποίηση';
+    b.className = 'btn' + (off ? ' main' : ' warn');
+    b.onclick = async () => {
+      if (!off && !confirm('Να απενεργοποιηθεί το «' + p.name + '»; Δεν θα εμφανίζεται δημόσια.')) return;
+      await updateDoc(doc(db, 'profiles', p.id), { status: off ? 'active' : 'disabled', updatedAt: serverTimestamp() });
+      p.status = off ? 'active' : 'disabled'; renderProfiles();
+      $('nOff').textContent = profiles.filter(x => x.status === 'disabled').length;
+    };
+    box.appendChild(row);
+  });
+}
+$('q').addEventListener('input', renderProfiles);
+</script>
+</body>
+</html>

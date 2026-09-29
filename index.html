@@ -57,6 +57,9 @@
   .brand-mark { width: 26px; height: 26px; border-radius: 6px; background: var(--olive); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px; }
   .brand-mark i { background: var(--paper); border-radius: 1px; }
   .brand-mark i:last-child { transform: scale(.55); }
+  .head-nav { display: flex; align-items: center; gap: 14px; }
+  .head-link { font-size: 14px; font-weight: 600; color: var(--olive); }
+  @media (max-width: 520px) { .head-link { display: none; } }
   .lang-btn { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .lang-btn:hover { border-color: var(--ink); }
 
@@ -209,7 +212,10 @@
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span id="brandName">AR Akron QR</span>
     </a>
-    <button class="lang-btn" id="langBtn" type="button">English</button>
+    <nav class="head-nav">
+      <a class="head-link" href="/admin" data-i18n="navProfile">Δωρεάν ψηφιακό προφίλ</a>
+      <button class="lang-btn" id="langBtn" type="button">English</button>
+    </nav>
   </header>
 
   <main>
@@ -337,7 +343,7 @@ const BRAND = 'AR Akron QR';
 const I18N = {
   el: {
     title: 'Δωρεάν QR code για την επιχείρησή σου | ' + BRAND,
-    langBtn: 'English',
+    langBtn: 'English', navProfile: 'Δωρεάν ψηφιακό προφίλ',
     h1: 'QR code δωρεάν, έτοιμο για εκτύπωση',
     lead: 'Χωρίς εγγραφή και χωρίς υδατογράφημα. Ό,τι γράφεις μένει στη συσκευή σου.',
     typeLabel: 'Τι θες να ανοίγει το QR;',
@@ -416,7 +422,7 @@ const I18N = {
   },
   en: {
     title: 'Free QR codes for your business | ' + BRAND,
-    langBtn: 'Ελληνικά',
+    langBtn: 'Ελληνικά', navProfile: 'Free digital profile',
     h1: 'Free QR codes, ready to print',
     lead: 'No sign-up and no watermark. Everything you type stays on your device.',
     typeLabel: 'What should the QR open?',
@@ -1065,6 +1071,11 @@ $('notifyForm').addEventListener('submit', async e => {
 
 /* ------------------------- Εκκίνηση ------------------------- */
 $('brandName').textContent = BRAND;
+/* ?url=… ανοίγει τη γεννήτρια με έτοιμο link (π.χ. από τη σελίδα του προφίλ) */
+(function prefill() {
+  const u = new URLSearchParams(location.search).get('url');
+  if (u && /^https?:\/\//i.test(u)) { state.type = 'link'; state.values.link = { url: u }; }
+})();
 applyLang();
 restoreBrand();
 </script>
