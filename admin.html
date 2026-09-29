@@ -125,6 +125,65 @@
   .spin { width: 28px; height: 28px; margin: 80px auto; border: 3px solid var(--line); border-top-color: var(--olive); border-radius: 50%; animation: s .8s linear infinite; }
   @keyframes s { to { transform: rotate(360deg); } }
 
+  /* Ενότητες */
+  .sects { display: flex; gap: 6px; padding: 5px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 22px; overflow-x: auto; }
+  .sects button { flex: 1; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; background: transparent; padding: 11px 14px; border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer; color: var(--ink-2); }
+  .sects button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+  .pbadge { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: linear-gradient(180deg, #D8B983, var(--gold)); color: var(--ink); }
+  .notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-radius: 16px; background: var(--ink); color: var(--paper); margin-bottom: 18px; font-size: 14.5px; }
+  .notice b { color: var(--gold-2); }
+  .notice.warn { background: var(--clay-soft); color: #6E2C16; }
+  .notice .btn { padding: 9px 14px; font-size: 14px; }
+  .intro-card { position: relative; background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 24px; margin-bottom: 18px; box-shadow: var(--sh-2); }
+  .intro-card h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+  .intro-card > p { margin: 0 0 18px; color: var(--muted); }
+  .steps3 { display: grid; gap: 12px; margin-bottom: 18px; }
+  .steps3 div { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 14px; background: var(--soft); border: 1px solid var(--line); }
+  .steps3 b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--ink); color: var(--gold-2); font-size: 14px; }
+  .steps3 p { margin: 0; font-size: 14px; color: var(--muted); } .steps3 strong { display: block; color: var(--ink); font-size: 15px; }
+  .qr-grid { display: grid; gap: 12px; }
+  .qr-card { display: flex; gap: 14px; align-items: center; text-align: left; width: 100%; padding: 14px; border-radius: 18px; background: var(--white); border: 1px solid var(--line); cursor: pointer; font: inherit; color: inherit; }
+  .qr-card:hover { border-color: var(--ink-2); }
+  .qr-card canvas { width: 64px; height: 64px; flex: none; border-radius: 8px; border: 1px solid var(--line); }
+  .qr-card .meta { flex: 1; min-width: 0; }
+  .qr-card b { display: block; font-size: 16px; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qr-card small { display: block; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip-s { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--ink-2); }
+  .chip-s.live { background: #E8F2EA; border-color: #BCD8C2; color: #1F5A30; }
+  .chip-s.draft { background: #FBF3E4; border-color: #EAD3A6; color: #7A5716; }
+  .chip-s.off { background: var(--clay-soft); border-color: #EBC3B3; color: #6E2C16; }
+  .qr-card .num { text-align: right; font-size: 13px; color: var(--muted); } .qr-card .num b { font-size: 20px; color: var(--ink); }
+  .new-qr { border: 1.5px dashed var(--line-2); background: transparent; justify-content: center; font-weight: 700; min-height: 70px; }
+  .qe { display: grid; gap: 22px; }
+  .qe-stage { border-radius: 22px; padding: 34px 24px 26px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+    background: radial-gradient(90% 70% at 50% 0%, rgba(201,164,106,.28), transparent 70%), linear-gradient(180deg, #1A1B1F, #0E0F11); }
+  .qe-paper { width: min(100%, 250px); background: #fff; padding: 16px 16px 12px; border-radius: 4px; transform: rotate(-1.5deg); box-shadow: 0 30px 50px -26px rgba(0,0,0,.8); }
+  .qe-paper canvas { width: 100%; height: auto; aspect-ratio: 1; display: block; }
+  .qe-paper p { margin: 8px 0 0; text-align: center; font-weight: 700; font-size: 15px; min-height: 1em; }
+  .qe-link { color: var(--gold-2); font-size: 13.5px; font-weight: 600; word-break: break-all; text-align: center; }
+  .qe-status { color: rgba(247,244,238,.8); font-size: 13.5px; text-align: center; }
+  .bars { display: flex; align-items: flex-end; gap: 4px; height: 90px; margin-top: 12px; }
+  .bars div { flex: 1; background: var(--ink); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; }
+  .bars div.zero { background: var(--line); }
+  .bars-x { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .qe-acts { display: flex; gap: 10px; flex-wrap: wrap; }
+  dialog.plan { border: 0; padding: 0; border-radius: 26px; width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); box-shadow: 0 40px 90px -30px rgba(0,0,0,.6); color: var(--ink); }
+  dialog.plan::backdrop { background: rgba(14,15,17,.6); }
+  .plan-in { padding: 28px; }
+  .plan-in h2 { margin: 0 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -0.035em; }
+  .plan-in > p { margin: 0 0 18px; color: var(--muted); }
+  .plans { display: grid; gap: 10px; margin-bottom: 18px; }
+  .plans label { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; cursor: pointer; }
+  .plans label:has(input:checked) { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+  .plans input { accent-color: var(--ink); width: 18px; height: 18px; }
+  .plans .pr { margin-left: auto; text-align: right; font-weight: 800; font-size: 20px; letter-spacing: -0.02em; } .plans .pr small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); letter-spacing: 0; }
+  .plans .tag { font-size: 11px; font-weight: 800; color: var(--gold-deep); }
+  .incl { margin: 0 0 16px; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 14.5px; }
+  .incl li { display: flex; gap: 9px; } .incl li::before { content: '✓'; color: var(--gold-deep); font-weight: 800; }
+  .fine { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
+  .plan-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 26px; }
+  .plan-card h2 { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.035em; }
+  @media (min-width: 900px) { .qe { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } .qe-right { position: sticky; top: 16px; } .qr-grid { grid-template-columns: 1fr 1fr; } }
   @media (min-width: 560px) { .grid2, .soc-grid { grid-template-columns: 1fr 1fr; } }
   @media (min-width: 960px) { .editor { grid-template-columns: minmax(0, 1fr) 390px; gap: 40px; } }
   @media (max-width: 959px) {
@@ -202,6 +261,13 @@
 
     <!-- Επεξεργαστής -->
     <section id="vEditor" hidden>
+      <div class="notice" id="paidNote" hidden></div>
+      <nav class="sects" role="tablist" aria-label="Ενότητες">
+        <button type="button" role="tab" data-sect="sProfile" aria-selected="true">Το προφίλ μου</button>
+        <button type="button" role="tab" data-sect="sQr" aria-selected="false">Δυναμικά QR <span class="pbadge">Premium</span></button>
+        <button type="button" role="tab" data-sect="sPlan" aria-selected="false">Συνδρομή</button>
+      </nav>
+      <div id="sProfile">
       <div class="tabs" role="group" aria-label="Προβολή">
         <button type="button" id="tabEdit" aria-pressed="true">Επεξεργασία</button>
         <button type="button" id="tabPrev" aria-pressed="false">Προεπισκόπηση</button>
@@ -280,6 +346,7 @@
               <div class="link-row"><div><small>Για social και κάρτες</small><code id="lnPretty"></code></div><button type="button" class="btn line small" data-copy="lnPretty">Αντιγραφή</button></div>
               <div class="link-row"><div><small>Μόνιμος σύνδεσμος (αυτός μπαίνει στο QR)</small><code id="lnPerm"></code></div><button type="button" class="btn line small" data-copy="lnPerm">Αντιγραφή</button></div>
             </div>
+            <p class="hint" id="brandNote" hidden>Το «Φτιάξε κι εσύ δωρεάν προφίλ» στο κάτω μέρος του προφίλ σου αφαιρείται με <button type="button" class="link" data-open-plan>Premium</button>.</p>
             <div class="qr-box">
               <canvas id="qrCanvas" width="600" height="600" role="img" aria-label="QR του προφίλ"></canvas>
               <div class="acts">
@@ -296,7 +363,102 @@
           <p class="preview-note">Προεπισκόπηση: έτσι θα το βλέπουν στο κινητό.</p>
         </div>
       </div>
+      </div>
+
+      <!-- Δυναμικά QR -->
+      <div id="sQr" hidden>
+        <div class="notice" id="qrNotice"></div>
+        <div class="intro-card" id="qrIntro" hidden>
+          <h2>Δυναμικά QR: αλλάζεις τι ανοίγουν, χωρίς νέα εκτύπωση</h2>
+          <p>Είναι μέρος του Premium (<span id="introPrice"></span>). Φτιάχνεις και δοκιμάζεις δωρεάν, πληρώνεις μόνο όταν θέλεις να τα ενεργοποιήσεις.</p>
+          <div class="steps3">
+            <div><b>1</b><p><strong>Φτιάξε</strong>Διάλεξε πού θα οδηγεί το QR και σχεδίασέ το με τα χρώματα και το λογότυπό σου.</p></div>
+            <div><b>2</b><p><strong>Δοκίμασε</strong>Κάθε πρόχειρο QR δουλεύει για <span class="ts"></span> δοκιμαστικά σκαναρίσματα. Σκάναρέ το με το κινητό σου.</p></div>
+            <div><b>3</b><p><strong>Ενεργοποίησε</strong>Όταν είσαι έτοιμος, ενεργοποιείς το Premium και κατεβάζεις τα QR για εκτύπωση.</p></div>
+          </div>
+          <button type="button" class="btn" id="introOk">Κατάλαβα</button>
+        </div>
+
+        <div id="qrListView">
+          <div class="qr-grid" id="qrGrid"></div>
+        </div>
+
+        <div id="qrEditView" hidden>
+          <p style="margin:0 0 14px"><button type="button" class="link" id="qrBack">← Όλα τα QR</button></p>
+          <div class="qe">
+            <div class="form">
+              <section class="card">
+                <h2>Τι ανοίγει</h2>
+                <div class="stack">
+                  <div class="field"><label for="qName">Όνομα (το βλέπεις μόνο εσύ)</label><input type="text" id="qName" maxlength="60" placeholder="π.χ. Μενού τραπεζιών"></div>
+                  <div class="field"><label for="qType">Πού οδηγεί</label><select id="qType"></select></div>
+                  <div class="field" id="qValueWrap"><label for="qValue">Προορισμός</label><input type="text" id="qValue" maxlength="500" autocapitalize="off" spellcheck="false">
+                    <p class="err" id="qValueErr" hidden>Έλεγξε τη μορφή, έτσι όπως είναι δεν θα λειτουργεί.</p>
+                    <p class="hint">Μπορείς να το αλλάξεις όποτε θέλεις. Το τυπωμένο QR θα ανοίγει τον νέο προορισμό.</p></div>
+                </div>
+              </section>
+              <section class="card">
+                <h2>Σχέδιο</h2>
+                <div class="stack">
+                  <div class="colors">
+                    <label class="color-pick"><input type="color" id="qFg"><span>Χρώμα QR<br><span class="hex" id="qFgHex"></span></span></label>
+                    <label class="color-pick"><input type="color" id="qBg"><span>Φόντο<br><span class="hex" id="qBgHex"></span></span></label>
+                  </div>
+                  <label class="check"><input type="checkbox" id="qLogo"> Λογότυπο στη μέση (από το προφίλ σου)</label>
+                  <div class="field"><label for="qCaption">Κείμενο κάτω από το QR <span class="opt">(προαιρετικό)</span></label><input type="text" id="qCaption" maxlength="60" placeholder="π.χ. Δες το μενού μας"></div>
+                </div>
+              </section>
+              <section class="card">
+                <h2>Σκαναρίσματα</h2>
+                <p class="sub" id="qTotal"></p>
+                <div class="bars" id="qBars"></div>
+                <div class="bars-x"><span id="qBarsFrom"></span><span>σήμερα</span></div>
+              </section>
+            </div>
+            <div class="qe-right">
+              <div class="qe-stage">
+                <div class="qe-paper"><canvas id="qCanvas" width="600" height="600" role="img" aria-label="QR"></canvas><p id="qCapPrev"></p></div>
+                <span class="qe-link" id="qLink"></span>
+                <span class="qe-status" id="qStatus"></span>
+              </div>
+              <div class="stack" style="margin-top:14px">
+                <button type="button" class="btn gold" id="qSave">Αποθήκευση</button>
+                <button type="button" class="btn" id="qDownload"></button>
+                <a class="btn line" id="qTemplates" target="_blank" rel="noopener" hidden>SVG και πρότυπα εκτύπωσης</a>
+                <div class="qe-acts"><button type="button" class="btn line small" id="qPause"></button><button type="button" class="btn line small" id="qDelete">Διαγραφή</button></div>
+                <p class="hint" id="qSaveMsg"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Συνδρομή -->
+      <div id="sPlan" hidden>
+        <div class="plan-card" id="planCard"></div>
+      </div>
     </section>
+
+    <dialog class="plan" id="planModal">
+      <div class="plan-in">
+        <h2>Ενεργοποίηση Premium</h2>
+        <p>Όλα όσα έφτιαξες ενεργοποιούνται αμέσως μετά την πληρωμή.</p>
+        <div class="plans">
+          <label><input type="radio" name="plan" value="yearly" checked><span><b>Ετήσιο</b><br><span class="tag">2 ΜΗΝΕΣ ΔΩΡΟ</span></span><span class="pr"><span class="pY"></span><small>τον χρόνο, με ΦΠΑ</small></span></label>
+          <label><input type="radio" name="plan" value="monthly"><span><b>Μηνιαίο</b></span><span class="pr"><span class="pM"></span><small>τον μήνα, με ΦΠΑ</small></span></label>
+        </div>
+        <ul class="incl">
+          <li><span>Έως <span class="mq"></span> δυναμικά QR, με αλλαγή προορισμού όποτε θέλεις</span></li>
+          <li>Στατιστικά σκαναρισμάτων ανά ημέρα</li>
+          <li>Προφίλ χωρίς το «Φτιάξε κι εσύ δωρεάν προφίλ»</li>
+          <li>Ο ψηφιακός κατάλογος, όταν κυκλοφορήσει, χωρίς επιπλέον χρέωση</li>
+          <li>Η τιμή σου μένει ίδια όσο η συνδρομή είναι ενεργή</li>
+        </ul>
+        <p class="fine">Η συνδρομή ανανεώνεται αυτόματα και την ακυρώνεις όποτε θέλεις. Αν λήξει, όλα συνεχίζουν να δουλεύουν για <span class="gd"></span> ημέρες. Μετά, τα QR σου δεν σταματούν: οδηγούν στο δωρεάν προφίλ σου μέχρι να ανανεώσεις. Η πληρωμή γίνεται με ασφάλεια μέσω Lemon Squeezy, όπου μπορείς να δηλώσεις και τον ΑΦΜ σου.</p>
+        <p class="msg bad" id="planErr" hidden></p>
+        <div class="qe-acts"><button type="button" class="btn gold" id="planGo">Συνέχεια στην πληρωμή</button><button type="button" class="btn line" id="planClose">Όχι τώρα</button></div>
+      </div>
+    </dialog>
   </main>
 </div>
 
@@ -310,8 +472,8 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, doc, getDoc, writeBatch, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { firebaseConfig, SITE, BRAND } from './firebase-config.js';
+import { getFirestore, doc, getDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from './firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from './profile-render.js';
 
 const app = initializeApp(firebaseConfig);
@@ -322,7 +484,7 @@ const $ = id => document.getElementById(id);
 $('brandName').textContent = BRAND;
 
 /* ---------------- Βοηθητικά ---------------- */
-const RESERVED = ['p', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets'];
+const RESERVED = ['p', 'q', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets'];
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 const GR = { α:'a',β:'v',γ:'g',δ:'d',ε:'e',ζ:'z',η:'i',θ:'th',ι:'i',κ:'k',λ:'l',μ:'m',ν:'n',ξ:'x',ο:'o',π:'p',ρ:'r',σ:'s',ς:'s',τ:'t',υ:'y',φ:'f',χ:'ch',ψ:'ps',ω:'o' };
 function slugify(s) {
@@ -338,7 +500,7 @@ function newId() {
 }
 function show(view) {
   ['vLoading', 'vAuth', 'vVerify', 'vOnboard', 'vEditor'].forEach(v => $(v).hidden = v !== view);
-  $('saveBar').hidden = view !== 'vEditor';
+  $('saveBar').hidden = view !== 'vEditor' || curSect !== 'sProfile';
 }
 function msg(id, text) { const e = $(id); e.textContent = text || ''; e.hidden = !text; }
 const AUTH_ERR = {
@@ -408,7 +570,7 @@ $('verResend').addEventListener('click', async () => {
 });
 
 /* ---------------- Ροή ---------------- */
-let user = null, pid = null, saved = null, draft = null, dirty = false;
+let user = null, pid = null, saved = null, draft = null, dirty = false, usr = {}, ent = null, P = premiumState(null), curSect = 'sProfile';
 onAuthStateChanged(auth, u => { user = u; route(u); });
 
 async function route(u) {
@@ -420,7 +582,8 @@ async function route(u) {
   try {
     const us = await getDoc(doc(db, 'users', u.uid));
     if (!us.exists()) { startOnboard(); return; }
-    pid = us.data().profileId;
+    usr = us.data(); pid = usr.profileId;
+    await loadEnt();
     const ps = await getDoc(doc(db, 'profiles', pid));
     saved = { id: pid, ...ps.data() };
     startEditor();
@@ -471,7 +634,7 @@ $('obForm').addEventListener('submit', async e => {
     b.set(doc(db, 'profiles', id), profile);
     b.set(doc(db, 'slugs', slug), { pid: id, ownerUid: user.uid });
     await b.commit();
-    pid = id; saved = { id, ...profile };
+    pid = id; saved = { id, ...profile }; usr = { profileId: id, email: user.email, qrCount: 0 }; await loadEnt();
     startEditor();
   } catch (err) {
     console.error(err);
@@ -499,6 +662,7 @@ function startEditor() {
   $('socGrid').innerHTML = Object.keys(SOCIALS).map(k => '<div class="field"><label for="s_' + k + '">' + SOC_NAME[k] + '</label><input type="text" id="s_' + k + '" data-soc="' + k + '" autocapitalize="off" spellcheck="false"></div>').join('');
   Object.keys(SOCIALS).forEach(k => $('s_' + k).value = draft.socials[k] || '');
   syncColors(); syncImages(); renderButtons(); updateLinks(); setDirty(false); refresh();
+  afterEditorStart();
 }
 
 function setDirty(d) {
@@ -513,7 +677,7 @@ window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); 
 let rTimer;
 function refresh() {
   clearTimeout(rTimer);
-  rTimer = setTimeout(() => { renderProfile($('previewRoot'), draft, { lang: 'el', preview: true }); drawQr(); }, 80);
+  rTimer = setTimeout(() => { renderProfile($('previewRoot'), draft, { lang: 'el', preview: true, hideMake: P.usable }); drawQr(); }, 80);
 }
 function changed() { setDirty(true); refresh(); }
 
@@ -735,6 +899,266 @@ $('saveBtn').addEventListener('click', async () => {
     $('saveBtn').disabled = false;
   }
 });
+
+/* =====================================================================
+   PREMIUM: ενότητες, δυναμικά QR, συνδρομή
+   ===================================================================== */
+const fmtDate = ms => new Date(ms).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' });
+async function loadEnt() {
+  try { const e = await getDoc(doc(db, 'entitlements', user.uid)); ent = e.exists() ? e.data() : null; } catch (e) { ent = null; }
+  P = premiumState(ent);
+}
+document.querySelectorAll('.ts').forEach(e => e.textContent = TEST_SCANS);
+document.querySelectorAll('.mq').forEach(e => e.textContent = MAX_QR);
+document.querySelectorAll('.gd').forEach(e => e.textContent = GRACE_DAYS);
+document.querySelectorAll('.pY').forEach(e => e.textContent = PRICES.yearly);
+document.querySelectorAll('.pM').forEach(e => e.textContent = PRICES.monthly);
+$('introPrice').textContent = PRICES.monthly + ' τον μήνα ή ' + PRICES.yearly + ' τον χρόνο, με ΦΠΑ';
+
+/* Ενότητες */
+function sect(name) {
+  curSect = name;
+  ['sProfile', 'sQr', 'sPlan'].forEach(x => $(x).hidden = x !== name);
+  document.querySelectorAll('.sects button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sect === name)));
+  $('saveBar').hidden = name !== 'sProfile';
+  history.replaceState(null, '', name === 'sQr' ? '#qr' : name === 'sPlan' ? '#plan' : location.pathname + location.search);
+  if (name === 'sQr') showQrList();
+  if (name === 'sPlan') renderPlan();
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll('.sects button').forEach(b => b.addEventListener('click', () => {
+  if (curSect === 'sProfile' && dirty && !confirm('Έχεις αλλαγές στο προφίλ που δεν αποθηκεύτηκαν. Να συνεχίσεις χωρίς αποθήκευση;')) return;
+  sect(b.dataset.sect);
+}));
+document.addEventListener('click', e => { if (e.target.closest('[data-open-plan]')) openPlan(); });
+
+function afterEditorStart() {
+  $('brandNote').hidden = P.usable;
+  renderPaidNote();
+  const h = location.hash;
+  if (h === '#qr') sect('sQr'); else if (h === '#plan') sect('sPlan'); else sect('sProfile');
+  if (new URLSearchParams(location.search).get('paid')) waitForPremium();
+}
+function renderPaidNote() {
+  const n = $('paidNote');
+  if (P.grace) { n.className = 'notice warn'; n.innerHTML = ''; n.append('Η συνδρομή σου έληξε. Όλα συνεχίζουν να δουλεύουν έως ' + fmtDate(P.graceUntil) + '. '); const b = document.createElement('button'); b.className = 'btn small'; b.textContent = 'Ανανέωση'; b.onclick = openPlan; n.append(b); n.hidden = false; }
+  else n.hidden = true;
+}
+async function waitForPremium() {
+  const n = $('paidNote'); n.className = 'notice'; n.hidden = false;
+  n.textContent = 'Ευχαριστούμε! Ενεργοποιούμε το Premium σου…';
+  for (let i = 0; i < 20 && !P.active; i++) { await new Promise(r => setTimeout(r, 3000)); await loadEnt(); }
+  history.replaceState(null, '', location.pathname + location.hash);
+  if (P.active) { n.innerHTML = 'Το <b>Premium</b> είναι ενεργό έως ' + fmtDate(P.until) + '. Τα QR σου ενεργοποιήθηκαν.'; $('brandNote').hidden = true; refresh(); if (curSect === 'sQr') showQrList(); if (curSect === 'sPlan') renderPlan(); }
+  else n.textContent = 'Η πληρωμή καταχωρείται. Αν σε λίγα λεπτά δεν δεις το Premium ενεργό, ανανέωσε τη σελίδα ή γράψε μας.';
+}
+
+/* Παράθυρο ενεργοποίησης */
+function openPlan() { msg('planErr'); $('planModal').showModal(); }
+$('planClose').addEventListener('click', () => $('planModal').close());
+$('planGo').addEventListener('click', () => {
+  const plan = document.querySelector('input[name=plan]:checked').value;
+  const base = plan === 'yearly' ? LEMON.yearlyUrl : LEMON.monthlyUrl;
+  if (!base) return msg('planErr', 'Οι πληρωμές ανοίγουν πολύ σύντομα. Μέχρι τότε μπορείς να συνεχίσεις να φτιάχνεις και να δοκιμάζεις τα QR σου.');
+  const url = base + (base.includes('?') ? '&' : '?') + 'checkout[email]=' + encodeURIComponent(user.email || '') + '&checkout[custom][uid]=' + encodeURIComponent(user.uid);
+  location.href = url;
+});
+
+/* Συνδρομή */
+function renderPlan() {
+  const c = $('planCard'), L = usr.lemon || {};
+  let h;
+  if (P.active) {
+    h = '<h2>Premium ενεργό</h2><p class="sub" style="margin:0 0 16px">' + (L.status === 'cancelled' ? 'Η συνδρομή έχει ακυρωθεί και λήγει στις ' : 'Ανανεώνεται στις ') + fmtDate(P.until) + (ent && ent.plan ? ' · ' + ent.plan : '') + '</p>';
+  } else if (P.grace) {
+    h = '<h2>Η συνδρομή έληξε</h2><p class="sub" style="margin:0 0 16px">Όλα δουλεύουν κανονικά έως ' + fmtDate(P.graceUntil) + '. Μετά τα QR σου θα οδηγούν στο δωρεάν προφίλ σου.</p>';
+  } else {
+    h = '<h2>Δωρεάν λογαριασμός</h2><p class="sub" style="margin:0 0 16px">Το προφίλ σου είναι δωρεάν για πάντα. Με το Premium (' + PRICES.monthly + '/μήνα ή ' + PRICES.yearly + '/χρόνο, με ΦΠΑ) ενεργοποιείς τα δυναμικά QR και αφαιρείς τη διαφήμιση από το προφίλ.</p>';
+  }
+  c.innerHTML = h + '<div class="qe-acts" id="planActs"></div>';
+  const acts = $('planActs');
+  if (!P.active) { const b = document.createElement('button'); b.className = 'btn gold'; b.textContent = P.ever ? 'Ανανέωση Premium' : 'Ενεργοποίηση Premium'; b.onclick = openPlan; acts.append(b); }
+  if (L.portal) { const a = document.createElement('a'); a.className = 'btn line'; a.href = L.portal; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Διαχείριση συνδρομής και παραστατικά'; acts.append(a); }
+}
+
+/* ---------- Δυναμικά QR ---------- */
+const QTYPES = [['link', 'Ιστοσελίδα'], ['menu', 'Μενού / Κατάλογος'], ['booking', 'Κράτηση'], ['review', 'Κριτική Google'], ['whatsapp', 'WhatsApp'], ['phone', 'Τηλέφωνο'], ['email', 'Email'], ['map', 'Χάρτης'], ['profile', 'Το προφίλ μου']];
+const QPH = { link: 'www.to-magazi-mou.gr', menu: 'Link του μενού σου', booking: 'Link κρατήσεων', review: 'Link κριτικών Google', whatsapp: '69X XXX XXXX', phone: '210 123 4567', email: 'info@to-magazi-mou.gr', map: 'Διεύθυνση ή link από Google Maps' };
+$('qType').innerHTML = QTYPES.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
+let qrs = [], cur = null, curCode = null, qLogoImg = null, qLogoSrc = '';
+const shortUrl = code => SITE + '/q/' + code;
+const qDest = q => q.t === 'profile' ? SITE + '/p/' + pid : hrefFor({ t: q.t, v: q.v });
+let introSeen = false; try { introSeen = localStorage.getItem('qrIntroSeen') === '1'; } catch (e) {}
+$('introOk').addEventListener('click', () => { introSeen = true; try { localStorage.setItem('qrIntroSeen', '1'); } catch (e) {} $('qrIntro').hidden = true; });
+
+function qStatus(q) {
+  if (q.paused) return ['off', 'Σε παύση'];
+  if (P.usable) return ['live', 'Ενεργό'];
+  if (P.ever) return ['off', 'Οδηγεί στο προφίλ σου'];
+  return ['draft', 'Πρόχειρο · δοκιμές ' + (q.testScans || 0) + '/' + TEST_SCANS];
+}
+function renderQrNotice() {
+  const n = $('qrNotice'); n.className = 'notice'; n.innerHTML = '';
+  if (P.active) n.innerHTML = '<span><b>Premium ενεργό</b> έως ' + fmtDate(P.until) + ' · ' + qrs.length + ' από ' + MAX_QR + ' QR</span>';
+  else if (P.grace) { n.className = 'notice warn'; n.textContent = 'Η συνδρομή έληξε. Τα QR δουλεύουν έως ' + fmtDate(P.graceUntil) + '. '; }
+  else { n.innerHTML = '<span>Τα δυναμικά QR ενεργοποιούνται με <b>Premium</b>, από <b>' + PRICES.yearlyPerMonth + '/μήνα</b> με ΦΠΑ. Φτιάχνεις και δοκιμάζεις δωρεάν.</span>'; }
+  if (!P.active) { const b = document.createElement('button'); b.className = 'btn gold small'; b.textContent = P.ever ? 'Ανανέωση' : 'Ενεργοποίηση'; b.onclick = openPlan; n.append(b); }
+}
+async function showQrList() {
+  $('qrEditView').hidden = true; $('qrListView').hidden = false;
+  $('qrIntro').hidden = introSeen || P.active;
+  try {
+    const snap = await getDocs(query(collection(db, 'qrs'), where('ownerUid', '==', user.uid)));
+    qrs = snap.docs.map(d => ({ code: d.id, ...d.data() }));
+    qrs.sort((a, b) => ((b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0) - ((a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0));
+  } catch (e) { console.error(e); }
+  renderQrNotice();
+  const g = $('qrGrid'); g.innerHTML = '';
+  for (const q of qrs) {
+    const [cls, label] = qStatus(q);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'qr-card';
+    b.innerHTML = '<canvas width="128" height="128"></canvas><span class="meta"><b></b><small></small><span class="chip-s ' + cls + '"></span></span><span class="num"><b>' + (q.scans || 0) + '</b><br>σκαναρ.</span>';
+    b.querySelector('b').textContent = q.name;
+    b.querySelector('small').textContent = (QTYPES.find(t => t[0] === q.t) || [0, ''])[1] + (q.t === 'profile' ? '' : ' · ' + (q.v || '—'));
+    b.querySelector('.chip-s').textContent = label;
+    drawCode(b.querySelector('canvas'), 128, shortUrl(q.code), q.fg, q.bg, null);
+    b.onclick = () => openQr(q.code);
+    g.append(b);
+  }
+  const add = document.createElement('button'); add.type = 'button'; add.className = 'qr-card new-qr';
+  add.textContent = qrs.length >= MAX_QR ? 'Έφτασες το όριο των ' + MAX_QR + ' QR' : '+ Νέο δυναμικό QR';
+  add.disabled = qrs.length >= MAX_QR; add.onclick = createQr; g.append(add);
+}
+function newCode() {
+  const abc = '23456789abcdefghjkmnpqrstuvwxyz', a = new Uint32Array(6); crypto.getRandomValues(a);
+  return Array.from(a, n => abc[n % abc.length]).join('');
+}
+async function createQr() {
+  if (qrs.length >= MAX_QR) return;
+  let code = newCode();
+  for (let i = 0; i < 5 && (await getDoc(doc(db, 'qrs', code))).exists(); i++) code = newCode();
+  const q = { ownerUid: user.uid, ownerPid: pid, name: 'Νέο QR ' + (qrs.length + 1), t: 'link', v: '', fg: '#121316', bg: '#FFFFFF', caption: '',
+    logo: !!saved.logo, paused: false, scans: 0, testScans: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+  try {
+    const b = writeBatch(db);
+    b.set(doc(db, 'qrs', code), q);
+    b.update(doc(db, 'users', user.uid), { qrCount: increment(1) });
+    await b.commit();
+    usr.qrCount = (usr.qrCount || 0) + 1;
+    qrs.unshift({ code, ...q, createdAt: null });
+    openQr(code);
+  } catch (e) { console.error(e); alert('Δεν δημιουργήθηκε το QR. Δοκίμασε ξανά σε λίγο.'); }
+}
+function openQr(code) {
+  const q = qrs.find(x => x.code === code); if (!q) return;
+  curCode = code; cur = { ...q };
+  $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false;
+  $('qName').value = cur.name; $('qType').value = cur.t; $('qValue').value = cur.v; $('qCaption').value = cur.caption;
+  $('qLogo').checked = !!cur.logo; $('qLogo').disabled = !saved.logo;
+  $('qLink').textContent = shortUrl(code).replace('https://', '');
+  $('qSaveMsg').textContent = '';
+  syncQ(); loadStats(code); window.scrollTo({ top: 0 });
+}
+$('qrBack').addEventListener('click', () => showQrList());
+function syncQ() {
+  $('qValueWrap').hidden = cur.t === 'profile';
+  $('qValue').placeholder = QPH[cur.t] || '';
+  $('qValueErr').hidden = !(cur.t !== 'profile' && cur.v.trim() && !qDest(cur));
+  $('qFg').value = cur.fg.toLowerCase(); $('qBg').value = cur.bg.toLowerCase();
+  $('qFgHex').textContent = cur.fg; $('qBgHex').textContent = cur.bg;
+  $('qCapPrev').textContent = cur.caption; $('qCapPrev').style.color = cur.fg;
+  document.querySelector('.qe-paper').style.background = cur.bg;
+  const [, label] = qStatus(cur);
+  $('qStatus').textContent = label + (P.usable || P.ever ? '' : ' · λήψη με την ενεργοποίηση');
+  $('qPause').textContent = cur.paused ? 'Συνέχεια' : 'Παύση';
+  $('qDownload').textContent = P.usable ? 'Κατέβασε το QR (PNG)' : 'Ενεργοποίηση για λήψη';
+  $('qDownload').className = P.usable ? 'btn' : 'btn line';
+  $('qTemplates').hidden = !P.usable;
+  $('qTemplates').href = SITE + '/?url=' + encodeURIComponent(shortUrl(curCode));
+  drawQPreview();
+}
+async function drawQPreview() {
+  const want = cur.logo && saved.logo ? saved.logo : '';
+  if (want !== qLogoSrc) { qLogoSrc = want; qLogoImg = want ? await loadImg(want).catch(() => null) : null; }
+  drawCode($('qCanvas'), 600, shortUrl(curCode), cur.fg, cur.bg, qLogoImg);
+}
+$('qName').addEventListener('input', e => { cur.name = e.target.value; });
+$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); });
+$('qValue').addEventListener('input', e => { cur.v = e.target.value; $('qValueErr').hidden = !(cur.v.trim() && !qDest(cur)); });
+$('qCaption').addEventListener('input', e => { cur.caption = e.target.value; syncQ(); });
+$('qFg').addEventListener('input', e => { cur.fg = e.target.value.toUpperCase(); syncQ(); });
+$('qBg').addEventListener('input', e => { cur.bg = e.target.value.toUpperCase(); syncQ(); });
+$('qLogo').addEventListener('change', e => { cur.logo = e.target.checked; syncQ(); });
+
+async function saveQ(extra) {
+  const data = { name: (cur.name || '').trim().slice(0, 60) || 'QR', t: cur.t, v: cur.t === 'profile' ? '' : (cur.v || '').trim().slice(0, 500),
+    fg: cur.fg, bg: cur.bg, caption: (cur.caption || '').trim().slice(0, 60), logo: !!cur.logo, paused: !!cur.paused, ...extra, updatedAt: serverTimestamp() };
+  await updateDoc(doc(db, 'qrs', curCode), data);
+  Object.assign(cur, data, { updatedAt: null });
+  const i = qrs.findIndex(x => x.code === curCode); if (i > -1) qrs[i] = { ...cur };
+}
+$('qSave').addEventListener('click', async () => {
+  if (cur.t !== 'profile' && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
+  $('qSave').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…';
+  try { await saveQ({}); $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.'; }
+  catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }
+  $('qSave').disabled = false;
+});
+$('qPause').addEventListener('click', async () => {
+  try { await saveQ({ paused: !cur.paused }); syncQ(); $('qSaveMsg').textContent = cur.paused ? 'Το QR είναι σε παύση.' : 'Το QR λειτουργεί ξανά.'; }
+  catch (e) { $('qSaveMsg').textContent = 'Δεν έγινε η αλλαγή. Δοκίμασε ξανά.'; }
+});
+$('qDelete').addEventListener('click', async () => {
+  if (!confirm('Να διαγραφεί το «' + cur.name + '»; Αν είναι τυπωμένο, θα σταματήσει να λειτουργεί.')) return;
+  try {
+    const b = writeBatch(db);
+    b.delete(doc(db, 'qrs', curCode));
+    b.update(doc(db, 'users', user.uid), { qrCount: increment(-1) });
+    await b.commit();
+    usr.qrCount = Math.max(0, (usr.qrCount || 1) - 1);
+    qrs = qrs.filter(x => x.code !== curCode); showQrList();
+  } catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν διαγράφηκε. Δοκίμασε ξανά.'; }
+});
+$('qDownload').addEventListener('click', async () => {
+  if (!P.usable) return openPlan();
+  const c = document.createElement('canvas'), cap = (cur.caption || '').trim(), W = 1200, capH = cap ? 170 : 0;
+  c.width = W; c.height = W + capH;
+  drawCode(c, W, shortUrl(curCode), cur.fg, cur.bg, qLogoImg, capH);
+  if (cap) { const x = c.getContext('2d'); x.fillStyle = cur.fg; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 60px Manrope, Arial, sans-serif'; x.fillText(cap, W / 2, W + capH / 2 - 20, W * 0.86); }
+  c.toBlob(bl => { const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'qr-' + curCode + '.png'; document.body.append(a); a.click(); a.remove(); }, 'image/png');
+});
+
+/* Σκαναρίσματα: τελευταίες 14 μέρες */
+async function loadStats(code) {
+  const days = [...Array(14)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (13 - i)); return d.toISOString().slice(0, 10); });
+  const map = {};
+  try { const s = await getDocs(query(collection(db, 'qrs', code, 'days'), where(documentId(), '>=', days[0]))); s.docs.forEach(d => map[d.id] = d.data().n || 0); }
+  catch (e) { console.error(e); }
+  const max = Math.max(1, ...days.map(d => map[d] || 0));
+  $('qBars').innerHTML = days.map(d => { const n = map[d] || 0; return '<div class="' + (n ? '' : 'zero') + '" style="height:' + Math.max(3, n / max * 100) + '%" title="' + d + ': ' + n + '"></div>'; }).join('');
+  $('qBarsFrom').textContent = new Date(days[0]).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' });
+  const q = qrs.find(x => x.code === code) || {};
+  $('qTotal').textContent = 'Σύνολο: ' + (q.scans || 0) + ' σκαναρίσματα' + (q.testScans ? ' · ' + q.testScans + ' δοκιμαστικά' : '');
+}
+
+/* Σχεδίαση QR σε canvas */
+function drawCode(canvas, size, text, fg, bg, logo, extraH = 0) {
+  if (typeof qrcode === 'undefined') return;
+  const qr = qrcode(0, logo ? 'H' : 'M'); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), ms = size / (n + 8), ctx = canvas.getContext('2d');
+  if (!extraH) { canvas.width = size; canvas.height = size; }
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size + extraH); ctx.fillStyle = fg;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) {
+    const x0 = Math.floor((c + 4) * ms), y0 = Math.floor((r + 4) * ms);
+    ctx.fillRect(x0, y0, Math.floor((c + 5) * ms) - x0, Math.floor((r + 5) * ms) - y0);
+  }
+  if (logo) {
+    const box = n * ms * 0.25, bx = size / 2 - box / 2, pad = box * 0.08;
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, bx, box, box, box * 0.14) : ctx.rect(bx, bx, box, box); ctx.fill();
+    const iw = logo.naturalWidth, ih = logo.naturalHeight, s = Math.min((box - 2 * pad) / iw, (box - 2 * pad) / ih);
+    ctx.drawImage(logo, size / 2 - iw * s / 2, size / 2 - ih * s / 2, iw * s, ih * s);
+  }
+}
 </script>
 </body>
 </html>

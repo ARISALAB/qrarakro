@@ -17,3 +17,23 @@ export const SITE = 'https://qr.arakronservices.gr';
 
 // Όνομα προϊόντος (άλλαξέ το όταν κλείσει το brand)
 export const BRAND = 'AR Akron QR';
+
+/* ---------------- Premium ----------------
+   Βάλε εδώ τα links αγοράς των δύο παραλλαγών από το Lemon Squeezy
+   (Products → το προϊόν → κάθε variant → Share → "Checkout URL").
+   Όσο μένουν κενά, το κουμπί πληρωμής λέει ότι οι πληρωμές ανοίγουν σύντομα. */
+export const LEMON = {
+  yearlyUrl: '',   // π.χ. 'https://akron.lemonsqueezy.com/buy/xxxxxxxx-xxxx-...'
+  monthlyUrl: ''
+};
+export const PRICES = { monthly: '7€', yearly: '70€', yearlyPerMonth: '5,83€' };  // με ΦΠΑ
+export const MAX_QR = 10;        // δυναμικά QR ανά λογαριασμό (και στο firestore.rules)
+export const TEST_SCANS = 10;    // δοκιμαστικά σκαναρίσματα πριν την ενεργοποίηση (και στο firestore.rules)
+export const GRACE_DAYS = 30;    // μέρες χάρης μετά τη λήξη της συνδρομής
+
+// Premium ενεργό (ή σε περίοδο χάριτος) με βάση το έγγραφο entitlements/{uid}
+export function premiumState(ent) {
+  const until = ent && ent.premiumUntil && ent.premiumUntil.toMillis ? ent.premiumUntil.toMillis() : 0;
+  const now = Date.now(), grace = until + GRACE_DAYS * 864e5;
+  return { active: until > now, grace: until <= now && grace > now, usable: grace > now, ever: until > 0, until, graceUntil: grace };
+}

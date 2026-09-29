@@ -26,7 +26,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
-import { firebaseConfig, SITE } from './firebase-config.js';
+import { firebaseConfig, SITE, premiumState } from './firebase-config.js';
 import { renderProfile, visitorLang } from './profile-render.js';
 
 const db = getFirestore(initializeApp(firebaseConfig));
@@ -66,8 +66,10 @@ async function load() {
     document.title = p.name;
     const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = p.bg || '#FFFFFF';
     document.body.style.background = p.bg || '#FFFFFF';
+    let ent = null;
+    try { const e = await getDoc(doc(db, 'entitlements', p.ownerUid)); if (e.exists()) ent = e.data(); } catch (e) {}
     renderProfile(root, p, {
-      lang,
+      lang, hideMake: premiumState(ent).usable,
       onReport: reason => addDoc(collection(db, 'reports'), { pid: p.id, reason, createdAt: serverTimestamp() })
     });
   } catch (e) {

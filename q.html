@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>…</title>
+<style>
+  html, body { margin: 0; min-height: 100%; background: #F7F4EE; }
+  body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #121316; }
+  .box { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 28px; text-align: center; }
+  .box h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+  .box p { margin: 0; color: #6B6C72; max-width: 34ch; line-height: 1.5; }
+  .box a { margin-top: 8px; color: #121316; font-weight: 700; }
+  .spin { width: 26px; height: 26px; border: 3px solid #E7E2D8; border-top-color: #C9A46A; border-radius: 50%; animation: s .8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body>
+<div class="box" id="box"><div class="spin" aria-label="…"></div></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
+import { firebaseConfig, SITE, TEST_SCANS, premiumState } from './firebase-config.js';
+import { hrefFor } from './profile-render.js';
+
+const db = getFirestore(initializeApp(firebaseConfig));
+const el = lang => (navigator.language || 'el').toLowerCase().startsWith('el');
+const EL = el();
+const T = EL ? {
+  missing: ['Αυτό το QR δεν υπάρχει', 'Ίσως ο σύνδεσμος είναι λάθος ή το QR έχει διαγραφεί.'],
+  paused: ['Το QR είναι προσωρινά ανενεργό', 'Ο ιδιοκτήτης του το έχει βάλει σε παύση. Δοκίμασε ξανά αργότερα.'],
+  draft: ['Αυτό το QR δεν έχει ενεργοποιηθεί ακόμα', 'Ο ιδιοκτήτης του το ετοιμάζει. Δοκίμασε ξανά σε λίγο.'],
+  home: 'Φτιάξε κι εσύ QR code'
+} : {
+  missing: ['This QR code does not exist', 'The link may be wrong, or the QR code was deleted.'],
+  paused: ['This QR code is paused', 'Its owner has paused it for now. Please try again later.'],
+  draft: ['This QR code is not active yet', 'Its owner is still setting it up. Please try again soon.'],
+  home: 'Make your own QR code'
+};
+document.documentElement.lang = EL ? 'el' : 'en';
+
+function show(t) {
+  const b = document.getElementById('box');
+  b.innerHTML = '<h1></h1><p></p><a></a>';
+  b.querySelector('h1').textContent = t[0];
+  b.querySelector('p').textContent = t[1];
+  const a = b.querySelector('a'); a.textContent = T.home; a.href = SITE + '/';
+  document.title = t[0];
+}
+const today = () => new Date().toISOString().slice(0, 10);
+
+async function go() {
+  const code = (location.pathname.split('/').filter(Boolean)[1] || new URLSearchParams(location.search).get('c') || '').toLowerCase();
+  if (!code) return show(T.missing);
+  let q;
+  try { const s = await getDoc(doc(db, 'qrs', code)); if (!s.exists()) return show(T.missing); q = s.data(); }
+  catch (e) { return show(T.missing); }
+  if (q.paused) return show(T.paused);
+
+  let ent = null;
+  try { const e = await getDoc(doc(db, 'entitlements', q.ownerUid)); if (e.exists()) ent = e.data(); } catch (e) {}
+  const st = premiumState(ent);
+
+  const dest = q.t === 'profile' ? SITE + '/p/' + q.ownerPid : hrefFor({ t: q.t, v: q.v });
+  const profile = SITE + '/p/' + q.ownerPid;
+  const ref = doc(db, 'qrs', code);
+  const count = (field) => Promise.race([
+    Promise.all([
+      updateDoc(ref, { [field]: increment(1) }),
+      field === 'scans' ? setDoc(doc(db, 'qrs', code, 'days', today()), { n: increment(1) }, { merge: true }) : null
+    ]).catch(() => {}),
+    new Promise(r => setTimeout(r, 900))   // η μέτρηση δεν καθυστερεί ποτέ την ανακατεύθυνση πάνω από ~1 δευτ.
+  ]);
+
+  if (st.usable) {                          // Premium ενεργό ή σε περίοδο χάριτος
+    if (!dest) return show(T.draft);
+    await count('scans'); return location.replace(dest);
+  }
+  if (st.ever) {                            // Η συνδρομή έληξε: το QR οδηγεί στο δωρεάν προφίλ
+    await count('scans'); return location.replace(profile);
+  }
+  if ((q.testScans || 0) < TEST_SCANS && dest) {   // Πρόχειρο: δοκιμαστικά σκαναρίσματα
+    await count('testScans'); return location.replace(dest);
+  }
+  show(T.draft);
+}
+go();
+</script>
+</body>
+</html>

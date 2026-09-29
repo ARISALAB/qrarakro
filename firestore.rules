@@ -7,7 +7,7 @@ service cloud.firestore {
     function verified() { return signedIn() && request.auth.token.email_verified == true; }
     // Διαχειριστής: αν αλλάξει, άλλαξέ το ΚΑΙ στο firebase-config.js
     function isAdmin() { return verified() && request.auth.token.email == 'aris.alampourinos@gmail.com'; }
-    function reserved(s) { return s in ['p', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets']; }
+    function reserved(s) { return s in ['p', 'q', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets']; }
     function validSlug(s) { return s.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$') && !reserved(s); }
     function hex(c) { return c is string && c.matches('^#[0-9A-Fa-f]{6}$'); }
     function validProfile(d) {
@@ -90,7 +90,77 @@ service cloud.firestore {
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.createdAt == request.time
         && getAfter(profilePath(request.resource.data.profileId)).data.ownerUid == uid;
-      allow update, delete: if false;
+      // Ο ιδιοκτήτης αλλάζει μόνο τον μετρητή των δυναμικών QR του (±1, έως 10).
+      // Τα στοιχεία συνδρομής (lemon) τα γράφει μόνο ο server.
+      allow update: if verified() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['qrCount'])
+        && request.resource.data.qrCount is int
+        && request.resource.data.qrCount >= 0 && request.resource.data.qrCount <= 10
+        && (request.resource.data.qrCount == resource.data.get('qrCount', 0) + 1
+            || request.resource.data.qrCount == resource.data.get('qrCount', 0) - 1);
+      allow delete: if false;
+    }
+
+    // ----- Premium: μέχρι πότε ισχύει (το γράφει ο server ή ο διαχειριστής) -----
+    match /entitlements/{uid} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['premiumUntil', 'plan', 'status', 'source', 'updatedAt'])
+        && request.resource.data.premiumUntil is timestamp;
+      allow delete: if isAdmin();
+    }
+
+    // ----- Δυναμικά QR -----
+    function qrTypes() { return ['link', 'menu', 'booking', 'review', 'whatsapp', 'phone', 'email', 'map', 'profile']; }
+    function validQr(d) {
+      return d.keys().hasOnly(['ownerUid', 'ownerPid', 'name', 't', 'v', 'fg', 'bg', 'caption', 'logo', 'paused',
+                               'scans', 'testScans', 'createdAt', 'updatedAt'])
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 60
+        && d.t in qrTypes()
+        && d.v is string && d.v.size() <= 500
+        && hex(d.fg) && hex(d.bg)
+        && d.caption is string && d.caption.size() <= 60
+        && d.logo is bool && d.paused is bool
+        && d.scans is int && d.testScans is int
+        && d.ownerPid is string
+        && d.updatedAt == request.time;
+    }
+    match /qrs/{code} {
+      allow get: if true;
+      allow list: if isAdmin() || (signedIn() && resource.data.ownerUid == request.auth.uid);
+
+      allow create: if verified()
+        && code.matches('^[a-z0-9]{6}$')
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerPid == get(userPath(request.auth.uid)).data.profileId
+        && request.resource.data.scans == 0 && request.resource.data.testScans == 0
+        && request.resource.data.createdAt == request.time
+        && validQr(request.resource.data)
+        && getAfter(userPath(request.auth.uid)).data.qrCount == get(userPath(request.auth.uid)).data.get('qrCount', 0) + 1;
+
+      allow update: if
+        // ο ιδιοκτήτης αλλάζει προορισμό, σχέδιο, όνομα, παύση
+        (verified() && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 't', 'v', 'fg', 'bg', 'caption', 'logo', 'paused', 'updatedAt'])
+          && validQr(request.resource.data))
+        // όποιος σκανάρει μετράει +1
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['scans'])
+          && request.resource.data.scans == resource.data.scans + 1)
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['testScans'])
+          && request.resource.data.testScans == resource.data.testScans + 1
+          && request.resource.data.testScans <= 10);
+
+      allow delete: if verified() && resource.data.ownerUid == request.auth.uid
+        && getAfter(userPath(request.auth.uid)).data.qrCount == get(userPath(request.auth.uid)).data.get('qrCount', 0) - 1;
+
+      // Σκαναρίσματα ανά ημέρα
+      match /days/{day} {
+        allow get, list: if isAdmin() || (signedIn() && get(/databases/$(db)/documents/qrs/$(code)).data.ownerUid == request.auth.uid);
+        allow create: if day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1;
+        allow update: if request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == resource.data.n + 1;
+      }
     }
 
     // ----- Αναφορές από επισκέπτες -----

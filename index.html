@@ -210,6 +210,16 @@
   .bridge button:hover { filter: brightness(1.05); }
   .bridge .form-msg { margin: 0; font-size: 14px; color: #EDEBE3; }
   .hp { display: none; }
+  .bridge .eyebrow { color: var(--gold); margin-bottom: 16px; }
+  .b-card { background: rgba(255,255,255,.05); border: 1px solid rgba(201,164,106,.35); border-radius: 22px; padding: 26px; align-self: start; }
+  .b-price b { font-size: 46px; font-weight: 800; letter-spacing: -0.04em; color: var(--gold-2); }
+  .b-price span { color: #D9D8CF; margin-left: 6px; }
+  .b-alt { margin: 4px 0 18px !important; color: #D9D8CF; font-size: 14px; }
+  .b-list { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 9px; font-size: 15px; }
+  .b-list li { display: flex; gap: 10px; } .b-list li::before { content: '✓'; color: var(--gold); font-weight: 800; }
+  .b-cta { display: block; text-align: center; padding: 15px 18px; border-radius: 12px; background: linear-gradient(180deg, #D8B983, var(--gold) 60%, #B38D55); color: var(--night); font-weight: 800; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  .b-cta:hover { filter: brightness(1.05); }
+  .b-note { margin: 12px 0 0 !important; font-size: 13px; color: #BDBCB3; text-align: center; }
 
   .faq { margin-top: 88px; max-width: 780px; }
   .faq h2 { margin: 0 0 14px; font-weight: 800; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -0.035em; }
@@ -337,7 +347,7 @@
           <p class="tip" data-i18n="tip">Πριν το τυπώσεις σε πολλά αντίτυπα, σκάναρέ το μία φορά με το κινητό σου.</p>
           <div class="after-dl" id="afterDl" hidden>
             <p data-i18n="afterDl">Θες QR που αλλάζεις τι ανοίγει, χωρίς να το ξανατυπώσεις;</p>
-            <a href="#soon" data-i18n="afterDlLink">Δες τι ετοιμάζουμε</a>
+            <a href="#soon" data-i18n="afterDlLink">Δες το Premium</a>
           </div>
         </div>
       </div>
@@ -346,22 +356,22 @@
 
     <section class="bridge" id="soon">
       <div>
-        <h2 data-i18n="bridgeTitle">Έρχεται: QR που αλλάζεις όποτε θες</h2>
-        <p data-i18n="bridgeText">Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Ετοιμάζουμε QR που αλλάζεις από το κινητό σου χωρίς νέα εκτύπωση, με μετρήσεις σκαναρισμάτων, και ψηφιακό κατάλογο για την επιχείρησή σου.</p>
+        <p class="eyebrow" data-i18n="bEyebrow">Premium</p>
+        <h2 data-i18n="bridgeTitle">QR που αλλάζεις όποτε θες, χωρίς νέα εκτύπωση</h2>
+        <p data-i18n="bridgeText">Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Με τα δυναμικά QR αλλάζεις τον προορισμό από το κινητό σου, βλέπεις πόσοι σκάναραν, και το ψηφιακό σου προφίλ φεύγει χωρίς διαφήμιση.</p>
       </div>
-      <form name="notify" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="notifyForm">
-        <input type="hidden" name="form-name" value="notify">
-        <input type="hidden" name="lang" id="notifyLang" value="el">
-        <p class="hp"><label>Μην το συμπληρώσεις <input name="bot-field"></label></p>
-        <label><span data-i18n="nEmail">Το email σου</span>
-          <input type="email" name="email" required autocomplete="email">
-        </label>
-        <label><span data-i18n="nBiz">Τι επιχείρηση έχεις;</span> <span style="font-weight:400;opacity:.8" data-i18n="optional">(προαιρετικό)</span>
-          <input type="text" name="business" autocomplete="organization">
-        </label>
-        <button type="submit" data-i18n="nSubmit">Ειδοποίησέ με</button>
-        <p class="form-msg" id="notifyMsg" role="status"></p>
-      </form>
+      <div class="b-card">
+        <div class="b-price"><b data-i18n="bPrice">7€</b><span data-i18n="bPer">/ μήνα, με ΦΠΑ</span></div>
+        <p class="b-alt" data-i18n="bAlt">ή 70€ τον χρόνο (2 μήνες δώρο)</p>
+        <ul class="b-list">
+          <li data-i18n="bL1">Έως 10 δυναμικά QR</li>
+          <li data-i18n="bL2">Αλλαγή προορισμού όποτε θέλεις</li>
+          <li data-i18n="bL3">Στατιστικά σκαναρισμάτων</li>
+          <li data-i18n="bL4">Ψηφιακό προφίλ χωρίς διαφήμιση</li>
+        </ul>
+        <a class="b-cta" href="/admin#qr" data-i18n="bCta">Ξεκίνα δωρεάν</a>
+        <p class="b-note" data-i18n="bNote">Φτιάχνεις και δοκιμάζεις δωρεάν. Πληρώνεις μόνο όταν θέλεις να τα ενεργοποιήσεις.</p>
+      </div>
     </section>
 
     <section class="faq">
@@ -429,7 +439,7 @@ const I18N = {
     tplSticker: 'Αυτοκόλλητο τραπεζιού, 8 × 10 cm', tplTent: 'Καρτελάκι πάγκου, A6', tplPoster: 'Αφίσα βιτρίνας, A4',
     tip: 'Πριν το τυπώσεις σε πολλά αντίτυπα, σκάναρέ το μία φορά με το κινητό σου.',
     afterDl: 'Θες QR που αλλάζεις τι ανοίγει, χωρίς να το ξανατυπώσεις;',
-    afterDlLink: 'Δες τι ετοιμάζουμε',
+    afterDlLink: 'Δες το Premium',
     captionPh: 'Γράψε ό,τι θες ή διάλεξε από κάτω',
     sug: {
       link: ['Δες το μενού μας', 'Κάνε κράτηση', 'Ακολούθησέ μας', 'Δες την ιστοσελίδα μας'],
@@ -450,10 +460,11 @@ const I18N = {
     help_email: '<p>Ανοίγει νέο email προς εσένα, με το θέμα και το κείμενο που θα ορίσεις.</p>',
     help_map: '<p>Γράψε τη διεύθυνση ή, για ακριβές σημείο, πάτα «Κοινοποίηση» στο Google Maps και επικόλλησε το link εδώ.</p>',
     help_vcard: '<p>Ο πελάτης σκανάρει και αποθηκεύει τα στοιχεία σου στις επαφές του με ένα πάτημα.</p>',
-    bridgeTitle: 'Έρχεται: QR που αλλάζεις όποτε θες',
-    bridgeText: 'Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Ετοιμάζουμε QR που αλλάζεις από το κινητό σου χωρίς νέα εκτύπωση, με μετρήσεις σκαναρισμάτων, και ψηφιακό κατάλογο για την επιχείρησή σου.',
-    nEmail: 'Το email σου', nBiz: 'Τι επιχείρηση έχεις;', nSubmit: 'Ειδοποίησέ με',
-    nOk: 'Σε γράψαμε. Θα σε ειδοποιήσουμε μόλις ανοίξει.', nErr: 'Δεν στάλθηκε. Δοκίμασε ξανά σε λίγο.',
+    bEyebrow: 'Premium', bridgeTitle: 'QR που αλλάζεις όποτε θες, χωρίς νέα εκτύπωση',
+    bridgeText: 'Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Με τα δυναμικά QR αλλάζεις τον προορισμό από το κινητό σου, βλέπεις πόσοι σκάναραν, και το ψηφιακό σου προφίλ φεύγει χωρίς διαφήμιση.',
+    bPrice: '7€', bPer: '/ μήνα, με ΦΠΑ', bAlt: 'ή 70€ τον χρόνο (2 μήνες δώρο)',
+    bL1: 'Έως 10 δυναμικά QR', bL2: 'Αλλαγή προορισμού όποτε θέλεις', bL3: 'Στατιστικά σκαναρισμάτων', bL4: 'Ψηφιακό προφίλ χωρίς διαφήμιση',
+    bCta: 'Ξεκίνα δωρεάν', bNote: 'Φτιάχνεις και δοκιμάζεις δωρεάν. Πληρώνεις μόνο όταν θέλεις να τα ενεργοποιήσεις.',
     faqTitle: 'Συχνές ερωτήσεις',
     faq: [
       ['Λήγουν τα QR που φτιάχνω εδώ;', 'Όχι. Η πληροφορία είναι γραμμένη μέσα στο ίδιο το QR, οπότε λειτουργεί για πάντα, χωρίς συνδρομή.'],
@@ -509,7 +520,7 @@ const I18N = {
     tplSticker: 'Table sticker, 8 × 10 cm', tplTent: 'Counter card, A6', tplPoster: 'Window poster, A4',
     tip: 'Before printing many copies, scan it once with your phone.',
     afterDl: 'Want a QR you can point somewhere else without reprinting it?',
-    afterDlLink: 'See what\'s coming',
+    afterDlLink: 'See Premium',
     captionPh: 'Type anything, or pick one below',
     sug: {
       link: ['See our menu', 'Book a table', 'Follow us', 'Visit our website'],
@@ -530,10 +541,11 @@ const I18N = {
     help_email: '<p>Opens a new email to you, with the subject and text you set.</p>',
     help_map: '<p>Type the address or, for an exact spot, tap Share in Google Maps and paste the link here.</p>',
     help_vcard: '<p>Customers scan and save your details to their contacts in one tap.</p>',
-    bridgeTitle: 'Coming soon: QR codes you can change any time',
-    bridgeText: 'Free QR codes are permanent: whatever you type is what they open, forever. We\'re building QR codes you change from your phone without reprinting, with scan counts, plus a digital catalogue for your business.',
-    nEmail: 'Your email', nBiz: 'What kind of business do you run?', nSubmit: 'Notify me',
-    nOk: 'You\'re on the list. We\'ll let you know when it opens.', nErr: 'Not sent. Try again in a moment.',
+    bEyebrow: 'Premium', bridgeTitle: 'QR codes you can change any time, without reprinting',
+    bridgeText: 'Free QR codes are permanent: whatever you type is what they open, forever. With dynamic QR codes you change the destination from your phone, see how many people scanned, and your digital profile goes ad-free.',
+    bPrice: '€7', bPer: '/ month, VAT incl.', bAlt: 'or €70 a year (2 months free)',
+    bL1: 'Up to 10 dynamic QR codes', bL2: 'Change the destination any time', bL3: 'Scan statistics', bL4: 'Ad-free digital profile',
+    bCta: 'Start for free', bNote: 'Create and test for free. Pay only when you want to activate them.',
     faqTitle: 'Questions',
     faq: [
       ['Do these QR codes expire?', 'No. The information is written inside the QR itself, so it works forever with no subscription.'],
@@ -871,7 +883,6 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (L[k] != null) el.textContent = L[k]; });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { const k = el.dataset.i18nHtml; if (L[k] != null) el.innerHTML = L[k]; });
   $('logoBtnText').textContent = state.logo ? L.logoChange : L.logoAdd;
-  $('notifyLang').value = state.lang;
   $('faqList').innerHTML = L.faq.map(q => '<details><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>').join('');
   renderTypes(); renderFields(); renderCaption(); checkContrast(); render();
 }
@@ -1105,15 +1116,6 @@ $('dlSvg').addEventListener('click', downloadSvg);
 document.querySelectorAll('.print-btn').forEach(b => b.addEventListener('click', () => downloadTemplate(b.dataset.tpl)));
 $('langBtn').addEventListener('click', () => { state.lang = state.lang === 'el' ? 'en' : 'el'; applyLang(); });
 
-$('notifyForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const form = e.target, msg = $('notifyMsg');
-  try {
-    const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(form)).toString() });
-    if (!res.ok) throw new Error(String(res.status));
-    msg.textContent = T().nOk; form.reset(); $('notifyLang').value = state.lang;
-  } catch (err) { msg.textContent = T().nErr; }
-});
 
 /* ------------------------- Εκκίνηση ------------------------- */
 $('brandName').textContent = BRAND;

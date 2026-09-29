@@ -267,8 +267,7 @@ export function renderProfile(root, p, opts = {}) {
   inner.appendChild(acts);
 
   const foot = el('div', 'pf-foot');
-  const make = el('a', '', L.makeYours); make.href = SITE + '/admin'; make.prepend(el('i'));
-  foot.appendChild(make);
+  if (!opts.hideMake) { const make = el('a', '', L.makeYours); make.href = SITE + '/admin'; make.prepend(el('i')); foot.appendChild(make); }
   const rep = el('button', '', L.report); rep.type = 'button';
   rep.addEventListener('click', async () => {
     if (opts.preview || !opts.onReport) return;
