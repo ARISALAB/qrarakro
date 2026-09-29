@@ -36,6 +36,25 @@ function val(v) {
 }
 function fields(o) { const f = {}; Object.keys(o).forEach(k => f[k] = val(o[k])); return f; }
 
+// Διαβάζει το κλειδί του Firebase ακόμα κι αν επικολλήθηκε χωρίς { }, με εισαγωγικά γύρω γύρω ή σε base64
+function readServiceAccount() {
+  let raw = String(process.env.FIREBASE_SERVICE_ACCOUNT || '').trim();
+  if (!raw) return null;
+  if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('`') && raw.endsWith('`'))) raw = raw.slice(1, -1).trim();
+  if (!raw.startsWith('{') && !raw.startsWith('"')) { try { const dec = Buffer.from(raw, 'base64').toString('utf8').trim(); if (dec.startsWith('{')) raw = dec; } catch (e) {} }
+  const tries = [raw];
+  if (!raw.startsWith('{')) tries.push('{' + raw.replace(/,\s*$/, '') + (raw.endsWith('}') ? '' : '}'));
+  if (!raw.endsWith('}')) tries.push(raw.replace(/,\s*$/, '') + '}');
+  for (const t of tries) {
+    try {
+      const o = JSON.parse(t);
+      if (o && o.client_email && o.private_key && o.project_id) { o.private_key = o.private_key.replace(/\\n/g, '\n'); return o; }
+    } catch (e) {}
+  }
+  console.error('FIREBASE_SERVICE_ACCOUNT invalid. Starts with:', JSON.stringify(raw.slice(0, 15)), 'length', raw.length);
+  return null;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
 
@@ -56,7 +75,8 @@ exports.handler = async (event) => {
   const variants = String(process.env.LEMON_VARIANT_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
   if (!variants.includes(String(a.variant_id))) return { statusCode: 200, body: 'Other product' };
 
-  const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  const sa = readServiceAccount();
+  if (!sa) return { statusCode: 500, body: 'FIREBASE_SERVICE_ACCOUNT: δεν διαβάζεται. Επικόλλησε ολόκληρο το αρχείο .json, από το { μέχρι το }.' };
   const base = 'https://firestore.googleapis.com/v1/projects/' + sa.project_id + '/databases/(default)/documents';
   const token = await googleToken(sa);
   const api = (path, payload) => fetch(base + path, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.json());
