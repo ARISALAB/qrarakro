@@ -478,7 +478,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
 
@@ -1007,10 +1007,11 @@ function renderQrNotice() {
   const n = $('qrNotice'); n.className = 'notice'; n.innerHTML = '';
   if (P.active) n.innerHTML = '<span><b>Premium ενεργό</b> έως ' + fmtDate(P.until) + ' · ' + qrs.length + ' από ' + MAX_QR + ' QR</span>';
   else if (P.grace) { n.className = 'notice warn'; n.textContent = 'Η συνδρομή έληξε. Τα QR δουλεύουν έως ' + fmtDate(P.graceUntil) + '. '; }
-  else { n.innerHTML = '<span>Τα δυναμικά QR ενεργοποιούνται με <b>Premium</b>, από <b>' + PRICES.yearlyPerMonth + '/μήνα</b> με ΦΠΑ. Φτιάχνεις και δοκιμάζεις δωρεάν.</span>'; }
+  else { n.innerHTML = '<span>Τα δυναμικά QR ενεργοποιούνται με <b>Premium</b>, <b>' + PRICES.monthly + '/μήνα</b> με ΦΠΑ. Φτιάχνεις και δοκιμάζεις δωρεάν.</span>'; }
   if (!P.active) { const b = document.createElement('button'); b.className = 'btn gold small'; b.textContent = P.ever ? 'Ανανέωση' : 'Ενεργοποίηση'; b.onclick = openPlan; n.append(b); }
 }
 async function showQrList() {
+  watchQr(null); curCode = null;
   $('qrEditView').hidden = true; $('qrListView').hidden = false;
   $('qrIntro').hidden = introSeen || P.active;
   try {
@@ -1061,9 +1062,10 @@ function openQr(code) {
   $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false;
   $('qName').value = cur.name; $('qType').value = cur.t; $('qValue').value = cur.v; $('qCaption').value = cur.caption;
   qCustom = ''; qCustomSaved = ''; msg('qLogoErr');
-  $('qLink').textContent = shortUrl(code).replace('https://', '');
+  $('qLink').textContent = saved.name || '';
   $('qSaveMsg').textContent = '';
   syncQ(); loadStats(code); window.scrollTo({ top: 0 });
+  watchQr(code);
   getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
 }
 $('qrBack').addEventListener('click', () => showQrList());
@@ -1154,10 +1156,30 @@ $('qDownload').addEventListener('click', async () => {
   c.toBlob(bl => { const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'qr-' + curCode + '.png'; document.body.append(a); a.click(); a.remove(); }, 'image/png');
 });
 
+/* Ζωντανή ενημέρωση: ο αριθμός αλλάζει μόλις κάποιος σκανάρει, χωρίς ανανέωση της σελίδας */
+let qUnsub = null, lastScans = -1;
+function watchQr(code) {
+  if (qUnsub) { qUnsub(); qUnsub = null; }
+  lastScans = -1;
+  if (!code) return;
+  try {
+    qUnsub = onSnapshot(doc(db, 'qrs', code), d => {
+      if (!d.exists() || curCode !== code) return;
+      const f = d.data(); cur.scans = f.scans; cur.testScans = f.testScans;
+      const i = qrs.findIndex(x => x.code === code); if (i > -1) Object.assign(qrs[i], { scans: f.scans, testScans: f.testScans });
+      syncQ();
+      const total = (f.scans || 0) + (f.testScans || 0);
+      if (total !== lastScans) { lastScans = total; loadStats(code); }
+    }, () => {});
+  } catch (e) {}
+}
+// Εφεδρικά: έλεγχος κάθε 20 δευτ., αν κάποιο ad blocker μπλοκάρει τη ζωντανή σύνδεση
+setInterval(() => { if (document.visibilityState === 'visible' && curSect === 'sQr') refreshCounts(); }, 20000);
+
 /* Ανανέωση αριθμών: με κουμπί και όταν επιστρέφεις στη σελίδα (π.χ. μετά από σκανάρισμα με το κινητό) */
 async function refreshCounts() {
   if (curSect !== 'sQr') return;
-  if ($('qrEditView').hidden) return showQrList();
+  if ($('qrEditView').hidden || !curCode) return showQrList();
   try {
     const d = await getDoc(doc(db, 'qrs', curCode)); if (!d.exists()) return;
     const fresh = d.data(); cur.scans = fresh.scans; cur.testScans = fresh.testScans;
