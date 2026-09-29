@@ -12,13 +12,14 @@ service cloud.firestore {
     function hex(c) { return c is string && c.matches('^#[0-9A-Fa-f]{6}$'); }
     function validProfile(d) {
       return d.keys().hasOnly(['ownerUid', 'slug', 'status', 'name', 'bio', 'logo', 'logoPhoto', 'cover', 'accent', 'bg',
-                               'buttons', 'socials', 'address', 'hours', 'createdAt', 'updatedAt'])
+                               'buttons', 'socials', 'address', 'hours', 'font', 'createdAt', 'updatedAt'])
         && d.name is string && d.name.size() >= 1 && d.name.size() <= 80
         && d.bio is string && d.bio.size() <= 300
         && d.logo is string && d.logo.size() <= 200000
         && d.logoPhoto is bool
         && d.cover is string && d.cover.size() <= 400000
         && hex(d.accent) && hex(d.bg)
+        && (!('font' in d) || d.font in ['serif', 'sans'])
         && d.buttons is list && d.buttons.size() <= 12
         && d.socials is map && d.socials.size() <= 8
         && d.address is string && d.address.size() <= 200
