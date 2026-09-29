@@ -984,23 +984,28 @@ function renderPlan() {
   c.innerHTML = h + '<div class="qe-acts" id="planActs"></div>';
   const acts = $('planActs');
   if (!P.active) { const b = document.createElement('button'); b.className = 'btn gold'; b.textContent = P.ever ? 'Ανανέωση Premium' : 'Ενεργοποίηση Premium'; b.onclick = openPlan; acts.append(b); }
-  const portal = portalUrl(L.portal);
-  if (portal) {
-    const a = document.createElement('a'); a.className = 'btn line'; a.href = portal; a.target = '_blank'; a.rel = 'noopener';
-    a.textContent = 'Παραστατικά, κάρτα και ακύρωση'; acts.append(a);
-    const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '14px 0 0';
-    note.textContent = 'Η διαχείριση γίνεται στη σελίδα του Lemon Squeezy, του παρόχου πληρωμών μας. Εκεί κατεβάζεις τα παραστατικά σου, αλλάζεις κάρτα ή ακυρώνεις. Αν σου ζητήσει email, βάλε αυτό με το οποίο πλήρωσες και θα λάβεις σύνδεσμο εισόδου.';
+  if (L.subscriptionId) {
+    const a = document.createElement('button'); a.type = 'button'; a.className = 'btn line';
+    a.textContent = 'Παραστατικά, κάρτα και ακύρωση'; a.onclick = () => openPortal(a); acts.append(a);
+    const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '14px 0 0'; note.id = 'portalNote';
+    note.textContent = 'Ανοίγει η σελίδα της συνδρομής σου στο Lemon Squeezy, τον πάροχο πληρωμών μας, χωρίς λογαριασμό ή κωδικό. Εκεί κατεβάζεις τα παραστατικά σου, αλλάζεις κάρτα ή ακυρώνεις.';
     c.append(note);
   }
 }
-/* Το υπογεγραμμένο link του Lemon Squeezy ισχύει 24 ώρες. Μετά χρησιμοποιούμε τη μόνιμη σελίδα /billing (είσοδος με email). */
-function portalUrl(signed) {
-  if (!signed) return '';
+/* Ζητάμε φρέσκο υπογεγραμμένο link τη στιγμή που πατιέται το κουμπί (ο πελάτης μπαίνει χωρίς λογαριασμό) */
+async function openPortal(btn) {
+  const w = window.open('', '_blank');            // ανοίγει αμέσως, για να μην το μπλοκάρει ο browser
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'Άνοιγμα…';
   try {
-    const u = new URL(signed), exp = +u.searchParams.get('expires');
-    if (exp && exp * 1000 > Date.now() + 60000) return signed;
-    return u.origin + '/billing';
-  } catch (e) { return ''; }
+    const r = await fetch('/.netlify/functions/lemon-portal', { method: 'POST', headers: { Authorization: 'Bearer ' + await user.getIdToken() } });
+    const j = await r.json();
+    if (!r.ok || !j.url) throw new Error(j.error || 'error');
+    if (w) w.location.href = j.url; else location.href = j.url;
+  } catch (e) {
+    if (w) w.close();
+    $('portalNote').textContent = 'Δεν άνοιξε η σελίδα της συνδρομής (' + (e.message || 'σφάλμα') + '). Δοκίμασε ξανά σε λίγο.';
+  }
+  btn.disabled = false; btn.textContent = old;
 }
 
 /* ---------- Δυναμικά QR ---------- */
