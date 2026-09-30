@@ -401,8 +401,14 @@
         <div class="intro-card" id="menuEmpty" hidden>
           <h2>Το ψηφιακό σου μενού, δωρεάν</h2>
           <p>Κατηγορίες, πιάτα, τιμές και αλλεργιογόνα, σε ελληνικά και αγγλικά. Οι πελάτες σκανάρουν το QR στο τραπέζι και το βλέπουν στη γλώσσα τους. Κάθε αλλαγή φαίνεται αμέσως, χωρίς νέα εκτύπωση.</p>
-          <button type="button" class="btn gold" id="menuStart">Φτιάξε το μενού σου</button>
+          <div class="qe-acts">
+            <button type="button" class="btn gold" id="menuStart">Φτιάξε το μενού από την αρχή</button>
+            <button type="button" class="btn" data-import>Ανέβασε PDF ή φωτογραφία του καταλόγου</button>
+          </div>
+          <p class="hint" style="margin-top:12px">Με το PDF ή τη φωτογραφία, τα πιάτα και οι τιμές περνούν αυτόματα και εσύ απλώς ελέγχεις και διορθώνεις.</p>
         </div>
+        <input type="file" id="menuFile" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" hidden>
+        <div class="notice" id="importMsg" hidden></div>
         <div id="menuEditor" hidden>
           <div class="notice" id="menuStatus"></div>
           <div class="tabs" role="group" aria-label="Προβολή μενού">
@@ -411,6 +417,10 @@
           </div>
           <div class="editor" id="menuEd">
             <div class="form">
+              <section class="card">
+                <h2 style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">Εισαγωγή από PDF ή φωτογραφία <button type="button" class="btn line small" data-import>Ανέβασμα αρχείου</button></h2>
+                <p class="sub" style="margin:0">Διαβάζουμε τον κατάλογό σου και προσθέτουμε τα πιάτα στο τέλος του μενού, για να τα ελέγξεις. Δουλεύει καλύτερα με PDF· σε φωτογραφία, τράβηξέ την ίσια και με καλό φως.</p>
+              </section>
               <div class="sects" style="margin:0" role="group" aria-label="Γλώσσα επεξεργασίας" id="menuLangs"></div>
               <div id="menuSecs" class="stack"></div>
               <button type="button" class="btn line" id="addSec">+ Νέα κατηγορία</button>
@@ -573,6 +583,7 @@ import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimesta
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
 import { renderMenu, ALLERGENS, TAGS, LANG_NAMES } from '/menu-render.js';
+import { fileToLines, linesToSections } from '/menu-import.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1316,6 +1327,34 @@ async function saveMenu(okMsg) {
   }
 }
 $('menuSave').addEventListener('click', () => saveMenu());
+
+/* ---------- Εισαγωγή από PDF ή φωτογραφία ---------- */
+let beforeImport = null;
+document.addEventListener('click', e => { if (e.target.closest('[data-import]')) $('menuFile').click(); });
+function importMsg(html, warn) { const n = $('importMsg'); n.className = 'notice' + (warn ? ' warn' : ''); n.innerHTML = html; n.hidden = !html; }
+$('menuFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (f.size > 20 * 1024 * 1024) return importMsg('Το αρχείο είναι πολύ μεγάλο (πάνω από 20 MB).', true);
+  const hasItems = menu && menu.sections.some(sx => sx.items.some(i => i.name.el || i.name.en));
+  if (hasItems && !confirm('Το μενού σου έχει ήδη πιάτα. Τα πιάτα από το αρχείο θα προστεθούν στο τέλος, για να τα ελέγξεις. Συνέχεια;')) return;
+  importMsg('<span>Προετοιμασία…</span>');
+  try {
+    const lines = await fileToLines(f, (t, frac) => importMsg('<span>' + esc(t) + '</span><span style="opacity:.7">' + Math.round(frac * 100) + '%</span>'));
+    const secs = linesToSections(lines, menuLang);
+    const count = secs.reduce((a, sx) => a + sx.items.length, 0);
+    if (!count) return importMsg('Δεν βρήκαμε πιάτα με τιμές σε αυτό το αρχείο. Δοκίμασε PDF αντί για φωτογραφία, ή φωτογραφία πιο καθαρή και ίσια. Μπορείς πάντα να τα περάσεις με το χέρι.', true);
+    beforeImport = menu ? JSON.parse(JSON.stringify(menu)) : null;
+    if (!menu) menu = normMenu({ langs: ['el', 'en'], note: { el: 'Οι τιμές περιλαμβάνουν ΦΠΑ.', en: 'Prices include VAT.' }, sections: [] });
+    menu.sections = menu.sections.filter(sx => sx.items.some(i => i.name.el || i.name.en) || Object.keys(sx.title).length && sx.items.length > 1);
+    secs.forEach(sx => menu.sections.push({ id: uid6(), title: sx.title, items: sx.items.map(i => ({ id: uid6(), name: i.name, desc: i.desc, prices: i.prices.length ? i.prices : [{ l: {}, p: null }], allergens: [], tags: [], soldOut: false, hidden: false })) }));
+    setMenuDirty(true); showMenu();
+    importMsg('<span>Βρήκαμε <b>' + secs.length + '</b> κατηγορίες και <b>' + count + '</b> πιάτα. Έλεγξε ονόματα και τιμές και πάτα «Αποθήκευση μενού».</span><button type="button" class="btn line small" id="undoImport">Αναίρεση</button>');
+    $('undoImport').onclick = () => { menu = beforeImport; beforeImport = null; setMenuDirty(!!menuSaved || !!menu); if (!menu && !menuSaved) setMenuDirty(false); importMsg(''); showMenu(); };
+  } catch (err) {
+    console.error(err);
+    importMsg('Δεν μπορέσαμε να διαβάσουμε αυτό το αρχείο. Δοκίμασε άλλο PDF ή φωτογραφία, ή πέρασε τα πιάτα με το χέρι.', true);
+  }
+});
 function mTab(prev) { $('menuEd').classList.toggle('show-preview', prev); $('mTabEdit').setAttribute('aria-pressed', String(!prev)); $('mTabPrev').setAttribute('aria-pressed', String(prev)); window.scrollTo({ top: 0 }); }
 $('mTabEdit').addEventListener('click', () => mTab(false));
 $('mTabPrev').addEventListener('click', () => mTab(true));
