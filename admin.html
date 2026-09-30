@@ -448,7 +448,7 @@
         <div class="plan-card" id="planCard"></div>
         <div class="plan-card" id="invCard" style="margin-top:16px" hidden>
           <h2>Παραστατικά</h2>
-          <p class="sub" style="margin:0 0 14px">Ένα για κάθε πληρωμή. Τα εκδίδει το Lemon Squeezy, ο πάροχος πληρωμών μας. Στη σελίδα του παραστατικού μπορείς να προσθέσεις επωνυμία, διεύθυνση και ΑΦΜ πριν το κατεβάσεις.</p>
+          <p class="sub" style="margin:0 0 14px">Ένα για κάθε πληρωμή. Τα εκδίδει το Lemon Squeezy, ο πάροχος πληρωμών μας. Ο ΑΦΜ εμφανίζεται όταν δηλωθεί στην πληρωμή· στη σελίδα του παραστατικού μπορείς επίσης να προσθέσεις επωνυμία και διεύθυνση, ή να γράψεις ΑΦΜ και ΔΟΥ στις σημειώσεις.</p>
           <div id="invList" class="inv-list"><p class="hint">Φόρτωση…</p></div>
         </div>
       </div>
@@ -470,6 +470,12 @@
           <li>Η τιμή σου μένει ίδια όσο η συνδρομή είναι ενεργή</li>
         </ul>
         <p class="fine">Η συνδρομή ανανεώνεται αυτόματα και την ακυρώνεις όποτε θέλεις. Αν λήξει, όλα συνεχίζουν να δουλεύουν για <span class="gd"></span> ημέρες. Μετά, τα QR σου δεν σταματούν: οδηγούν στο δωρεάν προφίλ σου μέχρι να ανανεώσεις. Η πληρωμή γίνεται με ασφάλεια μέσω Lemon Squeezy, όπου μπορείς να δηλώσεις και τον ΑΦΜ σου.</p>
+        <label class="check" style="margin:0 0 12px"><input type="checkbox" id="bizOn"> Χρειάζομαι παραστατικό επιχείρησης (με ΑΦΜ)</label>
+        <div class="grid2" id="bizBox" hidden style="margin-bottom:14px">
+          <div class="field"><label for="bizName">Επωνυμία</label><input type="text" id="bizName" maxlength="120" autocomplete="organization"></div>
+          <div class="field"><label for="bizVat">ΑΦΜ</label><input type="text" id="bizVat" maxlength="12" inputmode="numeric" placeholder="9 ψηφία"></div>
+        </div>
+        <p class="fine" id="bizNote" hidden>Τα στοιχεία περνούν έτοιμα στη σελίδα πληρωμής και εμφανίζονται στο παραστατικό. Με έγκυρο ΑΦΜ επιχείρησης εφαρμόζεται η αντίστροφη επιβάρυνση ΦΠΑ.</p>
         <p class="msg bad" id="planErr" hidden></p>
         <div class="qe-acts"><button type="button" class="btn gold" id="planGo">Συνέχεια στην πληρωμή</button><button type="button" class="btn line" id="planClose">Όχι τώρα</button></div>
       </div>
@@ -971,12 +977,23 @@ async function waitForPremium() {
 /* Παράθυρο ενεργοποίησης */
 function openPlan() { msg('planErr'); $('planModal').showModal(); }
 $('planClose').addEventListener('click', () => $('planModal').close());
+/* Στοιχεία επιχείρησης: τα θυμόμαστε σε αυτή τη συσκευή για την επόμενη φορά */
+try { const b = JSON.parse(localStorage.getItem('qrBiz') || 'null'); if (b) { $('bizName').value = b.name || ''; $('bizVat').value = b.vat || ''; } } catch (e) {}
+$('bizOn').addEventListener('change', e => { $('bizBox').hidden = !e.target.checked; $('bizNote').hidden = !e.target.checked; msg('planErr'); });
 $('planGo').addEventListener('click', () => {
+  msg('planErr');
   const plan = document.querySelector('input[name=plan]:checked').value;
   const base = plan === 'yearly' ? LEMON.yearlyUrl : LEMON.monthlyUrl;
   if (!base) return msg('planErr', 'Οι πληρωμές ανοίγουν πολύ σύντομα. Μέχρι τότε μπορείς να συνεχίσεις να φτιάχνεις και να δοκιμάζεις τα QR σου.');
-  const url = base + (base.includes('?') ? '&' : '?') + 'checkout[email]=' + encodeURIComponent(user.email || '') + '&checkout[custom][uid]=' + encodeURIComponent(user.uid);
-  location.href = url;
+  const q = ['checkout[email]=' + encodeURIComponent(user.email || ''), 'checkout[custom][uid]=' + encodeURIComponent(user.uid)];
+  if ($('bizOn').checked) {
+    const name = $('bizName').value.trim(), vat = $('bizVat').value.replace(/\s+/g, '').toUpperCase().replace(/^(EL|GR)/, '');
+    if (!name) return msg('planErr', 'Γράψε την επωνυμία της επιχείρησης.');
+    if (!/^[0-9]{9}$/.test(vat)) return msg('planErr', 'Ο ΑΦΜ πρέπει να έχει 9 ψηφία.');
+    try { localStorage.setItem('qrBiz', JSON.stringify({ name, vat })); } catch (e) {}
+    q.push('checkout[name]=' + encodeURIComponent(name), 'checkout[tax_number]=' + encodeURIComponent('EL' + vat), 'checkout[billing_address][country]=GR');
+  }
+  location.href = base + (base.includes('?') ? '&' : '?') + q.join('&');
 });
 
 /* Συνδρομή */
