@@ -14,7 +14,7 @@ function loadScript(src) {
 
 /* ---------------- Ανάγνωση αρχείου → γραμμές κειμένου ---------------- */
 // onStep(text, fraction) για την ένδειξη προόδου
-export async function fileToLines(file, onStep = () => {}) {
+export async function fileToLines(file, onStep = () => {}, opts = {}) {
   const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
   if (isPdf) {
     onStep('Άνοιγμα του PDF…', 0.05);
@@ -30,7 +30,7 @@ export async function fileToLines(file, onStep = () => {}) {
       const tc = await page.getTextContent();
       const items = tc.items.filter(i => i.str && i.str.trim()).map(i => ({ s: i.str, x: i.transform[4], y: i.transform[5], w: i.width || 0, h: Math.abs(i.transform[3]) || 10 }));
       chars += items.reduce((a, i) => a + i.s.trim().length, 0);
-      lines = lines.concat(itemsToLines(items, vp.width));
+      lines = lines.concat(itemsToLines(items, vp.width, opts));
     }
     if (chars > 40) return lines;
     // Σκαναρισμένο PDF: ζωγραφίζουμε τις σελίδες και κάνουμε αναγνώριση κειμένου
@@ -40,9 +40,9 @@ export async function fileToLines(file, onStep = () => {}) {
       const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
       await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise; canvases.push(c);
     }
-    return ocr(canvases, onStep);
+    return ocr(canvases, onStep, opts);
   }
-  return ocr([await fileToCanvas(file)], onStep);
+  return ocr([await fileToCanvas(file)], onStep, opts);
 }
 
 async function fileToCanvas(file) {
@@ -56,7 +56,7 @@ async function fileToCanvas(file) {
   } finally { URL.revokeObjectURL(url); }
 }
 
-async function ocr(canvases, onStep) {
+async function ocr(canvases, onStep, opts = {}) {
   onStep('Φόρτωση αναγνώρισης κειμένου (την πρώτη φορά αργεί λίγο)…', 0.1);
   await loadScript(TESS);
   const worker = await window.Tesseract.createWorker(['ell', 'eng'], 1, {
@@ -68,14 +68,14 @@ async function ocr(canvases, onStep) {
       const { data } = await worker.recognize(c);
       const words = [];
       (data.lines || []).forEach(l => (l.words || []).forEach(w => words.push({ s: w.text, x: w.bbox.x0, y: -w.bbox.y0, w: w.bbox.x1 - w.bbox.x0, h: w.bbox.y1 - w.bbox.y0 })));
-      lines = lines.concat(words.length ? itemsToLines(words, c.width) : String(data.text || '').split('\n'));
+      lines = lines.concat(words.length ? itemsToLines(words, c.width, opts) : String(data.text || '').split('\n'));
     }
   } finally { await worker.terminate(); }
   return lines;
 }
 
 /* Κομμάτια κειμένου με θέση → γραμμές, με υποστήριξη καταλόγων σε δύο στήλες */
-export function itemsToLines(items, pageWidth) {
+export function itemsToLines(items, pageWidth, opts = {}) {
   if (!items.length) return [];
   const avgH = items.reduce((a, i) => a + i.h, 0) / items.length || 10;
   const sorted = items.slice().sort((a, b) => b.y - a.y || a.x - b.x);
@@ -95,6 +95,11 @@ export function itemsToLines(items, pageWidth) {
       const prevEnd = r.items[k - 1].x + r.items[k - 1].w, gap = r.items[k].x - prevEnd;
       if (gap > gapMin && r.items[k].x > mid * 0.85 && prevEnd < mid * 1.15) { cut = k; break; }
     }
+    // Μόνο ελληνικά: αν αριστερά είναι ελληνικά και δεξιά μετάφραση/τιμή, δεν σπάμε τη γραμμή (για να μείνει η τιμή με το πιάτο)
+    if (cut > 0 && opts.greekOnly) {
+      const lt = r.items.slice(0, cut).map(i => i.s).join(' '), rt = r.items.slice(cut).map(i => i.s).join(' ');
+      if (GREEK.test(lt) && !GREEK.test(rt)) cut = -1;
+    }
     if (cut > 0) { twoCol++; left.push({ y: r.y, items: r.items.slice(0, cut) }); right.push({ y: r.y, items: r.items.slice(cut) }); }
     else if (r.items[0].x > mid * 0.95) right.push(r); else left.push(r);
   });
@@ -110,7 +115,7 @@ const PRICE_END = new RegExp('^(.*?)[\\s.·…_\\-–—:]*' + PRICE + '\\s*$', 
 const ONLY_PRICES = new RegExp('^(?:' + PRICE + '[\\s/|,]*){1,3}$', 'i');
 const GREEK = /[\u0370-\u03FF\u1F00-\u1FFF]/;
 const toNum = s => Math.round(Number(String(s).replace(',', '.')) * 100) / 100;
-const clean = s => s.replace(/[.·…_]{2,}/g, ' ').replace(/\s+/g, ' ').replace(/^[\-–—•*·\s]+|[\-–—•*·:\s]+$/g, '').trim();
+const clean = s => s.replace(/[.·…_]{2,}/g, ' ').replace(/\s+/g, ' ').replace(/^[\-–—•*·\/|,\s]+|[\-–—•*·:\/|,(\s]+$/g, '').replace(/\(\s*\)/g, '').trim();
 const letters = s => (s.match(/[A-Za-z\u0370-\u03FF\u1F00-\u1FFF]/g) || []).length;
 const isUpper = s => letters(s) >= 3 && s === s.toUpperCase() && s !== s.toLowerCase();
 
@@ -124,7 +129,28 @@ function splitLang(s, lang) {
   return { [lang]: s };
 }
 
-export function linesToSections(lines, lang = 'el') {
+// Μόνο ελληνικά: κρατάμε τις ελληνικές λέξεις (και τις τιμές), πετάμε μεταφράσεις σε λατινικούς χαρακτήρες
+const LATIN_WORD = /(^|[\s\/|,(])[A-Za-z\u00C0-\u024F][A-Za-z\u00C0-\u024F'’&\-]*(?=$|[\s\/|,.)!:])/g;
+export function greekOnlyLines(lines) {
+  const out = [];
+  for (const raw of lines) {
+    const line = String(raw).replace(/\s+/g, ' ').trim();
+    if (!line) continue;
+    if (GREEK.test(line)) {
+      let t = line; for (let k = 0; k < 3; k++) t = t.replace(LATIN_WORD, '$1');
+      t = t.replace(/\s*[\/|]\s*(?=[\/|]|$)/g, ' ').replace(/\s+/g, ' ').trim();
+      if (GREEK.test(t)) out.push(t);
+      continue;
+    }
+    // Γραμμή χωρίς ελληνικά: κρατάμε μόνο τις τιμές της (θα πάνε στο ελληνικό πιάτο από πάνω)
+    const ps = line.match(new RegExp(PRICE, 'gi'));
+    if (ps && new RegExp(PRICE_END.source, 'i').test(line)) out.push(ps.map(x => x.trim()).join(' / '));
+  }
+  return out;
+}
+
+export function linesToSections(lines, lang = 'el', opts = {}) {
+  if (opts.greekOnly) { lines = greekOnlyLines(lines); lang = 'el'; }
   const sections = [];
   let sec = null, last = null;
   const newSec = title => { sec = { title: splitLang(title, lang), items: [] }; sections.push(sec); last = null; };
@@ -155,6 +181,11 @@ export function linesToSections(lines, lang = 'el') {
     if (ONLY_PRICES.test(L[k + 1] || '') && !isUpper(txt)) {   // όνομα πιάτου με την τιμή στην επόμενη γραμμή
       if (!sec) newSec(lang === 'el' ? 'Μενού' : 'Menu');
       last = { name: splitLang(txt, lang), desc: {}, prices: [{ l: {}, p: null }] }; sec.items.push(last); continue;
+    }
+    if (last && /^[a-zα-ωάέήίόύώϊϋΐΰ(«"]/.test(txt)) {   // ξεκινά με μικρό γράμμα: περιγραφή, ποτέ τίτλος
+      const d = last.desc[lang] ? last.desc[lang] + ' ' + txt : txt;
+      last.desc = Object.assign({}, last.desc, { [lang]: d.slice(0, 300) });
+      continue;
     }
     const looksTitle = isUpper(txt) ? words <= 6 : (words <= 3 && !/[,.;]$/.test(line) && !(last && last.prices.every(p => p.p === null)));
     if (looksTitle && !(last && !nextHasPrice && !isUpper(txt) && /^[a-zα-ωά-ώ]/.test(txt))) { newSec(txt); continue; }

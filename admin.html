@@ -406,6 +406,7 @@
             <button type="button" class="btn" data-import>Ανέβασε PDF ή φωτογραφία του καταλόγου</button>
           </div>
           <p class="hint" style="margin-top:12px">Με το PDF ή τη φωτογραφία, τα πιάτα και οι τιμές περνούν αυτόματα και εσύ απλώς ελέγχεις και διορθώνεις.</p>
+          <label class="check" style="margin-top:8px"><input type="checkbox" class="grOnly" checked> Μόνο τα ελληνικά (για πολύγλωσσους καταλόγους)</label>
         </div>
         <input type="file" id="menuFile" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" hidden>
         <div class="notice" id="importMsg" hidden></div>
@@ -419,7 +420,8 @@
             <div class="form">
               <section class="card">
                 <h2 style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">Εισαγωγή από PDF ή φωτογραφία <button type="button" class="btn line small" data-import>Ανέβασμα αρχείου</button></h2>
-                <p class="sub" style="margin:0">Διαβάζουμε τον κατάλογό σου και προσθέτουμε τα πιάτα στο τέλος του μενού, για να τα ελέγξεις. Δουλεύει καλύτερα με PDF· σε φωτογραφία, τράβηξέ την ίσια και με καλό φως.</p>
+                <p class="sub" style="margin:0 0 10px">Διαβάζουμε τον κατάλογό σου και προσθέτουμε τα πιάτα στο τέλος του μενού, για να τα ελέγξεις. Δουλεύει καλύτερα με PDF· σε φωτογραφία, τράβηξέ την ίσια και με καλό φως.</p>
+                <label class="check"><input type="checkbox" class="grOnly" checked> Μόνο τα ελληνικά (για πολύγλωσσους καταλόγους)</label>
               </section>
               <div class="sects" style="margin:0" role="group" aria-label="Γλώσσα επεξεργασίας" id="menuLangs"></div>
               <div id="menuSecs" class="stack"></div>
@@ -1331,6 +1333,7 @@ $('menuSave').addEventListener('click', () => saveMenu());
 /* ---------- Εισαγωγή από PDF ή φωτογραφία ---------- */
 let beforeImport = null;
 document.addEventListener('click', e => { if (e.target.closest('[data-import]')) $('menuFile').click(); });
+document.addEventListener('change', e => { if (e.target.classList && e.target.classList.contains('grOnly')) document.querySelectorAll('.grOnly').forEach(c => c.checked = e.target.checked); });
 function importMsg(html, warn) { const n = $('importMsg'); n.className = 'notice' + (warn ? ' warn' : ''); n.innerHTML = html; n.hidden = !html; }
 $('menuFile').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -1339,8 +1342,9 @@ $('menuFile').addEventListener('change', async e => {
   if (hasItems && !confirm('Το μενού σου έχει ήδη πιάτα. Τα πιάτα από το αρχείο θα προστεθούν στο τέλος, για να τα ελέγξεις. Συνέχεια;')) return;
   importMsg('<span>Προετοιμασία…</span>');
   try {
-    const lines = await fileToLines(f, (t, frac) => importMsg('<span>' + esc(t) + '</span><span style="opacity:.7">' + Math.round(frac * 100) + '%</span>'));
-    const secs = linesToSections(lines, menuLang);
+    const greekOnly = [...document.querySelectorAll('.grOnly')].some(c => c.checked && c.offsetParent !== null);
+    const lines = await fileToLines(f, (t, frac) => importMsg('<span>' + esc(t) + '</span><span style="opacity:.7">' + Math.round(frac * 100) + '%</span>'), { greekOnly });
+    const secs = linesToSections(lines, greekOnly ? 'el' : menuLang, { greekOnly });
     const count = secs.reduce((a, sx) => a + sx.items.length, 0);
     if (!count) return importMsg('Δεν βρήκαμε πιάτα με τιμές σε αυτό το αρχείο. Δοκίμασε PDF αντί για φωτογραφία, ή φωτογραφία πιο καθαρή και ίσια. Μπορείς πάντα να τα περάσεις με το χέρι.', true);
     beforeImport = menu ? JSON.parse(JSON.stringify(menu)) : null;
