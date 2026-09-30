@@ -206,7 +206,9 @@ export function renderProfile(root, p, opts = {}) {
   head.appendChild(el('div', 'pf-rule'));
   inner.appendChild(head);
 
-  const buttons = (p.buttons || []).filter(b => hrefFor(b));
+  let buttons = (p.buttons || []).filter(b => hrefFor(b));
+  // Αν υπάρχει δημοσιευμένο μενού, μπαίνει πρώτο ως μεγάλο κουμπί
+  if (opts.menuUrl) buttons = [{ t: 'menu', v: opts.menuUrl, l: '', main: true }, ...buttons.filter(b => b.t !== 'menu' || (b.v || '').indexOf(opts.menuUrl) < 0)];
   const main = buttons.filter(b => b.main).slice(0, 2);
   const rest = buttons.filter(b => !main.includes(b));
   const makeLink = (b, cls) => {

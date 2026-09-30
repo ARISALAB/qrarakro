@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Μενού</title>
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; min-height: 100%; background: #fff; }
+  body { font-family: 'Manrope', 'Segoe UI', Roboto, Arial, sans-serif; color: #16171A; }
+  .state { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: #6A6C72; }
+  .state h1 { margin: 0; font-size: 22px; color: #16171A; }
+  .state a { color: #16171A; font-weight: 700; }
+  .spin { width: 26px; height: 26px; border: 3px solid #E7E2D8; border-top-color: #C9A46A; border-radius: 50%; animation: s .8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body>
+<div id="root"><div class="state"><div class="spin" aria-label="…"></div></div></div>
+<script type="module">
+import { SITE } from '/firebase-config.js';
+import { renderMenu, pickLang } from '/menu-render.js';
+const root = document.getElementById('root');
+const EL = (navigator.language || 'el').toLowerCase().startsWith('el');
+function notFound() {
+  root.innerHTML = '<div class="state"><h1></h1><p></p><a></a></div>';
+  root.querySelector('h1').textContent = EL ? 'Το μενού δεν είναι διαθέσιμο' : 'This menu is not available';
+  root.querySelector('p').textContent = EL ? 'Ίσως δεν έχει δημοσιευτεί ακόμα ή ο σύνδεσμος έχει αλλάξει.' : 'It may not be published yet, or the link has changed.';
+  const a = root.querySelector('a'); a.textContent = EL ? 'Φτιάξε δωρεάν ψηφιακό μενού' : 'Make a free digital menu'; a.href = SITE + '/';
+}
+(async () => {
+  const parts = location.pathname.split('/').filter(Boolean);
+  const id = (parts[0] === 'm' && parts[1]) || new URLSearchParams(location.search).get('id') || '';
+  try {
+    const r = await fetch('/.netlify/functions/menu?id=' + encodeURIComponent(id));
+    if (!r.ok) return notFound();
+    const data = await r.json();
+    const draw = lang => {
+      document.documentElement.lang = lang;
+      renderMenu(root, data, { lang, onLang: l => { try { localStorage.setItem('menuLang', l); } catch (e) {} draw(l); } });
+    };
+    let saved = ''; try { saved = localStorage.getItem('menuLang') || ''; } catch (e) {}
+    document.title = data.profile.name + (EL ? ' · Μενού' : ' · Menu');
+    document.body.style.background = document.documentElement.style.background = data.profile.bg || '#fff';
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = data.profile.bg || '#fff';
+    draw((data.menu.langs || []).includes(saved) ? saved : pickLang(data.menu.langs));
+  } catch (e) { notFound(); }
+})();
+</script>
+</body>
+</html>

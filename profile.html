@@ -68,8 +68,10 @@ async function load() {
     document.body.style.background = p.bg || '#FFFFFF';
     let ent = null;
     try { const e = await getDoc(doc(db, 'entitlements', p.ownerUid)); if (e.exists()) ent = e.data(); } catch (e) {}
+    let menuUrl = '';
+    try { const m = await getDoc(doc(db, 'menus', p.id)); if (m.exists() && m.data().published) menuUrl = SITE + '/m/' + p.id; } catch (e) {}
     renderProfile(root, p, {
-      lang, hideMake: premiumState(ent).usable,
+      lang, hideMake: premiumState(ent).usable, menuUrl,
       onReport: reason => addDoc(collection(db, 'reports'), { pid: p.id, reason, createdAt: serverTimestamp() })
     });
   } catch (e) {

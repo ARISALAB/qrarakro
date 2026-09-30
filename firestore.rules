@@ -7,7 +7,7 @@ service cloud.firestore {
     function verified() { return signedIn() && request.auth.token.email_verified == true; }
     // Διαχειριστής: αν αλλάξει, άλλαξέ το ΚΑΙ στο firebase-config.js
     function isAdmin() { return verified() && request.auth.token.email == 'aris.alampourinos@gmail.com'; }
-    function reserved(s) { return s in ['p', 'q', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets']; }
+    function reserved(s) { return s in ['p', 'q', 'm', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets']; }
     function validSlug(s) { return s.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$') && !reserved(s); }
     function hex(c) { return c is string && c.matches('^#[0-9A-Fa-f]{6}$'); }
     function validProfile(d) {
@@ -99,6 +99,24 @@ service cloud.firestore {
         && (request.resource.data.qrCount == resource.data.get('qrCount', 0) + 1
             || request.resource.data.qrCount == resource.data.get('qrCount', 0) - 1);
       allow delete: if false;
+    }
+
+    // ----- Ψηφιακό μενού (ένα ανά προφίλ, με το ίδιο id) -----
+    match /menus/{pid} {
+      allow get: if resource.data.published == true
+                 || (signedIn() && resource.data.ownerUid == request.auth.uid)
+                 || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if verified()
+        && request.resource.data.ownerUid == request.auth.uid
+        && get(userPath(request.auth.uid)).data.profileId == pid
+        && request.resource.data.keys().hasOnly(['ownerUid', 'published', 'langs', 'note', 'sections', 'updatedAt'])
+        && request.resource.data.published is bool
+        && request.resource.data.langs is list && request.resource.data.langs.size() >= 1 && request.resource.data.langs.size() <= 6
+        && request.resource.data.note is map
+        && request.resource.data.sections is list && request.resource.data.sections.size() <= 40
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if verified() && resource.data.ownerUid == request.auth.uid;
     }
 
     // ----- Premium: μέχρι πότε ισχύει (το γράφει ο server ή ο διαχειριστής) -----

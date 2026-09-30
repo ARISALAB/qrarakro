@@ -125,6 +125,32 @@
   .spin { width: 28px; height: 28px; margin: 80px auto; border: 3px solid var(--line); border-top-color: var(--olive); border-radius: 50%; animation: s .8s linear infinite; }
   @keyframes s { to { transform: rotate(360deg); } }
 
+  /* Μενού */
+  .m-sec { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 18px; }
+  .m-sec-top { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .m-sec-top input { flex: 1; min-width: 0; font-weight: 800; font-size: 17px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+  .m-items { display: grid; gap: 8px; }
+  .m-item { border: 1px solid var(--line); border-radius: 14px; background: var(--soft); }
+  .m-row { display: flex; gap: 8px; align-items: center; padding: 8px; }
+  .m-row .nm { flex: 1; min-width: 0; }
+  .m-row input[type=text] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font-size: 15px; }
+  .m-row .pz { width: 92px; flex: none; }
+  .m-row .pz input { text-align: right; }
+  .m-out { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--muted); flex: none; cursor: pointer; }
+  .m-out input { width: 17px; height: 17px; accent-color: var(--clay); }
+  .m-det { padding: 4px 12px 14px; display: grid; gap: 12px; border-top: 1px dashed var(--line); }
+  .m-det textarea, .m-det input[type=text] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font-size: 15px; }
+  .m-det textarea { min-height: 60px; resize: vertical; }
+  .m-det .lbl2 { font-size: 13px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px; display: block; }
+  .m-prices { display: grid; gap: 6px; }
+  .m-prices div { display: flex; gap: 6px; }
+  .m-prices input:first-child { flex: 1; } .m-prices input:nth-child(2) { width: 92px; text-align: right; }
+  .m-checks { display: flex; flex-wrap: wrap; gap: 6px; }
+  .m-checks label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); cursor: pointer; }
+  .m-checks input { accent-color: var(--ink); }
+  .m-checks b { font-size: 11px; color: var(--muted); }
+  .m-add { margin-top: 10px; }
+  .m-miss input, .m-miss textarea { border-color: #EAD3A6 !important; }
   /* Ενότητες */
   .sects { display: flex; gap: 6px; padding: 5px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 22px; overflow-x: auto; }
   .sects button { flex: 1; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; background: transparent; padding: 11px 14px; border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer; color: var(--ink-2); }
@@ -268,6 +294,7 @@
       <div class="notice" id="paidNote" hidden></div>
       <nav class="sects" role="tablist" aria-label="Ενότητες">
         <button type="button" role="tab" data-sect="sProfile" aria-selected="true">Το προφίλ μου</button>
+        <button type="button" role="tab" data-sect="sMenu" aria-selected="false">Μενού</button>
         <button type="button" role="tab" data-sect="sQr" aria-selected="false">Δυναμικά QR <span class="pbadge">Premium</span></button>
         <button type="button" role="tab" data-sect="sPlan" aria-selected="false">Συνδρομή</button>
       </nav>
@@ -367,6 +394,49 @@
           <p class="preview-note">Προεπισκόπηση: έτσι θα το βλέπουν στο κινητό.</p>
         </div>
       </div>
+      </div>
+
+      <!-- Μενού -->
+      <div id="sMenu" hidden>
+        <div class="intro-card" id="menuEmpty" hidden>
+          <h2>Το ψηφιακό σου μενού, δωρεάν</h2>
+          <p>Κατηγορίες, πιάτα, τιμές και αλλεργιογόνα, σε ελληνικά και αγγλικά. Οι πελάτες σκανάρουν το QR στο τραπέζι και το βλέπουν στη γλώσσα τους. Κάθε αλλαγή φαίνεται αμέσως, χωρίς νέα εκτύπωση.</p>
+          <button type="button" class="btn gold" id="menuStart">Φτιάξε το μενού σου</button>
+        </div>
+        <div id="menuEditor" hidden>
+          <div class="notice" id="menuStatus"></div>
+          <div class="tabs" role="group" aria-label="Προβολή μενού">
+            <button type="button" id="mTabEdit" aria-pressed="true">Επεξεργασία</button>
+            <button type="button" id="mTabPrev" aria-pressed="false">Προεπισκόπηση</button>
+          </div>
+          <div class="editor" id="menuEd">
+            <div class="form">
+              <div class="sects" style="margin:0" role="group" aria-label="Γλώσσα επεξεργασίας" id="menuLangs"></div>
+              <div id="menuSecs" class="stack"></div>
+              <button type="button" class="btn line" id="addSec">+ Νέα κατηγορία</button>
+              <section class="card">
+                <h2>Σημείωση στο τέλος</h2>
+                <div class="field"><textarea id="menuNote" maxlength="300" placeholder="π.χ. Οι τιμές περιλαμβάνουν ΦΠΑ. Υπεύθυνος καταστήματος: …"></textarea></div>
+              </section>
+              <section class="card">
+                <h2>QR του μενού</h2>
+                <div class="links"><div class="link-row"><div><small>Σύνδεσμος του μενού (μπαίνει στο QR)</small><code id="menuLink"></code></div><button type="button" class="btn line small" id="menuCopy">Αντιγραφή</button></div></div>
+                <div class="qr-box">
+                  <canvas id="menuQr" width="600" height="600" role="img" aria-label="QR μενού"></canvas>
+                  <div class="acts">
+                    <button type="button" class="btn small" id="menuQrPng">Κατέβασε το QR (PNG)</button>
+                    <a class="btn line small" id="menuQrGen" target="_blank" rel="noopener">Πρότυπα εκτύπωσης</a>
+                    <a class="btn line small" id="menuView" target="_blank" rel="noopener">Δες το μενού</a>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="preview">
+              <div class="phone"><div class="phone-scroll" id="menuPreview"></div></div>
+              <p class="preview-note">Προεπισκόπηση: έτσι θα το βλέπουν στο κινητό.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Δυναμικά QR -->
@@ -483,6 +553,12 @@
   </main>
 </div>
 
+<div class="savebar" id="menuBar" hidden>
+  <div class="wrap">
+    <p id="menuState">Όλες οι αλλαγές είναι αποθηκευμένες.</p>
+    <button class="btn gold" id="menuSave" type="button" disabled>Αποθήκευση μενού</button>
+  </div>
+</div>
 <div class="savebar" id="saveBar" hidden>
   <div class="wrap">
     <p id="saveState">Όλες οι αλλαγές είναι αποθηκευμένες.</p>
@@ -496,6 +572,7 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, creat
 import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
+import { renderMenu, ALLERGENS, TAGS, LANG_NAMES } from '/menu-render.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -505,7 +582,7 @@ const $ = id => document.getElementById(id);
 $('brandName').textContent = BRAND;
 
 /* ---------------- Βοηθητικά ---------------- */
-const RESERVED = ['p', 'q', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets'];
+const RESERVED = ['p', 'q', 'm', 'admin', 'superadmin', 'api', 'app', 'login', 'profile', 'index', 'assets'];
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 const GR = { α:'a',β:'v',γ:'g',δ:'d',ε:'e',ζ:'z',η:'i',θ:'th',ι:'i',κ:'k',λ:'l',μ:'m',ν:'n',ξ:'x',ο:'o',π:'p',ρ:'r',σ:'s',ς:'s',τ:'t',υ:'y',φ:'f',χ:'ch',ψ:'ps',ω:'o' };
 function slugify(s) {
@@ -522,6 +599,7 @@ function newId() {
 function show(view) {
   ['vLoading', 'vAuth', 'vVerify', 'vOnboard', 'vEditor'].forEach(v => $(v).hidden = v !== view);
   $('saveBar').hidden = view !== 'vEditor' || curSect !== 'sProfile';
+  $('menuBar').hidden = view !== 'vEditor' || curSect !== 'sMenu';
 }
 function msg(id, text) { const e = $(id); e.textContent = text || ''; e.hidden = !text; }
 const AUTH_ERR = {
@@ -591,6 +669,7 @@ $('verResend').addEventListener('click', async () => {
 });
 
 /* ---------------- Ροή ---------------- */
+let menu = null, menuSaved = null, menuDirty = false, menuLang = 'el', menuLoaded = false;
 let user = null, pid = null, saved = null, draft = null, dirty = false, usr = {}, ent = null, P = premiumState(null), curSect = 'sProfile';
 onAuthStateChanged(auth, u => { user = u; route(u); });
 
@@ -693,12 +772,12 @@ function setDirty(d) {
   s.textContent = d ? 'Έχεις αλλαγές που δεν αποθηκεύτηκαν.' : 'Όλες οι αλλαγές είναι αποθηκευμένες.';
   s.className = d ? 'dirty' : '';
 }
-window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+window.addEventListener('beforeunload', e => { if (dirty || menuDirty) { e.preventDefault(); e.returnValue = ''; } });
 
 let rTimer;
 function refresh() {
   clearTimeout(rTimer);
-  rTimer = setTimeout(() => { renderProfile($('previewRoot'), draft, { lang: 'el', preview: true, hideMake: P.usable }); drawQr(); }, 80);
+  rTimer = setTimeout(() => { renderProfile($('previewRoot'), draft, { lang: 'el', preview: true, hideMake: P.usable, menuUrl: menuSaved && menuSaved.published ? SITE + '/m/' + pid : '' }); drawQr(); }, 80);
 }
 function changed() { setDirty(true); refresh(); }
 
@@ -939,16 +1018,18 @@ $('introPrice').textContent = PRICES.monthly + ' τον μήνα ή ' + PRICES.y
 /* Ενότητες */
 function sect(name) {
   curSect = name;
-  ['sProfile', 'sQr', 'sPlan'].forEach(x => $(x).hidden = x !== name);
+  ['sProfile', 'sMenu', 'sQr', 'sPlan'].forEach(x => $(x).hidden = x !== name);
   document.querySelectorAll('.sects button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sect === name)));
-  $('saveBar').hidden = name !== 'sProfile';
-  history.replaceState(null, '', name === 'sQr' ? '#qr' : name === 'sPlan' ? '#plan' : location.pathname + location.search);
+  $('saveBar').hidden = name !== 'sProfile'; $('menuBar').hidden = name !== 'sMenu';
+  history.replaceState(null, '', name === 'sQr' ? '#qr' : name === 'sPlan' ? '#plan' : name === 'sMenu' ? '#menu' : location.pathname + location.search);
+  if (name === 'sMenu') showMenu();
   if (name === 'sQr') showQrList();
   if (name === 'sPlan') renderPlan();
   window.scrollTo({ top: 0 });
 }
 document.querySelectorAll('.sects button').forEach(b => b.addEventListener('click', () => {
   if (curSect === 'sProfile' && dirty && !confirm('Έχεις αλλαγές στο προφίλ που δεν αποθηκεύτηκαν. Να συνεχίσεις χωρίς αποθήκευση;')) return;
+  if (curSect === 'sMenu' && menuDirty && !confirm('Έχεις αλλαγές στο μενού που δεν αποθηκεύτηκαν. Να συνεχίσεις χωρίς αποθήκευση;')) return;
   sect(b.dataset.sect);
 }));
 document.addEventListener('click', e => { if (e.target.closest('[data-open-plan]')) openPlan(); });
@@ -957,7 +1038,7 @@ function afterEditorStart() {
   $('brandNote').hidden = P.usable;
   renderPaidNote();
   const h = location.hash;
-  if (h === '#qr') sect('sQr'); else if (h === '#plan') sect('sPlan'); else sect('sProfile');
+  if (h === '#qr') sect('sQr'); else if (h === '#plan') sect('sPlan'); else if (h === '#menu') sect('sMenu'); else sect('sProfile');
   if (new URLSearchParams(location.search).get('paid')) waitForPremium();
 }
 function renderPaidNote() {
@@ -1059,6 +1140,195 @@ async function openPortal(btn) {
   }
   btn.disabled = false; btn.textContent = old;
 }
+
+/* =====================================================================
+   ΜΕΝΟΥ
+   ===================================================================== */
+const menuUrl = () => SITE + '/m/' + pid;
+const uid6 = () => { const a = new Uint32Array(2); crypto.getRandomValues(a); return (a[0].toString(36) + a[1].toString(36)).slice(0, 8); };
+const L2 = o => o || {};
+const parsePrice = v => { const t = String(v == null ? '' : v).replace(/[€\s]/g, '').replace(',', '.'); if (!t) return null; const n = Number(t); return isNaN(n) ? null : Math.round(n * 100) / 100; };
+const showPrice = n => (n === null || n === undefined || n === '') ? '' : (Number.isInteger(+n) ? String(n) : Number(n).toFixed(2)).replace('.', ',');
+function normMenu(m) {
+  m = JSON.parse(JSON.stringify(m || {}));
+  m.langs = (m.langs && m.langs.length) ? m.langs : ['el', 'en'];
+  m.note = L2(m.note); m.published = !!m.published;
+  m.sections = (m.sections || []).map(sx => ({ id: sx.id || uid6(), title: L2(sx.title),
+    items: (sx.items || []).map(i => ({ id: i.id || uid6(), name: L2(i.name), desc: L2(i.desc),
+      prices: (i.prices && i.prices.length) ? i.prices.map(x => ({ l: L2(x.l), p: x.p })) : [{ l: {}, p: null }],
+      allergens: i.allergens || [], tags: i.tags || [], soldOut: !!i.soldOut, hidden: !!i.hidden })) }));
+  return m;
+}
+async function showMenu() {
+  if (!menuLoaded) {
+    try { const d = await getDoc(doc(db, 'menus', pid)); menuSaved = d.exists() ? normMenu(d.data()) : null; } catch (e) { console.error(e); menuSaved = null; }
+    menu = menuSaved ? normMenu(menuSaved) : null; menuLoaded = true; refresh();
+  }
+  $('menuEmpty').hidden = !!menu; $('menuEditor').hidden = !menu;
+  if (menu) renderMenuEditor();
+  setMenuDirty(menuDirty);
+}
+$('menuStart').addEventListener('click', () => {
+  menu = normMenu({ langs: ['el', 'en'], note: { el: 'Οι τιμές περιλαμβάνουν ΦΠΑ.', en: 'Prices include VAT.' },
+    sections: [{ title: { el: 'Ορεκτικά', en: 'Starters' }, items: [{ name: {}, prices: [{ l: {}, p: null }] }] }] });
+  setMenuDirty(true); showMenu();
+});
+function setMenuDirty(d) {
+  menuDirty = d; $('menuSave').disabled = !d;
+  $('menuState').textContent = d ? 'Έχεις αλλαγές στο μενού που δεν αποθηκεύτηκαν.' : 'Όλες οι αλλαγές είναι αποθηκευμένες.';
+  $('menuState').className = d ? 'dirty' : '';
+}
+function menuStatus() {
+  const n = $('menuStatus'); n.innerHTML = '';
+  const items = menu.sections.reduce((a, sx) => a + sx.items.filter(i => i.name.el || i.name.en).length, 0);
+  const span = document.createElement('span');
+  span.innerHTML = menuSaved && menuSaved.published ? '<b>Δημοσιευμένο</b> · ' + items + ' πιάτα' : '<b>Πρόχειρο</b> · δεν το βλέπουν ακόμα οι πελάτες σου';
+  const b = document.createElement('button'); b.type = 'button';
+  const pub = menuSaved && menuSaved.published;
+  b.className = pub ? 'btn line small' : 'btn gold small'; b.textContent = pub ? 'Απόσυρση' : 'Δημοσίευση';
+  b.onclick = async () => { menu.published = !pub; await saveMenu(pub ? 'Το μενού αποσύρθηκε.' : 'Το μενού δημοσιεύτηκε! Οι πελάτες το βλέπουν με το QR.'); };
+  n.append(span, b);
+}
+function renderMenuEditor() {
+  menuStatus();
+  $('menuLangs').innerHTML = menu.langs.map(l => '<button type="button" data-ml="' + l + '" aria-selected="' + (l === menuLang) + '">' + (LANG_NAMES[l] || l) + '</button>').join('');
+  const Lg = menuLang, other = Lg === 'el' ? 'en' : 'el';
+  const ph = (o, d) => esc((o && o[other]) || d || '');
+  const miss = o => Lg !== 'el' && o && o.el && !o[Lg] ? ' m-miss' : '';
+  $('menuSecs').innerHTML = menu.sections.map((sx, si) =>
+    '<div class="m-sec" data-s="' + si + '">' +
+      '<div class="m-sec-top' + miss(sx.title) + '"><input type="text" data-f="stitle" maxlength="60" value="' + esc(sx.title[Lg] || '') + '" placeholder="' + ph(sx.title, 'Όνομα κατηγορίας') + '" aria-label="Όνομα κατηγορίας">' +
+        '<button type="button" class="ico" data-a="sup" aria-label="Κατηγορία πάνω"' + (si === 0 ? ' disabled' : '') + '>↑</button>' +
+        '<button type="button" class="ico" data-a="sdown" aria-label="Κατηγορία κάτω"' + (si === menu.sections.length - 1 ? ' disabled' : '') + '>↓</button>' +
+        '<button type="button" class="ico" data-a="sdel" aria-label="Διαγραφή κατηγορίας">✕</button></div>' +
+      '<div class="m-items">' + sx.items.map((it, ii) =>
+        '<div class="m-item" data-i="' + ii + '">' +
+          '<div class="m-row' + miss(it.name) + '">' +
+            '<div class="nm"><input type="text" data-f="name" maxlength="80" value="' + esc(it.name[Lg] || '') + '" placeholder="' + ph(it.name, 'Όνομα πιάτου') + '" aria-label="Όνομα πιάτου"></div>' +
+            '<div class="pz"><input type="text" inputmode="decimal" data-f="price0" value="' + esc(showPrice(it.prices[0].p)) + '" placeholder="€" aria-label="Τιμή"></div>' +
+            '<label class="m-out" title="Εξαντλήθηκε"><input type="checkbox" data-f="soldOut"' + (it.soldOut ? ' checked' : '') + '>Τέλος</label>' +
+            '<button type="button" class="ico" data-a="more" aria-label="Λεπτομέρειες" aria-expanded="' + (!!it._open) + '">⋯</button>' +
+          '</div>' +
+          (it._open ? '<div class="m-det">' +
+            '<div class="' + miss(it.desc).trim() + '"><span class="lbl2">Περιγραφή</span><textarea data-f="desc" maxlength="300" placeholder="' + ph(it.desc, 'π.χ. Με φρέσκια ντομάτα και φέτα') + '">' + esc(it.desc[Lg] || '') + '</textarea></div>' +
+            '<div><span class="lbl2">Τιμές με παραλλαγές (π.χ. μερίδα / μισή, ποτήρι / μπουκάλι)</span><div class="m-prices">' + it.prices.map((pr, pi) =>
+              '<div data-p="' + pi + '"><input type="text" data-f="plabel" maxlength="30" value="' + esc(pr.l[Lg] || '') + '" placeholder="' + ph(pr.l, pi === 0 ? 'π.χ. Μερίδα (προαιρετικό)' : 'π.χ. Μισή') + '"><input type="text" inputmode="decimal" data-f="pprice" value="' + esc(showPrice(pr.p)) + '" placeholder="€">' +
+              (pi > 0 ? '<button type="button" class="ico" data-a="pdel" aria-label="Αφαίρεση τιμής">✕</button>' : '') + '</div>').join('') +
+            '</div><button type="button" class="link m-add" data-a="padd">+ Άλλη τιμή</button></div>' +
+            '<div><span class="lbl2">Αλλεργιογόνα</span><div class="m-checks">' + ALLERGENS.map((a, k) =>
+              '<label><input type="checkbox" data-al="' + a[0] + '"' + (it.allergens.includes(a[0]) ? ' checked' : '') + '><b>' + (k + 1) + '</b>' + a[1] + '</label>').join('') + '</div></div>' +
+            '<div><span class="lbl2">Ετικέτες</span><div class="m-checks">' + TAGS.map(t =>
+              '<label><input type="checkbox" data-tg="' + t[0] + '"' + (it.tags.includes(t[0]) ? ' checked' : '') + '>' + t[1] + '</label>').join('') + '</div></div>' +
+            '<div class="qe-acts">' +
+              '<button type="button" class="btn line small" data-a="iup"' + (ii === 0 ? ' disabled' : '') + '>↑ Πάνω</button>' +
+              '<button type="button" class="btn line small" data-a="idown"' + (ii === sx.items.length - 1 ? ' disabled' : '') + '>↓ Κάτω</button>' +
+              '<label class="m-out"><input type="checkbox" data-f="hidden"' + (it.hidden ? ' checked' : '') + '>Κρυφό</label>' +
+              '<button type="button" class="btn line small" data-a="idel" style="margin-left:auto">Διαγραφή πιάτου</button></div>' +
+          '</div>' : '') +
+        '</div>').join('') + '</div>' +
+      '<button type="button" class="link m-add" data-a="iadd">+ Πιάτο</button>' +
+    '</div>').join('');
+  $('menuNote').value = menu.note[Lg] || ''; $('menuNote').placeholder = menu.note[other] || 'π.χ. Οι τιμές περιλαμβάνουν ΦΠΑ.';
+  $('menuLink').textContent = menuUrl().replace('https://', '');
+  $('menuView').href = menuUrl(); $('menuView').hidden = !(menuSaved && menuSaved.published);
+  $('menuQrGen').href = SITE + '/?url=' + encodeURIComponent(menuUrl());
+  drawMenuQr(); menuPreview();
+}
+let mpTimer;
+function menuPreview() {
+  clearTimeout(mpTimer);
+  mpTimer = setTimeout(() => renderMenu($('menuPreview'), { profile: { id: pid, name: saved.name, logo: saved.logo, logoPhoto: saved.logoPhoto, accent: saved.accent, bg: saved.bg, buttons: saved.buttons }, menu, premium: P.usable },
+    { lang: menuLang, preview: true, onLang: l => { menuLang = l; renderMenuEditor(); } }), 80);
+}
+function menuChanged() { setMenuDirty(true); menuPreview(); }
+$('menuLangs').addEventListener('click', e => { const b = e.target.closest('[data-ml]'); if (!b) return; menuLang = b.dataset.ml; renderMenuEditor(); });
+$('menuNote').addEventListener('input', e => { menu.note[menuLang] = e.target.value; menuChanged(); });
+function ctx(e) {
+  const sEl = e.target.closest('[data-s]'), iEl = e.target.closest('[data-i]'), pEl = e.target.closest('[data-p]');
+  const sx = sEl ? menu.sections[+sEl.dataset.s] : null, it = sx && iEl ? sx.items[+iEl.dataset.i] : null;
+  return { sx, it, si: sEl ? +sEl.dataset.s : -1, ii: iEl ? +iEl.dataset.i : -1, pi: pEl ? +pEl.dataset.p : -1 };
+}
+$('menuSecs').addEventListener('input', e => {
+  const f = e.target.dataset.f, { sx, it, pi } = ctx(e); if (!f || !sx) return;
+  if (f === 'stitle') sx.title[menuLang] = e.target.value;
+  if (f === 'name') it.name[menuLang] = e.target.value;
+  if (f === 'desc') it.desc[menuLang] = e.target.value;
+  if (f === 'price0') it.prices[0].p = parsePrice(e.target.value);
+  if (f === 'plabel') it.prices[pi].l[menuLang] = e.target.value;
+  if (f === 'pprice') it.prices[pi].p = parsePrice(e.target.value);
+  menuChanged();
+});
+$('menuSecs').addEventListener('change', async e => {
+  const { sx, it } = ctx(e); if (!sx) return;
+  const t = e.target;
+  if (t.dataset.al) { it.allergens = t.checked ? [...new Set([...it.allergens, t.dataset.al])] : it.allergens.filter(x => x !== t.dataset.al); menuChanged(); }
+  if (t.dataset.tg) { it.tags = t.checked ? [...new Set([...it.tags, t.dataset.tg])] : it.tags.filter(x => x !== t.dataset.tg); menuChanged(); }
+  if (t.dataset.f === 'hidden') { it.hidden = t.checked; menuChanged(); }
+  if (t.dataset.f === 'soldOut') {    // το «Εξαντλήθηκε» αποθηκεύεται αμέσως
+    it.soldOut = t.checked; menuChanged();
+    if (menuSaved && menuSaved.published) await saveMenu(it.soldOut ? '«' + (it.name.el || it.name.en || 'Πιάτο') + '»: εξαντλήθηκε.' : '«' + (it.name.el || it.name.en || 'Πιάτο') + '»: διαθέσιμο ξανά.');
+  }
+});
+$('menuSecs').addEventListener('click', e => {
+  const a = e.target.closest('[data-a]'); if (!a) return;
+  const { sx, it, si, ii, pi } = ctx(e), S = menu.sections, act = a.dataset.a;
+  const swap = (arr, i, j) => { [arr[i], arr[j]] = [arr[j], arr[i]]; };
+  if (act === 'sup' && si > 0) swap(S, si, si - 1);
+  if (act === 'sdown' && si < S.length - 1) swap(S, si, si + 1);
+  if (act === 'sdel') { if ((sx.items.some(i => i.name.el || i.name.en)) && !confirm('Να διαγραφεί η κατηγορία «' + (sx.title.el || sx.title.en || '') + '» με όλα τα πιάτα της;')) return; S.splice(si, 1); }
+  if (act === 'iadd') { sx.items.push({ id: uid6(), name: {}, desc: {}, prices: [{ l: {}, p: null }], allergens: [], tags: [], soldOut: false, hidden: false }); }
+  if (act === 'more') it._open = !it._open;
+  if (act === 'iup' && ii > 0) swap(sx.items, ii, ii - 1);
+  if (act === 'idown' && ii < sx.items.length - 1) swap(sx.items, ii, ii + 1);
+  if (act === 'idel') { if (!confirm('Να διαγραφεί το «' + (it.name.el || it.name.en || 'πιάτο') + '»;')) return; sx.items.splice(ii, 1); }
+  if (act === 'padd') it.prices.push({ l: {}, p: null });
+  if (act === 'pdel') it.prices.splice(pi, 1);
+  if (act !== 'more') menuChanged();
+  renderMenuEditor();
+  if (act === 'iadd') { const rows = document.querySelectorAll('[data-s="' + si + '"] .m-item'); const last = rows[rows.length - 1]; if (last) last.querySelector('[data-f=name]').focus(); }
+});
+$('addSec').addEventListener('click', () => { menu.sections.push({ id: uid6(), title: {}, items: [{ id: uid6(), name: {}, desc: {}, prices: [{ l: {}, p: null }], allergens: [], tags: [], soldOut: false, hidden: false }] }); menuChanged(); renderMenuEditor();
+  const secs = document.querySelectorAll('.m-sec'); const last = secs[secs.length - 1]; if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); last.querySelector('[data-f=stitle]').focus(); } });
+
+function cleanMenu() {
+  const T = o => { const r = {}; Object.keys(o || {}).forEach(k => { const v = String(o[k] || '').trim(); if (v && ['el', 'en', 'de', 'fr', 'it', 'es'].includes(k)) r[k] = v.slice(0, 300); }); return r; };
+  return {
+    ownerUid: user.uid, published: !!menu.published, langs: menu.langs.slice(0, 6), note: T(menu.note),
+    sections: menu.sections.map(sx => ({ id: sx.id, title: T(sx.title),
+      items: sx.items.filter(i => Object.keys(T(i.name)).length).map(i => ({ id: i.id, name: T(i.name), desc: T(i.desc),
+        prices: i.prices.filter((x, k) => k === 0 || x.p !== null).map(x => ({ l: T(x.l), p: x.p === null || x.p === undefined ? null : Number(x.p) })),
+        allergens: i.allergens.slice(0, 14), tags: i.tags.slice(0, 6), soldOut: !!i.soldOut, hidden: !!i.hidden })).slice(0, 200) }))
+      .filter(sx => Object.keys(sx.title).length || sx.items.length).slice(0, 40),
+    updatedAt: serverTimestamp()
+  };
+}
+async function saveMenu(okMsg) {
+  const st = $('menuState'); $('menuSave').disabled = true; st.className = ''; st.textContent = 'Αποθήκευση…';
+  try {
+    const data = cleanMenu();
+    await setDoc(doc(db, 'menus', pid), data);
+    menuSaved = normMenu({ ...data, updatedAt: null });
+    menu.published = menuSaved.published;
+    setMenuDirty(false); st.textContent = okMsg || 'Αποθηκεύτηκε. Οι πελάτες βλέπουν τις αλλαγές σε λίγα λεπτά.';
+    renderMenuEditor(); refresh();
+  } catch (e) {
+    console.error(e); st.className = 'dirty'; st.textContent = 'Δεν αποθηκεύτηκε. Έλεγξε τη σύνδεσή σου και δοκίμασε ξανά.'; $('menuSave').disabled = false;
+  }
+}
+$('menuSave').addEventListener('click', () => saveMenu());
+function mTab(prev) { $('menuEd').classList.toggle('show-preview', prev); $('mTabEdit').setAttribute('aria-pressed', String(!prev)); $('mTabPrev').setAttribute('aria-pressed', String(prev)); window.scrollTo({ top: 0 }); }
+$('mTabEdit').addEventListener('click', () => mTab(false));
+$('mTabPrev').addEventListener('click', () => mTab(true));
+$('menuCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(menuUrl()); $('menuCopy').textContent = 'Αντιγράφηκε'; setTimeout(() => $('menuCopy').textContent = 'Αντιγραφή', 1600); } catch (e) { prompt('', menuUrl()); } });
+let mLogo = null, mLogoSrc = '';
+async function drawMenuQr() {
+  if (saved.logo !== mLogoSrc) { mLogoSrc = saved.logo; mLogo = saved.logo ? await loadImg(saved.logo).catch(() => null) : null; }
+  drawCode($('menuQr'), 600, menuUrl(), '#121316', '#FFFFFF', mLogo);
+}
+$('menuQrPng').addEventListener('click', () => {
+  const c = document.createElement('canvas'); drawCode(c, 1200, menuUrl(), '#121316', '#FFFFFF', mLogo);
+  c.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'qr-menu.png'; document.body.append(a); a.click(); a.remove(); }, 'image/png');
+});
 
 /* ---------- Δυναμικά QR ---------- */
 const QTYPES = [['link', 'Ιστοσελίδα'], ['menu', 'Μενού / Κατάλογος'], ['booking', 'Κράτηση'], ['review', 'Κριτική Google'], ['whatsapp', 'WhatsApp'], ['phone', 'Τηλέφωνο'], ['email', 'Email'], ['map', 'Χάρτης'], ['profile', 'Το προφίλ μου']];
