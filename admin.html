@@ -182,6 +182,10 @@
   .incl li { display: flex; gap: 9px; } .incl li::before { content: '✓'; color: var(--gold-deep); font-weight: 800; }
   .fine { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
   .plan-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 26px; }
+  .inv-list { display: grid; gap: 8px; }
+  .inv-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); font-size: 14.5px; }
+  .inv-row .d { flex: 1; min-width: 0; } .inv-row .d small { display: block; color: var(--muted); font-size: 12.5px; }
+  .inv-row b { font-size: 16px; letter-spacing: -0.01em; }
   .plan-card h2 { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.035em; }
   @media (min-width: 900px) { .qe { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } .qe-right { position: sticky; top: 16px; } .qr-grid { grid-template-columns: 1fr 1fr; } }
   @media (min-width: 560px) { .grid2, .soc-grid { grid-template-columns: 1fr 1fr; } }
@@ -442,6 +446,11 @@
       <!-- Συνδρομή -->
       <div id="sPlan" hidden>
         <div class="plan-card" id="planCard"></div>
+        <div class="plan-card" id="invCard" style="margin-top:16px" hidden>
+          <h2>Παραστατικά</h2>
+          <p class="sub" style="margin:0 0 14px">Ένα για κάθε πληρωμή. Τα εκδίδει το Lemon Squeezy, ο πάροχος πληρωμών μας. Στη σελίδα του παραστατικού μπορείς να προσθέσεις επωνυμία, διεύθυνση και ΑΦΜ πριν το κατεβάσεις.</p>
+          <div id="invList" class="inv-list"><p class="hint">Φόρτωση…</p></div>
+        </div>
       </div>
     </section>
 
@@ -986,20 +995,46 @@ function renderPlan() {
   if (!P.active) { const b = document.createElement('button'); b.className = 'btn gold'; b.textContent = P.ever ? 'Ανανέωση Premium' : 'Ενεργοποίηση Premium'; b.onclick = openPlan; acts.append(b); }
   if (L.subscriptionId) {
     const a = document.createElement('button'); a.type = 'button'; a.className = 'btn line';
-    a.textContent = 'Παραστατικά, κάρτα και ακύρωση'; a.onclick = () => openPortal(a); acts.append(a);
+    a.textContent = 'Κάρτα, ακύρωση και ρυθμίσεις'; a.onclick = () => openPortal(a); acts.append(a);
     const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '14px 0 0'; note.id = 'portalNote';
-    note.textContent = 'Ανοίγει η σελίδα της συνδρομής σου στο Lemon Squeezy, τον πάροχο πληρωμών μας, χωρίς λογαριασμό ή κωδικό. Εκεί κατεβάζεις τα παραστατικά σου, αλλάζεις κάρτα ή ακυρώνεις.';
+    note.textContent = 'Ανοίγει η σελίδα της συνδρομής σου στο Lemon Squeezy, τον πάροχο πληρωμών μας, χωρίς λογαριασμό ή κωδικό. Εκεί αλλάζεις κάρτα ή ακυρώνεις τη συνδρομή.';
     c.append(note);
   }
+  $('invCard').hidden = !L.subscriptionId;
+  if (L.subscriptionId) loadInvoices();
 }
+async function lemonCall(action) {
+  const r = await fetch('/.netlify/functions/lemon-portal', { method: 'POST', headers: { Authorization: 'Bearer ' + await user.getIdToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'σφάλμα');
+  return j;
+}
+const INV_REASON = { initial: 'Πρώτη πληρωμή', renewal: 'Ανανέωση', updated: 'Αλλαγή πακέτου' };
+const INV_STATUS = { paid: 'Πληρωμένο', pending: 'Σε αναμονή', void: 'Ακυρωμένο', refunded: 'Επιστράφηκε', partial_refund: 'Μερική επιστροφή' };
+async function loadInvoices() {
+  const box = $('invList'); box.innerHTML = '<p class="hint">Φόρτωση…</p>';
+  try {
+    const { invoices } = await lemonCall('invoices');
+    if (!invoices.length) { box.innerHTML = '<p class="hint">Δεν υπάρχουν ακόμα παραστατικά.</p>'; return; }
+    box.innerHTML = '';
+    for (const inv of invoices) {
+      const row = document.createElement('div'); row.className = 'inv-row';
+      row.innerHTML = '<span class="d"><b></b><small></small></span>';
+      row.querySelector('b').textContent = inv.total;
+      row.querySelector('small').textContent = new Date(inv.date).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + (INV_REASON[inv.reason] || '') + ' · ' + (INV_STATUS[inv.status] || inv.status);
+      if (inv.url) { const a = document.createElement('a'); a.className = 'btn line small'; a.href = inv.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Λήψη'; row.append(a); }
+      box.append(row);
+    }
+  } catch (e) { box.innerHTML = ''; const p = document.createElement('p'); p.className = 'hint'; p.textContent = 'Δεν φορτώθηκαν τα παραστατικά (' + e.message + '). Δοκίμασε ξανά σε λίγο.'; box.append(p); }
+}
+
 /* Ζητάμε φρέσκο υπογεγραμμένο link τη στιγμή που πατιέται το κουμπί (ο πελάτης μπαίνει χωρίς λογαριασμό) */
 async function openPortal(btn) {
   const w = window.open('', '_blank');            // ανοίγει αμέσως, για να μην το μπλοκάρει ο browser
   btn.disabled = true; const old = btn.textContent; btn.textContent = 'Άνοιγμα…';
   try {
-    const r = await fetch('/.netlify/functions/lemon-portal', { method: 'POST', headers: { Authorization: 'Bearer ' + await user.getIdToken() } });
-    const j = await r.json();
-    if (!r.ok || !j.url) throw new Error(j.error || 'error');
+    const j = await lemonCall('portal');
+    if (!j.url) throw new Error('σφάλμα');
     if (w) w.location.href = j.url; else location.href = j.url;
   } catch (e) {
     if (w) w.close();

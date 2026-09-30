@@ -67,9 +67,24 @@ exports.handler = async (event) => {
   const subId = lemon && lemon.subscriptionId && lemon.subscriptionId.stringValue;
   if (!subId) return json(404, { error: 'Δεν βρέθηκε συνδρομή.' });
 
+  const LS = { Accept: 'application/vnd.api+json', Authorization: 'Bearer ' + process.env.LEMON_API_KEY };
+  let action = 'portal';
+  try { action = (JSON.parse(event.body || '{}').action) || 'portal'; } catch (e) {}
+
+  // Λίστα παραστατικών της συνδρομής (κάθε πληρωμή έχει το δικό της)
+  if (action === 'invoices') {
+    const r = await fetch('https://api.lemonsqueezy.com/v1/subscription-invoices?filter[subscription_id]=' + encodeURIComponent(subId) + '&page[size]=50', { headers: LS });
+    const j = await r.json().catch(() => ({}));
+    if (!Array.isArray(j.data)) { console.error('Lemon API invoices', r.status, JSON.stringify(j).slice(0, 300)); return json(502, { error: 'Το Lemon Squeezy δεν απάντησε. Δοκίμασε ξανά σε λίγο.' }); }
+    const invoices = j.data.map(d => {
+      const a = d.attributes || {};
+      return { date: a.created_at, total: a.total_formatted || '', status: a.status || '', reason: a.billing_reason || '', url: (a.urls && a.urls.invoice_url) || '' };
+    }).sort((x, y) => String(y.date).localeCompare(String(x.date)));
+    return json(200, { invoices });
+  }
+
   // Φρέσκο υπογεγραμμένο link από το Lemon Squeezy (ισχύει 24 ώρες)
-  const r = await fetch('https://api.lemonsqueezy.com/v1/subscriptions/' + encodeURIComponent(subId), {
-    headers: { Accept: 'application/vnd.api+json', Authorization: 'Bearer ' + process.env.LEMON_API_KEY } });
+  const r = await fetch('https://api.lemonsqueezy.com/v1/subscriptions/' + encodeURIComponent(subId), { headers: LS });
   const j = await r.json().catch(() => ({}));
   const url = j && j.data && j.data.attributes && j.data.attributes.urls && j.data.attributes.urls.customer_portal;
   if (!url) { console.error('Lemon API', r.status, JSON.stringify(j).slice(0, 300)); return json(502, { error: 'Το Lemon Squeezy δεν απάντησε. Δοκίμασε ξανά σε λίγο.' }); }
