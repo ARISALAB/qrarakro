@@ -110,12 +110,12 @@ export function itemsToLines(items, pageWidth, opts = {}) {
 }
 
 /* ---------------- Γραμμές → κατηγορίες και πιάτα ---------------- */
-const PRICE = '(?:€\\s*)?(\\d{1,3}(?:[.,]\\d{1,2})?)\\s*(?:€|eur|euro|ευρώ)?';
-const PRICE_END = new RegExp('^(.*?)[\\s.·…_\\-–—:]*' + PRICE + '\\s*$', 'i');
-const ONLY_PRICES = new RegExp('^(?:' + PRICE + '[\\s/|,]*){1,3}$', 'i');
+const PRICE = '(?<![\\p{L}\\d.,])(?:€\\s*)?(\\d{1,3}(?:[.,]\\d{1,2})?)(?![\\d.,]*\\p{L})(?!\\s*(?:ml|gr|g|kg|lt|l|cl|τεμ|γρ|λτ|κιλ)\\b)\\s*(?:€|eur|euro|ευρώ)?';
+const PRICE_END = new RegExp('^(.*?)[\\s.·…_\\-–—:]*' + PRICE + '\\s*$', 'iu');
+const ONLY_PRICES = new RegExp('^(?:' + PRICE + '[\\s/|,]*){1,3}$', 'iu');
 const GREEK = /[\u0370-\u03FF\u1F00-\u1FFF]/;
 const toNum = s => Math.round(Number(String(s).replace(',', '.')) * 100) / 100;
-const clean = s => s.replace(/[.·…_]{2,}/g, ' ').replace(/\s+/g, ' ').replace(/^[\-–—•*·\/|,\s]+|[\-–—•*·:\/|,(\s]+$/g, '').replace(/\(\s*\)/g, '').trim();
+const clean = s => s.replace(/[.·…_]{2,}/g, ' ').replace(/\(\s*\)/g, '').replace(/\s+/g, ' ').replace(/^[\-–—•*·\/|,&+\s]+|[\-–—•*·:\/|,(&+\s]+$/g, '').trim();
 const letters = s => (s.match(/[A-Za-z\u0370-\u03FF\u1F00-\u1FFF]/g) || []).length;
 const isUpper = s => letters(s) >= 3 && s === s.toUpperCase() && s !== s.toLowerCase();
 
@@ -139,12 +139,16 @@ export function greekOnlyLines(lines) {
     if (GREEK.test(line)) {
       let t = line; for (let k = 0; k < 3; k++) t = t.replace(LATIN_WORD, '$1');
       t = t.replace(/\s*[\/|]\s*(?=[\/|]|$)/g, ' ').replace(/\s+/g, ' ').trim();
+      // ίδια ποσότητα/αριθμός από κάθε μετάφραση: κρατάμε μία φορά (500gr 500gr 500gr → 500gr)
+      const seen = new Set();
+      t = t.split(' ').filter(w => { if (!/\d/.test(w) || !/\p{L}/u.test(w) && !/^\d{1,2}$/.test(w)) return true; const k = w.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; })
+        .join(' ').replace(/(\s[—–-])(\s[—–-])+/g, '$1').replace(/\s+[—–-]\s*$/, '').trim();
       if (GREEK.test(t)) out.push(t);
       continue;
     }
     // Γραμμή χωρίς ελληνικά: κρατάμε μόνο τις τιμές της (θα πάνε στο ελληνικό πιάτο από πάνω)
-    const ps = line.match(new RegExp(PRICE, 'gi'));
-    if (ps && new RegExp(PRICE_END.source, 'i').test(line)) out.push(ps.map(x => x.trim()).join(' / '));
+    const ps = line.match(new RegExp(PRICE, 'giu'));
+    if (ps && new RegExp(PRICE_END.source, 'iu').test(line)) out.push(ps.map(x => x.trim()).join(' / '));
   }
   return out;
 }
@@ -153,8 +157,10 @@ export function linesToSections(lines, lang = 'el', opts = {}) {
   if (opts.greekOnly) { lines = greekOnlyLines(lines); lang = 'el'; }
   const sections = [];
   let sec = null, last = null;
-  const newSec = title => { sec = { title: splitLang(title, lang), items: [] }; sections.push(sec); last = null; };
-  const prices = s => { const out = []; const re = new RegExp(PRICE, 'gi'); let m; while ((m = re.exec(s))) out.push(toNum(m[1])); return out; };
+  const newSec = title => { sec = { title: splitLang(title, lang), items: [] }; sections.push(sec); last = null; pending = ''; };
+  const prices = s => { const out = []; const re = new RegExp(PRICE, 'giu'); let m; while ((m = re.exec(s))) out.push(toNum(m[1])); return out; };
+  const NOT_TITLE = /^(τιμη|τιμή|τιμες|τιμές|προϊον|προϊόν|price|prices|€|eur)$/i;
+  let pending = '';
   const L = lines.map(l => String(l).replace(/\s+/g, ' ').trim()).filter(l => l && !/^\d{1,2}$/.test(l) && letters(l) + (l.match(/\d/g) || []).length >= 2);
 
   for (let k = 0; k < L.length; k++) {
@@ -165,13 +171,14 @@ export function linesToSections(lines, lang = 'el', opts = {}) {
       continue;
     }
     // Γραμμή με τιμή στο τέλος: πιάτο (με πιθανή δεύτερη τιμή «4,50 / 8,00»)
-    const two = line.match(new RegExp('^(.*?)[\\s.·…_\\-–—:]*' + PRICE + '\\s*[\\/|]\\s*' + PRICE + '\\s*$', 'i'));
+    const two = line.match(new RegExp('^(.*?)[\\s.·…_\\-–—:]*' + PRICE + '\\s*[\\/|]\\s*' + PRICE + '\\s*$', 'iu'));
     const one = !two && line.match(PRICE_END);
     const name = clean(two ? two[1] : one ? one[1] : '');
     if ((two || one) && letters(name) >= 2) {
       if (!sec) newSec(lang === 'el' ? 'Μενού' : 'Menu');
       const ps = two ? [toNum(two[2]), toNum(two[3])] : [toNum(one[2])];
-      last = { name: splitLang(name, lang), desc: {}, prices: ps.map(p => ({ l: {}, p })) };
+      last = { name: splitLang(name, lang), desc: pending ? { [lang]: pending.slice(0, 300) } : {}, prices: ps.map(p => ({ l: {}, p })) };
+      pending = '';
       sec.items.push(last);
       continue;
     }
@@ -182,9 +189,11 @@ export function linesToSections(lines, lang = 'el', opts = {}) {
       if (!sec) newSec(lang === 'el' ? 'Μενού' : 'Menu');
       last = { name: splitLang(txt, lang), desc: {}, prices: [{ l: {}, p: null }] }; sec.items.push(last); continue;
     }
-    if (last && /^[a-zα-ωάέήίόύώϊϋΐΰ(«"]/.test(txt)) {   // ξεκινά με μικρό γράμμα: περιγραφή, ποτέ τίτλος
-      const d = last.desc[lang] ? last.desc[lang] + ' ' + txt : txt;
-      last.desc = Object.assign({}, last.desc, { [lang]: d.slice(0, 300) });
+    if (txt.split(/[\s\/|]+/).filter(Boolean).every(w => NOT_TITLE.test(w) || /^(και|&)$/i.test(w))) continue;   // επικεφαλίδες πίνακα («ΠΡΟΪΟΝ ΤΙΜΗ»)
+    // Ξεκινά με μικρό γράμμα ή έχει κόμμα: είναι περιγραφή, ποτέ κατηγορία
+    if (/^[a-zα-ωάέήίόύώϊϋΐΰ(«"]/.test(txt) || /,/.test(txt)) {
+      if (last) { const d = last.desc[lang] ? last.desc[lang] + ' ' + txt : txt; last.desc = Object.assign({}, last.desc, { [lang]: d.slice(0, 300) }); }
+      else pending = (pending ? pending + ' ' : '') + txt;   // πριν από το πρώτο πιάτο: θα πάει στο επόμενο πιάτο
       continue;
     }
     const looksTitle = isUpper(txt) ? words <= 6 : (words <= 3 && !/[,.;]$/.test(line) && !(last && last.prices.every(p => p.p === null)));
