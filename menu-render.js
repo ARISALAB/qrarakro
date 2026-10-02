@@ -36,7 +36,7 @@ export function pickLang(langs) {
   return want !== 'el' && L.includes('en') ? 'en' : L[0];
 }
 
-const CSS = `
+const MN_CSS = `
 .mn{--bg:#fff;--ac:#15161A;--on:#fff;--ink:#16171A;--mut:#6A6C72;--line:rgba(18,19,22,.1);--card:rgba(255,255,255,.8);
   background:var(--bg);color:var(--ink);font-family:'Manrope','Segoe UI',Roboto,Arial,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100%}
 .mn *{box-sizing:border-box}
@@ -81,7 +81,7 @@ const CSS = `
 .mn-foot a{color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;display:inline-block}
 .mn-empty{padding:40px 20px;text-align:center;color:var(--mut)}
 `;
-function css() { if (!document.getElementById('mn-css')) { const s = document.createElement('style'); s.id = 'mn-css'; s.textContent = CSS; document.head.appendChild(s); } }
+function css() { if (!document.getElementById('mn-css')) { const s = document.createElement('style'); s.id = 'mn-css'; s.textContent = MN_CSS; document.head.appendChild(s); } }
 const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 function lum(hex) {
   const n = parseInt(String(hex || '#ffffff').slice(1), 16);
@@ -124,7 +124,7 @@ export function renderMenu(root, data, opts = {}) {
   let lock = 0, cur = secs[0].id, setOn = () => {};
   const ownScroll = () => root.scrollHeight > root.clientHeight + 4 && /auto|scroll/.test(getComputedStyle(root).overflowY);
   secs.forEach((s, k) => { const a = el('a', k === 0 ? 'on' : '', tr(s.title, lang) || '—'); a.href = '#s-' + s.id; a.dataset.s = s.id;
-    a.onclick = e => { e.preventDefault(); const t = root.querySelector('#s-' + CSS.escape(s.id)); if (!t) return;
+    a.onclick = e => { e.preventDefault(); const t = [...root.querySelectorAll('.mn-sec')].find(x => x.id === 's-' + s.id); if (!t) return;
       lock = Date.now() + 900; setOn(s.id);
       if (ownScroll()) root.scrollTo({ top: root.scrollTop + t.getBoundingClientRect().top - root.getBoundingClientRect().top - nav.offsetHeight + 1, behavior: 'smooth' });
       else t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
