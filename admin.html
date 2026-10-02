@@ -404,12 +404,20 @@
           <div class="qe-acts">
             <button type="button" class="btn gold" id="menuStart">Φτιάξε το μενού από την αρχή</button>
             <button type="button" class="btn" data-import>Ανέβασε PDF ή φωτογραφία του καταλόγου</button>
+            <button type="button" class="btn line" data-ai>Επικόλληση από AI</button>
           </div>
           <p class="hint" style="margin-top:12px">Με το PDF ή τη φωτογραφία, τα πιάτα και οι τιμές περνούν αυτόματα και εσύ απλώς ελέγχεις και διορθώνεις.</p>
           <label class="check" style="margin-top:8px"><input type="checkbox" class="grOnly" checked> Μόνο τα ελληνικά (για πολύγλωσσους καταλόγους)</label>
         </div>
         <input type="file" id="menuFile" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" hidden>
         <div class="notice" id="importMsg" hidden></div>
+        <section class="card" id="aiPanel" hidden style="margin-bottom:18px">
+          <h2>Επικόλληση από AI</h2>
+          <p class="sub" style="margin:0 0 10px">Επικόλλησε εδώ ολόκληρο το αποτέλεσμα του AI Studio (το JSON). Διαβάζει ελληνικά, αγγλικά, ισπανικά, γαλλικά, ιταλικά και γερμανικά.</p>
+          <div class="field"><textarea id="aiText" rows="10" spellcheck="false" placeholder='{"sections":[ … ],"note":{ … }}' style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"></textarea></div>
+          <label class="check" style="margin-top:8px"><input type="checkbox" id="aiReplace"> Αντικατάσταση του υπάρχοντος μενού (αλλιώς προστίθενται στο τέλος)</label>
+          <div class="qe-acts" style="margin-top:12px"><button type="button" class="btn gold" id="aiGo">Εισαγωγή</button><button type="button" class="btn line" id="aiCancel">Άκυρο</button></div>
+        </section>
         <div id="menuEditor" hidden>
           <div class="notice" id="menuStatus"></div>
           <div class="tabs" role="group" aria-label="Προβολή μενού">
@@ -419,7 +427,7 @@
           <div class="editor" id="menuEd">
             <div class="form">
               <section class="card">
-                <h2 style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">Εισαγωγή από PDF ή φωτογραφία <button type="button" class="btn line small" data-import>Ανέβασμα αρχείου</button></h2>
+                <h2 style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">Εισαγωγή από PDF ή φωτογραφία <span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn line small" data-import>Ανέβασμα αρχείου</button><button type="button" class="btn line small" data-ai>Επικόλληση από AI</button></span></h2>
                 <p class="sub" style="margin:0 0 10px">Διαβάζουμε τον κατάλογό σου και προσθέτουμε τα πιάτα στο τέλος του μενού, για να τα ελέγξεις. Δουλεύει καλύτερα με PDF· σε φωτογραφία, τράβηξέ την ίσια και με καλό φως.</p>
                 <label class="check"><input type="checkbox" class="grOnly" checked> Μόνο τα ελληνικά (για πολύγλωσσους καταλόγους)</label>
               </section>
@@ -428,7 +436,7 @@
               <button type="button" class="btn line" id="addSec">+ Νέα κατηγορία</button>
               <section class="card">
                 <h2>Σημείωση στο τέλος</h2>
-                <div class="field"><textarea id="menuNote" maxlength="300" placeholder="π.χ. Οι τιμές περιλαμβάνουν ΦΠΑ. Υπεύθυνος καταστήματος: …"></textarea></div>
+                <div class="field"><textarea id="menuNote" maxlength="600" placeholder="π.χ. Οι τιμές περιλαμβάνουν ΦΠΑ. Υπεύθυνος καταστήματος: …"></textarea></div>
               </section>
               <section class="card">
                 <h2>QR του μενού</h2>
@@ -1304,9 +1312,9 @@ $('addSec').addEventListener('click', () => { menu.sections.push({ id: uid6(), t
   const secs = document.querySelectorAll('.m-sec'); const last = secs[secs.length - 1]; if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); last.querySelector('[data-f=stitle]').focus(); } });
 
 function cleanMenu() {
-  const T = o => { const r = {}; Object.keys(o || {}).forEach(k => { const v = String(o[k] || '').trim(); if (v && ['el', 'en', 'de', 'fr', 'it', 'es'].includes(k)) r[k] = v.slice(0, 300); }); return r; };
+  const T = (o, max = 300) => { const r = {}; Object.keys(o || {}).forEach(k => { const v = String(o[k] || '').trim(); if (v && ['el', 'en', 'de', 'fr', 'it', 'es'].includes(k)) r[k] = v.slice(0, max); }); return r; };
   return {
-    ownerUid: user.uid, published: !!menu.published, langs: menu.langs.slice(0, 6), note: T(menu.note),
+    ownerUid: user.uid, published: !!menu.published, langs: menu.langs.slice(0, 6), note: T(menu.note, 600),
     sections: menu.sections.map(sx => ({ id: sx.id, title: T(sx.title),
       items: sx.items.filter(i => Object.keys(T(i.name)).length).map(i => ({ id: i.id, name: T(i.name), desc: T(i.desc),
         prices: i.prices.filter((x, k) => k === 0 || x.p !== null).map(x => ({ l: T(x.l), p: x.p === null || x.p === undefined ? null : Number(x.p) })),
@@ -1359,6 +1367,59 @@ $('menuFile').addEventListener('change', async e => {
     importMsg('Δεν μπορέσαμε να διαβάσουμε αυτό το αρχείο. Δοκίμασε άλλο PDF ή φωτογραφία, ή πέρασε τα πιάτα με το χέρι.', true);
   }
 });
+/* ---------- Επικόλληση από AI (JSON από το AI Studio) ---------- */
+const AI_LANGS = ['el', 'en', 'es', 'fr', 'it', 'de'];
+const aiText = (o, max = 300) => { const r = {}; if (o && typeof o === 'object') AI_LANGS.forEach(k => { const v = o[k] == null ? '' : String(o[k]).replace(/\s+/g, ' ').trim(); if (v) r[k] = v.slice(0, max); }); return r; };
+function parseAiMenu(raw) {
+  const t = String(raw || '').trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '').trim();
+  const a = t.search(/[\[{]/), b = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+  let d;
+  try { d = JSON.parse(a > -1 && b > a ? t.slice(a, b + 1) : t); } catch (e) { throw new Error('json'); }
+  const src = Array.isArray(d) ? d : d && d.sections;
+  if (!Array.isArray(src)) throw new Error('shape');
+  const sections = src.map(sx => {
+    const items = (Array.isArray(sx && sx.items) ? sx.items : []).map(i => {
+      const name = aiText(i && i.name);
+      if (!Object.keys(name).length) return null;
+      let prices = Array.isArray(i.prices) ? i.prices.map(x => ({ l: aiText(x && x.l, 30), p: parsePrice(x && x.p) })).filter((x, k) => k === 0 || x.p !== null) : [];
+      if (!prices.length) prices = [{ l: {}, p: parsePrice(i.price) }];
+      return { id: uid6(), name, desc: aiText(i.desc), prices, allergens: [], tags: [], soldOut: false, hidden: false };
+    }).filter(Boolean);
+    return { id: uid6(), title: aiText(sx && sx.title), items };
+  }).filter(sx => sx.items.length);
+  return { sections, note: aiText(d && d.note, 600) };
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('[data-ai]')) return;
+  $('aiPanel').hidden = false; $('aiPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); $('aiText').focus();
+});
+$('aiCancel').addEventListener('click', () => { $('aiPanel').hidden = true; });
+$('aiGo').addEventListener('click', () => {
+  let r;
+  try { r = parseAiMenu($('aiText').value); }
+  catch (err) { return importMsg(err.message === 'shape' ? 'Διάβασα το κείμενο, αλλά δεν βρήκα κατηγορίες («sections»). Έλεγξε ότι επικόλλησες ολόκληρο το αποτέλεσμα του AI.' : 'Δεν μπόρεσα να διαβάσω το κείμενο. Πρέπει να είναι ολόκληρο το JSON, από την πρώτη { ως την τελευταία }. Αν το AI σταμάτησε στη μέση, ζήτα του να ξαναγράψει όλο το μενού.', true); }
+  const count = r.sections.reduce((a, sx) => a + sx.items.length, 0);
+  if (!count) return importMsg('Δεν βρήκα πιάτα στο κείμενο.', true);
+  const replace = $('aiReplace').checked;
+  const hasItems = menu && menu.sections.some(sx => sx.items.some(i => i.name.el || i.name.en));
+  if (hasItems && !confirm(replace ? 'Το υπάρχον μενού θα αντικατασταθεί (μπορείς να το επαναφέρεις με «Αναίρεση»). Συνέχεια;' : 'Το μενού σου έχει ήδη πιάτα. Τα νέα θα προστεθούν στο τέλος. Συνέχεια;')) return;
+  beforeImport = menu ? JSON.parse(JSON.stringify(menu)) : null;
+  if (!menu) menu = normMenu({ langs: ['el', 'en'], note: {}, sections: [] });
+  menu.sections = replace ? [] : menu.sections.filter(sx => sx.items.some(i => i.name.el || i.name.en) || Object.keys(sx.title).length && sx.items.length > 1);
+  r.sections.forEach(sx => menu.sections.push(sx));
+  const used = new Set(menu.langs);
+  Object.keys(r.note).forEach(k => used.add(k));
+  r.sections.forEach(sx => { Object.keys(sx.title).forEach(k => used.add(k)); sx.items.forEach(i => { Object.keys(i.name).forEach(k => used.add(k)); Object.keys(i.desc).forEach(k => used.add(k)); }); });
+  menu.langs = AI_LANGS.filter(k => used.has(k) || k === 'el' || k === 'en');
+  if (Object.keys(r.note).length) menu.note = r.note;
+  $('aiPanel').hidden = true; $('aiText').value = ''; $('aiReplace').checked = false;
+  setMenuDirty(true); showMenu();
+  const noPrice = r.sections.reduce((a, sx) => a + sx.items.filter(i => i.prices[0].p === null).length, 0);
+  const warn = (menu.sections.length > 40 ? ' <b>Προσοχή:</b> το μενού επιτρέπει μέχρι 40 κατηγορίες, οι υπόλοιπες δεν θα αποθηκευτούν.' : '') + (noPrice ? ' ' + noPrice + ' πιάτα δεν έχουν τιμή.' : '');
+  importMsg('<span>Βρήκαμε <b>' + r.sections.length + '</b> κατηγορίες και <b>' + count + '</b> πιάτα· γλώσσες: ' + menu.langs.map(l => LANG_NAMES[l] || l).join(', ') + '.' + warn + ' Έλεγξε και πάτα «Αποθήκευση μενού».</span><button type="button" class="btn line small" id="undoImport">Αναίρεση</button>', !!warn);
+  $('undoImport').onclick = () => { menu = beforeImport; beforeImport = null; setMenuDirty(!!menuSaved || !!menu); if (!menu && !menuSaved) setMenuDirty(false); importMsg(''); showMenu(); };
+});
+
 function mTab(prev) { $('menuEd').classList.toggle('show-preview', prev); $('mTabEdit').setAttribute('aria-pressed', String(!prev)); $('mTabPrev').setAttribute('aria-pressed', String(prev)); window.scrollTo({ top: 0 }); }
 $('mTabEdit').addEventListener('click', () => mTab(false));
 $('mTabPrev').addEventListener('click', () => mTab(true));

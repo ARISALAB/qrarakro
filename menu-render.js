@@ -14,15 +14,20 @@ export const TAGS = [
   ['vegan', 'Vegan', 'Vegan'], ['veg', 'Χορτοφαγικό', 'Vegetarian'], ['gf', 'Χωρίς γλουτένη', 'Gluten-free'],
   ['spicy', 'Πικάντικο', 'Spicy'], ['new', 'Νέο', 'New'], ['chef', 'Πρόταση σεφ', "Chef's pick"]
 ];
-export const LANG_NAMES = { el: 'Ελληνικά', en: 'English' };
+export const LANG_NAMES = { el: 'Ελληνικά', en: 'English', es: 'Español', fr: 'Français', it: 'Italiano', de: 'Deutsch' };
 const UI = {
   el: { soldOut: 'Εξαντλήθηκε', allergens: 'Αλλεργιογόνα', call: 'Κλήση', map: 'Οδηγίες', profile: 'Προφίλ', made: 'Φτιάξε κι εσύ δωρεάν ψηφιακό μενού', empty: 'Το μενού ετοιμάζεται.' },
-  en: { soldOut: 'Sold out', allergens: 'Allergens', call: 'Call', map: 'Directions', profile: 'Profile', made: 'Make your own free digital menu', empty: 'The menu is being prepared.' }
+  en: { soldOut: 'Sold out', allergens: 'Allergens', call: 'Call', map: 'Directions', profile: 'Profile', made: 'Make your own free digital menu', empty: 'The menu is being prepared.' },
+  es: { soldOut: 'Agotado', allergens: 'Alérgenos', call: 'Llamar', map: 'Cómo llegar', profile: 'Perfil', made: 'Crea tu propio menú digital gratis', empty: 'El menú se está preparando.' },
+  fr: { soldOut: 'Épuisé', allergens: 'Allergènes', call: 'Appeler', map: 'Itinéraire', profile: 'Profil', made: 'Créez votre menu numérique gratuit', empty: 'Le menu est en cours de préparation.' },
+  it: { soldOut: 'Esaurito', allergens: 'Allergeni', call: 'Chiama', map: 'Indicazioni', profile: 'Profilo', made: 'Crea anche tu il tuo menu digitale gratis', empty: 'Il menù è in preparazione.' },
+  de: { soldOut: 'Ausverkauft', allergens: 'Allergene', call: 'Anrufen', map: 'Route', profile: 'Profil', made: 'Erstelle dein eigenes kostenloses digitales Menü', empty: 'Das Menü wird vorbereitet.' }
 };
+const LOCALES = { el: 'el-GR', es: 'es-ES', fr: 'fr-FR', it: 'it-IT', de: 'de-DE' };
 const tr = (o, lang) => (o && (o[lang] || o.el || o.en)) || '';
 export function fmtPrice(n, lang) {
   if (n === null || n === undefined || n === '' || isNaN(n)) return '';
-  return new Intl.NumberFormat(lang === 'el' ? 'el-GR' : 'en-IE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(n);
+  return new Intl.NumberFormat(LOCALES[lang] || 'en-IE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(n);
 }
 export function pickLang(langs) {
   const L = (langs && langs.length) ? langs : ['el'];
