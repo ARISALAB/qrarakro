@@ -415,6 +415,7 @@
           <h2>Επικόλληση από AI</h2>
           <p class="sub" style="margin:0 0 10px">Επικόλλησε εδώ ολόκληρο το αποτέλεσμα του AI Studio (το JSON). Διαβάζει ελληνικά, αγγλικά, ισπανικά, γαλλικά, ιταλικά και γερμανικά.</p>
           <div class="field"><textarea id="aiText" rows="10" spellcheck="false" placeholder='{"sections":[ … ],"note":{ … }}' style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"></textarea></div>
+          <label class="check" style="margin-top:8px"><input type="checkbox" id="aiOrder" checked> Λογική σειρά κατηγοριών (φαγητά, αναψυκτικά, ποτά, καφέδες, γλυκά)</label>
           <label class="check" style="margin-top:8px"><input type="checkbox" id="aiReplace"> Αντικατάσταση του υπάρχοντος μενού (αλλιώς προστίθενται στο τέλος)</label>
           <div class="qe-acts" style="margin-top:12px"><button type="button" class="btn gold" id="aiGo">Εισαγωγή</button><button type="button" class="btn line" id="aiCancel">Άκυρο</button></div>
         </section>
@@ -433,7 +434,7 @@
               </section>
               <div class="sects" style="margin:0" role="group" aria-label="Γλώσσα επεξεργασίας" id="menuLangs"></div>
               <div id="menuSecs" class="stack"></div>
-              <button type="button" class="btn line" id="addSec">+ Νέα κατηγορία</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn line" id="addSec">+ Νέα κατηγορία</button><button type="button" class="btn line" id="sortSecs">Λογική σειρά κατηγοριών</button></div>
               <section class="card">
                 <h2>Σημείωση στο τέλος</h2>
                 <div class="field"><textarea id="menuNote" maxlength="600" placeholder="π.χ. Οι τιμές περιλαμβάνουν ΦΠΑ. Υπεύθυνος καταστήματος: …"></textarea></div>
@@ -1367,6 +1368,23 @@ $('menuFile').addEventListener('change', async e => {
     importMsg('Δεν μπορέσαμε να διαβάσουμε αυτό το αρχείο. Δοκίμασε άλλο PDF ή φωτογραφία, ή πέρασε τα πιάτα με το χέρι.', true);
   }
 });
+/* ---------- Λογική σειρά κατηγοριών: φαγητά → αναψυκτικά → ποτά → καφέδες → γλυκά ---------- */
+const SEC_RANK = [
+  [/ΣΑΛΑΤ|SALAD/, 10], [/ΚΡΥΑ ΟΡΕΚΤ|COLD (APP|STARTER)/, 20], [/ΖΕΣΤΑ ΟΡΕΚΤ|HOT (APP|STARTER)/, 30], [/ΟΡΕΚΤΙΚ|APPETI|STARTER|ΜΕΖΕΔ|MEZE/, 25],
+  [/ΘΑΛΑΣΣΙΝ|ΨΑΡΙΑ|SEAFOOD|FISH/, 40], [/ΖΥΜΑΡΙΚ|ΜΑΚΑΡΟΝ|ΡΙΖΟΤΟ|PASTA|NOODLE/, 50],
+  [/ΠΙΑΤΑ ΗΜΕΡΑΣ|ΗΜΕΡΑΣ|DAILY|SPECIAL/, 70], [/ΜΑΓΕΙΡΕΥΤ|ΨΗΤΑ|ΣΧΑΡΑΣ|ΚΡΕΑΤ|ΚΥΡΙΩΣ|ΠΙΑΤΑ|MAIN|GRILL|COOKED|MEAT/, 60],
+  [/ΑΝΑΨΥΚΤ|SOFT|ΧΥΜΟΙ|JUICE/, 80], [/ΝΕΡΟ|WATER/, 85], [/ΒΑΡΕΛΙΣ|DRAFT/, 91], [/ΜΠΥΡ|BEER/, 90], [/ΚΡΑΣΙ|ΟΙΝΟΙ|WINE/, 100],
+  [/ΑΠΕΡΙΤΙΦ|APERITIF|APERITIVO/, 110], [/ΟΥΖΟ|OUZO/, 130], [/ΤΣΙΠΟΥΡΟ|TSIPOURO/, 135], [/ΠΟΤΑ|DRINK|SPIRIT|ΟΥΙΣΚΙ|WHISK|ΤΖΙΝ|ΡΟΥΜΙ|ΛΙΚΕΡ|COCKTAIL|ΚΟΚΤΕΙΛ/, 120],
+  [/ΚΑΦΕ|COFFEE|ICE TEA|ΡΟΦΗΜ|ΤΣΑΙ|TEA/, 140], [/ΓΛΥΚ|DESSERT|SWEET/, 150]
+];
+function orderSections(list) {
+  const norm = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  const known = list.map(sx => { const t = norm((sx.title.el || '') + ' ' + (sx.title.en || '')); const h = SEC_RANK.find(r => r[0].test(t)); return h ? h[1] : null; });
+  const rank = known.map((r, i) => { if (r !== null) return r; for (let k = i - 1; k >= 0; k--) if (known[k] !== null) return known[k] + 0.1; for (let k = i + 1; k < known.length; k++) if (known[k] !== null) return known[k] - 0.1; return 0; });
+  return list.map((sx, i) => ({ sx, i, r: rank[i] })).sort((a, b) => a.r - b.r || a.i - b.i).map(x => x.sx);
+}
+$('sortSecs').addEventListener('click', () => { menu.sections = orderSections(menu.sections); menuChanged(); renderMenuEditor(); });
+
 /* ---------- Επικόλληση από AI (JSON από το AI Studio) ---------- */
 const AI_LANGS = ['el', 'en', 'es', 'fr', 'it', 'de'];
 const aiText = (o, max = 300) => { const r = {}; if (o && typeof o === 'object') AI_LANGS.forEach(k => { const v = o[k] == null ? '' : String(o[k]).replace(/\s+/g, ' ').trim(); if (v) r[k] = v.slice(0, max); }); return r; };
@@ -1407,6 +1425,7 @@ $('aiGo').addEventListener('click', () => {
   if (!menu) menu = normMenu({ langs: ['el', 'en'], note: {}, sections: [] });
   menu.sections = replace ? [] : menu.sections.filter(sx => sx.items.some(i => i.name.el || i.name.en) || Object.keys(sx.title).length && sx.items.length > 1);
   r.sections.forEach(sx => menu.sections.push(sx));
+  if ($('aiOrder').checked) menu.sections = orderSections(menu.sections);
   const used = new Set(menu.langs);
   Object.keys(r.note).forEach(k => used.add(k));
   r.sections.forEach(sx => { Object.keys(sx.title).forEach(k => used.add(k)); sx.items.forEach(i => { Object.keys(i.name).forEach(k => used.add(k)); Object.keys(i.desc).forEach(k => used.add(k)); }); });
@@ -1415,7 +1434,9 @@ $('aiGo').addEventListener('click', () => {
   $('aiPanel').hidden = true; $('aiText').value = ''; $('aiReplace').checked = false;
   setMenuDirty(true); showMenu();
   const noPrice = r.sections.reduce((a, sx) => a + sx.items.filter(i => i.prices[0].p === null).length, 0);
-  const warn = (menu.sections.length > 40 ? ' <b>Προσοχή:</b> το μενού επιτρέπει μέχρι 40 κατηγορίες, οι υπόλοιπες δεν θα αποθηκευτούν.' : '') + (noPrice ? ' ' + noPrice + ' πιάτα δεν έχουν τιμή.' : '');
+  const cov = menu.langs.filter(l => l !== 'el').map(l => ({ l, n: r.sections.reduce((a, sx) => a + sx.items.filter(i => i.name[l]).length, 0), t: r.sections.filter(sx => sx.title[l]).length }));
+  const covTxt = cov.length ? ' Μεταφράσεις (πιάτα / τίτλοι κατηγοριών): ' + cov.map(c => c.l.toUpperCase() + ' ' + c.n + '/' + count + ' · ' + c.t + '/' + r.sections.length).join(', ') + '.' + (cov.some(c => c.n < count || c.t < r.sections.length) ? ' Όπου λείπει μετάφραση, φαίνονται τα ελληνικά.' : '') : '';
+  const warn = (menu.sections.length > 40 ? ' <b>Προσοχή:</b> το μενού επιτρέπει μέχρι 40 κατηγορίες, οι υπόλοιπες δεν θα αποθηκευτούν.' : '') + (noPrice ? ' ' + noPrice + ' πιάτα δεν έχουν τιμή.' : '') + covTxt;
   importMsg('<span>Βρήκαμε <b>' + r.sections.length + '</b> κατηγορίες και <b>' + count + '</b> πιάτα· γλώσσες: ' + menu.langs.map(l => LANG_NAMES[l] || l).join(', ') + '.' + warn + ' Έλεγξε και πάτα «Αποθήκευση μενού».</span><button type="button" class="btn line small" id="undoImport">Αναίρεση</button>', !!warn);
   $('undoImport').onclick = () => { menu = beforeImport; beforeImport = null; setMenuDirty(!!menuSaved || !!menu); if (!menu && !menuSaved) setMenuDirty(false); importMsg(''); showMenu(); };
 });

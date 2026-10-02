@@ -121,8 +121,13 @@ export function renderMenu(root, data, opts = {}) {
   if (!secs.length) { inner.append(el('div', 'mn-empty', U.empty)); w.append(inner); root.append(w); return; }
 
   const nav = el('nav', 'mn-nav');
+  let lock = 0, cur = secs[0].id, setOn = () => {};
+  const ownScroll = () => root.scrollHeight > root.clientHeight + 4 && /auto|scroll/.test(getComputedStyle(root).overflowY);
   secs.forEach((s, k) => { const a = el('a', k === 0 ? 'on' : '', tr(s.title, lang) || '—'); a.href = '#s-' + s.id; a.dataset.s = s.id;
-    a.onclick = e => { e.preventDefault(); const t = root.querySelector('#s-' + CSS.escape(s.id)); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    a.onclick = e => { e.preventDefault(); const t = root.querySelector('#s-' + CSS.escape(s.id)); if (!t) return;
+      lock = Date.now() + 900; setOn(s.id);
+      if (ownScroll()) root.scrollTo({ top: root.scrollTop + t.getBoundingClientRect().top - root.getBoundingClientRect().top - nav.offsetHeight + 1, behavior: 'smooth' });
+      else t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     nav.append(a); });
   inner.append(nav);
 
@@ -165,13 +170,23 @@ export function renderMenu(root, data, opts = {}) {
 
   w.append(inner); root.append(w);
 
-  // Ενεργή κατηγορία στη μπάρα καθώς κάνεις scroll
-  if (!opts.preview && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      if (!e.isIntersecting) return;
-      nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.s === e.target.id.slice(2)));
-      const on = nav.querySelector('a.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
-    }), { rootMargin: '-40% 0px -55% 0px' });
-    inner.querySelectorAll('.mn-sec').forEach(s => io.observe(s));
-  }
+  // Ενεργή κατηγορία στη μπάρα: ακολουθεί τη θέση του scroll και αλλάζει αμέσως όταν πατάς κουμπί
+  const links = [...nav.querySelectorAll('a')], blocks = [...inner.querySelectorAll('.mn-sec')];
+  setOn = id => {
+    if (id === cur && nav.querySelector('a.on')) { return; }
+    cur = id; links.forEach(a => a.classList.toggle('on', a.dataset.s === id));
+    const on = nav.querySelector('a.on'); if (on) nav.scrollTo({ left: on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' });
+  };
+  const sync = () => {
+    if (Date.now() < lock || !blocks.length || !root.isConnected) return;
+    const own = ownScroll(), top = own ? root.getBoundingClientRect().top : 0, vh = own ? root.clientHeight : window.innerHeight;
+    let id = blocks[0].id.slice(2);
+    for (const b of blocks) { if (b.getBoundingClientRect().top - top <= nav.offsetHeight + vh * 0.12) id = b.id.slice(2); else break; }
+    const sc = own ? root : document.scrollingElement;
+    if (sc && sc.scrollTop > 0 && sc.scrollTop + (own ? root.clientHeight : window.innerHeight) >= sc.scrollHeight - 4) id = blocks[blocks.length - 1].id.slice(2);
+    setOn(id);
+  };
+  let raf = 0; const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(sync); };
+  if (root._mnScroll) { window.removeEventListener('scroll', root._mnScroll); root.removeEventListener('scroll', root._mnScroll); }
+  root._mnScroll = onScroll; window.addEventListener('scroll', onScroll, { passive: true }); root.addEventListener('scroll', onScroll, { passive: true });
 }
