@@ -1501,16 +1501,18 @@ function drawCode(canvas, size, text, fg, bg, logo, extraH = 0) {
   }
 }
 </script>
-<div class="cookie-banner" id="cookieBanner" hidden>
+<div class="cookie-banner" id="cookieBanner" style="display:none">
   <span>Χρησιμοποιούμε cookies για τη λειτουργία της υπηρεσίας. <a href="https://arakronservices.gr/privacy" target="_blank">Πολιτική απορρήτου</a></span>
   <button class="cookie-accept" id="cookieAccept">Αποδοχή</button>
   <button class="cookie-decline" id="cookieDecline">Απόρριψη</button>
 </div>
 <script>
 (function(){
-  if (!localStorage.getItem('cookie_consent')) document.getElementById('cookieBanner').hidden = false;
-  document.getElementById('cookieAccept').onclick = function(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookieBanner').hidden = true; };
-  document.getElementById('cookieDecline').onclick = function(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookieBanner').hidden = true; };
+  var b = document.getElementById('cookieBanner');
+  if (localStorage.getItem('cookie_consent')) return;
+  setTimeout(function(){ b.style.display = 'flex'; }, 800);
+  document.getElementById('cookieAccept').onclick = function(){ localStorage.setItem('cookie_consent','accepted'); b.style.display = 'none'; };
+  document.getElementById('cookieDecline').onclick = function(){ localStorage.setItem('cookie_consent','declined'); b.style.display = 'none'; };
 })();
 </script>
 </body>
