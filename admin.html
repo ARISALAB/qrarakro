@@ -152,10 +152,25 @@
   .m-add { margin-top: 10px; }
   .m-miss input, .m-miss textarea { border-color: #EAD3A6 !important; }
   /* Ενότητες */
-  .sects { display: flex; gap: 6px; padding: 5px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 22px; overflow-x: auto; }
-  .sects button { flex: 1; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; background: transparent; padding: 11px 14px; border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer; color: var(--ink-2); }
+  .sects { display: flex; gap: 6px; padding: 5px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px; }
+  .sects button { flex: none; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; background: transparent; padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer; color: var(--ink-2); }
   .sects button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
   .pbadge { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: linear-gradient(180deg, #D8B983, var(--gold)); color: var(--ink); }
+  .cat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 22px; }
+  @media (max-width: 600px) { .cat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 400px) { .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .cat-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    min-height: 80px; padding: 12px 4px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 14px;
+    cursor: pointer; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; color: var(--ink-2);
+    transition: border-color .15s, background-color .15s, color .15s, transform .15s;
+  }
+  .cat-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .cat-btn:hover { border-color: var(--line-2); transform: translateY(-1px); }
+  .cat-btn.active { background: var(--ink); border-color: var(--ink); color: var(--paper); box-shadow: 0 10px 22px -14px rgba(18,19,22,.9), inset 0 0 0 1px rgba(201,164,106,.35); }
+  .cat-btn.active svg { color: var(--gold); }
+  .plan-link { font-size: 13px; font-weight: 600; color: var(--gold-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; background: none; border: 0; }
   .notice { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 16px 20px; border-radius: 16px; font-size: 14.5px; margin-bottom: 20px;
     background: radial-gradient(500px 200px at 90% -30%, rgba(201,164,106,.3), transparent 60%), linear-gradient(135deg, #16171A, #0E0F11); color: var(--paper); box-shadow: 0 8px 24px -12px rgba(14,15,17,.5); }
   .notice b { color: var(--gold-2); }
@@ -300,9 +315,9 @@
       <div class="notice" id="paidNote" hidden></div>
       <nav class="sects" role="tablist" aria-label="Ενότητες">
         <button type="button" role="tab" data-sect="sProfile" aria-selected="true">Το προφίλ μου</button>
-        <button type="button" role="tab" data-sect="sQr" aria-selected="false">Δυναμικά QR <span class="pbadge">Premium</span></button>
         <button type="button" role="tab" data-sect="sPlan" aria-selected="false">Συνδρομή</button>
       </nav>
+      <div class="cat-grid" id="catGrid"></div>
       <div id="sProfile">
       <div class="tabs" role="group" aria-label="Προβολή">
         <button type="button" id="tabEdit" aria-pressed="true">Επεξεργασία</button>
@@ -971,10 +986,13 @@ document.querySelectorAll('.pM').forEach(e => e.textContent = PRICES.monthly);
 $('introPrice').textContent = PRICES.monthly + ' τον μήνα ή ' + PRICES.yearly + ' τον χρόνο, με ΦΠΑ';
 
 /* Ενότητες */
-function sect(name) {
+let catFilter = null;
+function sect(name, cat) {
   curSect = name;
+  catFilter = cat || null;
   ['sProfile', 'sQr', 'sPlan'].forEach(x => $(x).hidden = x !== name);
   document.querySelectorAll('.sects button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sect === name)));
+  if (name !== 'sQr') document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
   $('saveBar').hidden = name !== 'sProfile';
   history.replaceState(null, '', name === 'sQr' ? '#qr' : name === 'sPlan' ? '#plan' : location.pathname + location.search);
   if (name === 'sQr') showQrList();
@@ -991,6 +1009,7 @@ document.addEventListener('click', e => { if (e.target.closest('[data-open-plan]
 function afterEditorStart() {
   $('brandNote').hidden = P.usable;
   renderPaidNote();
+  renderCatGrid();
   const h = location.hash;
   if (h === '#qr') sect('sQr'); else if (h === '#plan') sect('sPlan'); else sect('sProfile');
   if (new URLSearchParams(location.search).get('paid')) waitForPremium();
@@ -1096,8 +1115,35 @@ async function openPortal(btn) {
 }
 
 /* ---------- Δυναμικά QR ---------- */
+const CAT_ICONS = {
+  menu: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
+  daily: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>',
+  offers: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>',
+  hotel: '<path d="M3 21V7a2 2 0 0 1 2-2h6v16M21 21V11a2 2 0 0 0-2-2h-4v12"/><path d="M3 21h18M7 9h2M7 13h2M15 13h2M15 17h2"/>',
+  realestate: '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/>',
+  product: '<path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>',
+  store: '<path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><path d="M3 7h18M16 11a4 4 0 0 1-8 0"/>',
+  events: '<path d="M2 9l2.5-1L7 9V7.5L4.5 5 7 2.5V1L4.5 2 2 1v1.5L4.5 5 2 7.5z" transform="translate(5 5) scale(1.3)"/><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 10h6M9 14h4"/>',
+  campaign: '<path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  profile: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  custom: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+};
+function renderCatGrid() {
+  $('catGrid').innerHTML = QTYPES.map(t =>
+    '<button type="button" class="cat-btn" data-cat="' + t[0] + '">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true">' + (CAT_ICONS[t[0]] || '') + '</svg>' +
+    '<span>' + t[1] + '</span></button>'
+  ).join('');
+}
+$('catGrid').addEventListener('click', e => {
+  const b = e.target.closest('.cat-btn'); if (!b) return;
+  const cat = b.dataset.cat;
+  document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.sects button').forEach(x => x.setAttribute('aria-selected', 'false'));
+  sect('sQr', cat);
+});
 
-/* ---------- Δυναμικά QR ---------- */
 const QTYPES = [
   ['menu',      '🍽️ Menu'],
   ['daily',     '📅 Daily / Weekly Menu'],
@@ -1167,7 +1213,8 @@ async function showQrList() {
   } catch (e) { console.error(e); }
   renderQrNotice();
   const g = $('qrGrid'); g.innerHTML = '';
-  for (const q of qrs) {
+  const filtered = catFilter ? qrs.filter(q => q.t === catFilter) : qrs;
+  for (const q of filtered) {
     const [cls, label] = qStatus(q);
     const b = document.createElement('button'); b.type = 'button'; b.className = 'qr-card';
     b.innerHTML = '<canvas width="128" height="128"></canvas><span class="meta"><b></b><small></small><span class="chip-s ' + cls + '"></span></span><span class="num"><b>' + (q.scans || 0) + '</b><br>σκαναρ.</span>';
@@ -1177,6 +1224,10 @@ async function showQrList() {
     drawCode(b.querySelector('canvas'), 128, shortUrl(q.code), q.fg, q.bg, null);
     b.onclick = () => openQr(q.code);
     g.append(b);
+  }
+  if (catFilter && filtered.length === 0) {
+    const empty = document.createElement('p'); empty.className = 'hint'; empty.style.cssText = 'text-align:center;padding:24px 0';
+    empty.textContent = 'Δεν έχεις QR σε αυτή την κατηγορία ακόμα.'; g.append(empty);
   }
   const add = document.createElement('button'); add.type = 'button'; add.className = 'qr-card new-qr';
   add.textContent = qrs.length >= MAX_QR ? 'Έφτασες το όριο των ' + MAX_QR + ' QR' : '+ Νέο δυναμικό QR';
@@ -1190,7 +1241,7 @@ async function createQr() {
   if (qrs.length >= MAX_QR) return;
   let code = newCode();
   for (let i = 0; i < 5 && (await getDoc(doc(db, 'qrs', code))).exists(); i++) code = newCode();
-  const q = { ownerUid: user.uid, ownerPid: pid, name: 'Νέο QR ' + (qrs.length + 1), t: 'menu', v: '', fg: '#121316', bg: '#FFFFFF', caption: '',
+  const q = { ownerUid: user.uid, ownerPid: pid, name: 'Νέο QR ' + (qrs.length + 1), t: catFilter || 'menu', v: '', fg: '#121316', bg: '#FFFFFF', caption: '',
     logo: !!saved.logo, paused: false, scans: 0, testScans: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
   try {
     const b = writeBatch(db);
