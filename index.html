@@ -260,6 +260,11 @@
     .bridge { padding: 56px; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #121316; color: rgba(247,244,238,.85); padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.3); }
+  .cookie-banner a { color: #E7D2A6; text-decoration: underline; text-underline-offset: 2px; }
+  .cookie-banner button { padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 0; }
+  .cookie-accept { background: #E7D2A6; color: #121316; }
+  .cookie-decline { background: transparent; color: rgba(247,244,238,.6); border: 1px solid rgba(247,244,238,.2) !important; }
 </style>
 </head>
 <body>
@@ -429,7 +434,6 @@
         <h4>Πληροφορίες</h4>
         <ul>
           <li><a href="https://arakronservices.gr/privacy">Πολιτική απορρήτου</a></li>
-          <li><a href="https://arakronservices.gr/cookies">Ρυθμίσεις cookies</a></li>
           <li><a href="https://www.facebook.com/arakronservices" target="_blank" rel="noopener">Facebook</a></li>
           <li><a href="https://www.instagram.com/arakronservices" target="_blank" rel="noopener">Instagram</a></li>
         </ul>
@@ -1189,6 +1193,18 @@ $('brandName').textContent = BRAND;
 })();
 applyLang();
 restoreBrand();
+</script>
+<div class="cookie-banner" id="cookieBanner" hidden>
+  <span>Χρησιμοποιούμε cookies για τη λειτουργία της υπηρεσίας. <a href="https://arakronservices.gr/privacy" target="_blank">Πολιτική απορρήτου</a></span>
+  <button class="cookie-accept" id="cookieAccept">Αποδοχή</button>
+  <button class="cookie-decline" id="cookieDecline">Απόρριψη</button>
+</div>
+<script>
+(function(){
+  if (!localStorage.getItem('cookie_consent')) document.getElementById('cookieBanner').hidden = false;
+  document.getElementById('cookieAccept').onclick = function(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookieBanner').hidden = true; };
+  document.getElementById('cookieDecline').onclick = function(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookieBanner').hidden = true; };
+})();
 </script>
 </body>
 </html>
