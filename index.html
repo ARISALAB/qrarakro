@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Δωρεάν QR code για την επιχείρησή σου | AR Akron QR</title>
+<meta name="description" content="Φτιάξε δωρεάν QR code για link, Wi-Fi, κριτικές Google, τηλέφωνο, WhatsApp, email, χάρτη και κάρτα επαφής. Χωρίς εγγραφή, χωρίς υδατογράφημα, με έτοιμα πρότυπα εκτύπωσης.">
+<meta name="theme-color" content="#FBF9F4">
+<meta property="og:title" content="Δωρεάν QR code, έτοιμο για εκτύπωση">
+<meta property="og:description" content="Link, Wi-Fi, κριτικές Google και άλλα. Χωρίς εγγραφή, χωρίς υδατογράφημα.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%234B5A2E'/%3E%3Crect x='3' y='3' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='9' y='3' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='3' y='9' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='10' y='10' width='2' height='2' fill='%23FBF9F4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Λήγουν τα QR που φτιάχνω εδώ;", "acceptedAnswer": {"@type": "Answer", "text": "Όχι. Η πληροφορία είναι γραμμένη μέσα στο ίδιο το QR, οπότε λειτουργεί για πάντα, χωρίς συνδρομή."}},
+    {"@type": "Question", "name": "Χρειάζεται εγγραφή;", "acceptedAnswer": {"@type": "Answer", "text": "Όχι. Φτιάχνεις και κατεβάζεις το QR χωρίς λογαριασμό."}},
+    {"@type": "Question", "name": "Αποθηκεύετε όσα γράφω;", "acceptedAnswer": {"@type": "Answer", "text": "Όχι. Το QR δημιουργείται μέσα στη συσκευή σου και τίποτα δεν στέλνεται σε server, ούτε ο κωδικός του Wi-Fi."}}
+  ]
+}
+</script>
+<style>
+  :root {
+    --paper: #F7F4EE;
+    --surface: #FFFFFF;
+    --soft: #FAF8F4;
+    --ink: #121316;
+    --ink-2: #2B2C31;
+    --night: #0E0F11;
+    --muted: #6B6C72;
+    --line: #E7E2D8;
+    --line-2: #D8D0C0;
+    --gold: #C9A46A;
+    --gold-2: #E7D2A6;
+    --gold-deep: #9C7A43;
+    --olive: #3F4B27;
+    --olive-soft: #EFEAE0;
+    --clay: #A4462A;
+    --clay-soft: #F7E6DE;
+    --white: #FFFFFF;
+    --font: 'Manrope', 'Segoe UI', Roboto, Arial, sans-serif;
+    --sh-1: 0 1px 2px rgba(18,19,22,.05);
+    --sh-2: 0 1px 2px rgba(18,19,22,.04), 0 40px 80px -40px rgba(18,19,22,.35);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  img, canvas, svg { display: block; max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--olive); }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* Hero: σκούρα ζώνη με χρυσές λεπτομέρειες */
+  .hero { position: relative; color: var(--paper); padding-bottom: 150px; overflow: hidden;
+    background:
+      radial-gradient(900px 520px at 88% -12%, rgba(201,164,106,.30), transparent 62%),
+      radial-gradient(640px 380px at -8% 115%, rgba(201,164,106,.14), transparent 60%),
+      linear-gradient(180deg, #16171A 0%, var(--night) 100%); }
+  .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,164,106,.5), transparent); }
+  .site-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; letter-spacing: -0.01em; text-decoration: none; color: var(--paper); }
+  .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(145deg, var(--gold-2), var(--gold) 55%, var(--gold-deep)); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 7px; box-shadow: 0 6px 16px -8px rgba(201,164,106,.8); }
+  .brand-mark i { background: var(--night); border-radius: 1.5px; }
+  .brand-mark i:last-child { transform: scale(.6); }
+  .head-nav { display: flex; align-items: center; gap: 18px; }
+  .head-link { font-size: 14px; font-weight: 600; color: rgba(247,244,238,.85); text-decoration: none; }
+  .head-link:hover { color: var(--gold-2); }
+  @media (max-width: 560px) { .head-link { display: none; } }
+  .lang-btn { background: rgba(255,255,255,.06); color: var(--paper); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .lang-btn:hover { border-color: var(--gold); }
+
+  .intro { padding: 56px 0 0; max-width: 820px; }
+  .eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+  .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--gold); }
+  .intro h1 { margin: 0; font-weight: 800; font-size: clamp(40px, 6.4vw, 78px); line-height: 1.0; letter-spacing: -0.04em; max-width: 13ch; }
+  .intro h1 .gold { background: linear-gradient(100deg, var(--gold-2), var(--gold) 50%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .intro p.lead { margin: 24px 0 0; font-size: 18px; color: rgba(247,244,238,.72); max-width: 46ch; }
+  .trust { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 28px 0 0; padding: 0; list-style: none; font-size: 14px; font-weight: 600; color: rgba(247,244,238,.88); }
+  .trust li { display: flex; align-items: center; gap: 8px; }
+  .trust svg { width: 16px; height: 16px; fill: none; stroke: var(--gold); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Console: ο κεντρικός «πίνακας» του εργαλείου */
+  .console { position: relative; z-index: 2; margin-top: -104px; background: var(--surface); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--sh-2); overflow: hidden; }
+  .picker { padding: 22px 24px 24px; background: var(--soft); border-bottom: 1px solid var(--line); }
+  .picker-label { font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  .types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .type-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    min-height: 80px; padding: 12px 4px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    cursor: pointer; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: center; color: var(--ink-2);
+    transition: border-color .15s, background-color .15s, color .15s, transform .15s;
+  }
+  .type-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .type-btn:hover { border-color: var(--line-2); transform: translateY(-1px); }
+  .type-btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); box-shadow: 0 10px 22px -14px rgba(18,19,22,.9), inset 0 0 0 1px rgba(201,164,106,.35); }
+  .type-btn[aria-pressed="true"] svg { color: var(--gold); }
+
+  .tool { display: grid; gap: 32px; padding: 26px 24px 30px; }
+  .form-col, .preview-col { min-width: 0; }
+  .fields { display: grid; gap: 18px; }
+  .field label, .field .label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 7px; color: var(--ink-2); }
+  .field .opt, .opt { font-weight: 400; color: var(--muted); }
+  .field input[type="text"], .field input[type="tel"], .field input[type="email"], .field input[type="password"], .field select, .field textarea, .caption-box input {
+    width: 100%; padding: 13px 15px; font-size: 16px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px;
+    transition: border-color .15s, background-color .15s, box-shadow .15s;
+  }
+  .field textarea { min-height: 88px; resize: vertical; }
+  .field input:hover, .field select:hover, .field textarea:hover, .caption-box input:hover { border-color: var(--line-2); }
+  .field input:focus, .field select:focus, .field textarea:focus, .caption-box input:focus { outline: none; background: var(--surface); border-color: var(--ink); box-shadow: 0 0 0 4px rgba(27,28,23,.07); }
+  .field-note { margin: 7px 0 0; font-size: 13px; color: var(--clay); }
+  .pw-row { position: relative; }
+  .pw-row input { padding-right: 100px; }
+  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: 0; padding: 6px 10px; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .field label.check { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; cursor: pointer; margin: 0; }
+  .check input { width: 18px; height: 18px; accent-color: var(--ink); }
+  .grid-2 { display: grid; gap: 18px; }
+
+  .appearance { margin-top: 28px; border-top: 1px solid var(--line); }
+  .appearance summary { cursor: pointer; font-weight: 600; padding: 16px 0; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .appearance summary::-webkit-details-marker { display: none; }
+  .appearance summary::after { content: '+'; font-size: 22px; font-weight: 300; line-height: 1; color: var(--muted); }
+  .appearance[open] summary::after { content: '−'; }
+  .appearance-body { display: grid; gap: 18px; padding: 2px 0 8px; }
+  .colors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .color-pick { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; font-size: 14px; line-height: 1.3; }
+  .color-pick:hover { border-color: var(--line-2); }
+  .color-pick input { flex: none; width: 32px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; }
+  .color-pick .hex { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+  .warn { margin: 12px 0 0; padding: 11px 14px; font-size: 14px; background: var(--clay-soft); color: #6E2C16; border-radius: 12px; }
+  .logo-thumb { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface) center / contain no-repeat; }
+  .btn-quiet { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--sh-1); }
+  .btn-quiet:hover { border-color: var(--ink-2); }
+  .logo-bar { margin-top: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .logo-bar .btn-quiet { display: flex; align-items: center; gap: 9px; }
+  .logo-bar .btn-quiet svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .logo-note { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--muted); }
+  .logo-err { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--clay); }
+  .caption-box { margin-top: 20px; }
+  .caption-box label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 7px; color: var(--ink-2); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--ink-2); }
+  .chip:hover { border-color: var(--ink-2); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .link-btn { background: none; border: 0; padding: 0; font-size: 14px; font-weight: 600; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  .help { margin-top: 28px; padding: 2px 0 2px 18px; border-left: 2px solid var(--gold); font-size: 15px; color: var(--muted); max-width: 60ch; }
+  .help h3 { margin: 0 0 8px; font-size: 16px; color: var(--ink); }
+  .help p { margin: 0 0 8px; }
+  .help ol { margin: 0 0 8px; padding-left: 20px; }
+  .help li { margin-bottom: 6px; }
+
+  /* Σκηνή προεπισκόπησης */
+  .stage { position: relative; border-radius: 22px; padding: 48px 28px 44px; display: flex; justify-content: center;
+    background: radial-gradient(90% 70% at 50% 0%, rgba(201,164,106,.28), transparent 70%), linear-gradient(180deg, #1A1B1F, var(--night)); overflow: hidden; }
+  .stage::after { content: ''; position: absolute; left: 50%; bottom: 26px; width: 62%; height: 18px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(0,0,0,.55), transparent); filter: blur(4px); }
+  .paper-card {
+    position: relative; z-index: 1; width: min(100%, 280px); background: #fff; padding: 18px 18px 16px; border-radius: 4px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 30px 50px -26px rgba(0,0,0,.8);
+    transform: rotate(-1.5deg); transition: background-color .2s;
+  }
+  .paper-card canvas { width: 100%; height: auto; aspect-ratio: 1; }
+  .paper-caption { margin: 10px 0 0; text-align: center; font-weight: 700; font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
+  .empty-qr { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 22px; border: 1.5px dashed var(--line-2); border-radius: 4px; color: var(--muted); font-size: 14px; }
+  .empty-qr.error { border-color: var(--clay); color: var(--clay); }
+
+  .downloads { margin-top: 22px; display: grid; gap: 10px; }
+  .dl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-main, .btn-line { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 14px 16px; border-radius: 14px; cursor: pointer; text-align: left; font-weight: 700; font-size: 15px; line-height: 1.2; transition: background-color .15s, border-color .15s, transform .15s; }
+  .btn-main { background: linear-gradient(180deg, #D8B983, var(--gold) 60%, #B38D55); color: var(--night); border: 1px solid #B38D55; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 12px 24px -14px rgba(156,122,67,.9); }
+  .btn-main:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+  .btn-line { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+  .btn-line:hover:not(:disabled) { border-color: var(--ink-2); }
+  .btn-main small, .btn-line small { font-weight: 400; font-size: 12px; opacity: .75; }
+  button:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+  .print-title { margin: 14px 0 2px; font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .print-list { display: grid; gap: 8px; }
+  .print-btn { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; text-align: left; font-size: 14px; font-weight: 600; }
+  .print-btn:hover:not(:disabled) { border-color: var(--ink-2); }
+  .print-btn .shape { flex: none; width: 28px; height: 32px; display: flex; align-items: center; justify-content: center; }
+  .print-btn .shape i { display: block; border: 1.5px solid var(--gold); border-radius: 2px; }
+  .tip { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+  .after-dl { margin-top: 12px; padding: 14px 16px; background: var(--olive-soft); border-radius: 14px; font-size: 14px; }
+  .after-dl p { margin: 0 0 6px; font-weight: 600; }
+
+  .mini { position: fixed; right: 14px; bottom: 14px; width: 84px; height: 84px; padding: 6px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 28px -12px rgba(27,28,23,.55); cursor: pointer; display: none; z-index: 20; }
+  .mini.show { display: block; }
+  .mini canvas { width: 100%; height: 100%; }
+
+  /* Premium section */
+  .bridge { margin-top: 96px; position: relative; overflow: hidden; border-radius: 28px; padding: 52px 26px 48px; color: var(--paper); text-align: center;
+    background:
+      radial-gradient(600px 320px at 50% -10%, rgba(201,164,106,.36), transparent 65%),
+      radial-gradient(500px 280px at 90% 110%, rgba(201,164,106,.12), transparent 55%),
+      linear-gradient(180deg, #16171A 0%, var(--night) 100%); }
+  .bridge::before { content: ''; position: absolute; left: 50%; top: 0; width: min(760px, 90%); height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(201,164,106,.5), transparent); }
+  .bridge .eyebrow { color: var(--gold); margin: 0 auto 20px; justify-content: center; }
+  .bridge .eyebrow::before { display: none; }
+  .bridge h2 { margin: 0 auto; font-weight: 800; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spacing: -0.035em; max-width: 20ch; }
+  .bridge > p { margin: 16px auto 0; max-width: 52ch; color: rgba(247,244,238,.65); font-size: 17px; }
+  .b-features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 38px auto 0; max-width: 640px; list-style: none; padding: 0; }
+  .b-feat { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 16px 20px; border-radius: 18px; border: 1px solid rgba(201,164,106,.18); background: rgba(255,255,255,.04); transition: border-color .2s, background-color .2s; }
+  .b-feat:hover { border-color: rgba(201,164,106,.4); background: rgba(255,255,255,.07); }
+  .b-feat .b-ico { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, rgba(201,164,106,.22), rgba(201,164,106,.08)); }
+  .b-feat .b-ico svg { width: 22px; height: 22px; fill: none; stroke: var(--gold); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .b-feat strong { font-size: 15px; font-weight: 700; line-height: 1.25; }
+  .b-feat span { font-size: 13px; color: rgba(247,244,238,.55); line-height: 1.4; }
+  .b-bottom { margin-top: 36px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .b-price b { font-size: 52px; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(100deg, var(--gold-2), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .b-price span { color: rgba(247,244,238,.6); margin-left: 6px; font-size: 16px; }
+  .b-alt { margin: 0 !important; color: rgba(247,244,238,.5); font-size: 14px; }
+  .b-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 16px 36px; border-radius: 14px;
+    background: linear-gradient(180deg, #D8B983, var(--gold) 60%, #B38D55); color: var(--night); font-weight: 800; font-size: 16px; text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 14px 28px -14px rgba(156,122,67,.8); transition: filter .15s, transform .15s; }
+  .b-cta:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .b-cta svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .b-note { margin: 14px 0 0 !important; font-size: 13px; color: rgba(247,244,238,.4); }
+  @media (max-width: 480px) { .b-features { grid-template-columns: 1fr; } }
+
+  .faq { margin-top: 88px; max-width: 780px; }
+  .faq h2 { margin: 0 0 14px; font-weight: 800; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -0.035em; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { cursor: pointer; padding: 18px 0; font-weight: 600; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; font-size: 22px; font-weight: 300; line-height: 1; color: var(--muted); }
+  .faq details[open] summary::after { content: '−'; }
+  .faq details p { margin: 0 0 18px; color: var(--muted); max-width: 62ch; }
+
+  .site-foot { margin-top: 80px; padding: 26px 0 40px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  .site-foot p { margin: 0; }
+  .site-foot a { color: var(--ink-2); }
+
+  @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 900px) {
+    .picker { padding: 24px 32px 26px; }
+    .types { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    .tool { grid-template-columns: minmax(0, 1fr) 420px; gap: 56px; padding: 34px 32px 36px; }
+    .preview-col { position: sticky; top: 20px; align-self: start; }
+    .bridge { padding: 56px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<section class="hero">
+<div class="wrap">
+  <header class="site-head">
+    <a class="brand" href="./">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span id="brandName">AR Akron QR</span>
+    </a>
+    <nav class="head-nav">
+      <a class="head-link" href="/admin" data-i18n="navProfile">Δωρεάν ψηφιακό προφίλ</a>
+      <button class="lang-btn" id="langBtn" type="button">English</button>
+    </nav>
+  </header>
+
+  <div class="intro">
+    <p class="eyebrow" data-i18n="eyebrow">Δημιουργία QR για όλες τις ανάγκες</p>
+    <h1 data-i18n-html="h1">QR code <span class="gold">δωρεάν</span>, έτοιμο για εκτύπωση</h1>
+    <p class="lead" data-i18n="lead">Ό,τι γράφεις μένει στη συσκευή σου. Κατεβάζεις σε PNG, SVG ή έτοιμο για τυπογραφείο.</p>
+    <ul class="trust">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="trust1">Χωρίς εγγραφή</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="trust2">Χωρίς υδατογράφημα</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i18n="trust3">Δεν λήγει ποτέ</span></li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<div class="wrap">
+  <main>
+
+    <section class="console">
+    <div class="picker">
+      <p class="picker-label" id="pickerLabel" data-i18n="typeLabel">Τι θες να ανοίγει το QR;</p>
+      <div class="types" id="types" role="group" aria-labelledby="pickerLabel"></div>
+    </div>
+
+    <div class="tool" id="tool">
+      <div class="form-col">
+        <div class="fields" id="fields"></div>
+
+        <details class="appearance" id="appearance">
+          <summary data-i18n="appearance">Εμφάνιση</summary>
+          <div class="appearance-body">
+            <div>
+              <div class="colors">
+                <label class="color-pick">
+                  <input type="color" id="fg" value="#22241C">
+                  <span><span data-i18n="fg">Χρώμα QR</span><br><span class="hex" id="fgHex">#22241C</span></span>
+                </label>
+                <label class="color-pick">
+                  <input type="color" id="bg" value="#FFFFFF">
+                  <span><span data-i18n="bg">Φόντο</span><br><span class="hex" id="bgHex">#FFFFFF</span></span>
+                </label>
+              </div>
+              <p class="warn" id="contrastWarn" hidden></p>
+              <p style="margin:10px 0 0"><button type="button" class="link-btn" id="resetColors" data-i18n="resetColors">Επαναφορά χρωμάτων</button></p>
+            </div>
+          </div>
+        </details>
+
+        <aside class="help" id="help" aria-live="polite"></aside>
+      </div>
+
+      <div class="preview-col" id="previewCol">
+        <div class="stage">
+          <div class="paper-card" id="paperCard">
+            <canvas id="qrCanvas" width="600" height="600" role="img" aria-label="QR code" hidden></canvas>
+            <div class="empty-qr" id="emptyQr"></div>
+            <p class="paper-caption" id="paperCaption" hidden></p>
+          </div>
+        </div>
+
+        <div class="logo-bar">
+          <span class="logo-thumb" id="logoThumb" hidden></span>
+          <button type="button" class="btn-quiet" id="logoBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span id="logoBtnText">Πρόσθεσε το λογότυπό σου</span></button>
+          <button type="button" class="link-btn" id="logoRemove" data-i18n="logoRemove" hidden>Ξέχασε το λογότυπο</button>
+          <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" hidden>
+          <p class="logo-note" id="logoNote" data-i18n="logoNote" hidden>Το λογότυπο και τα χρώματα μένουν αποθηκευμένα μόνο σε αυτή τη συσκευή.</p>
+          <p class="logo-err" id="logoErr" hidden></p>
+        </div>
+
+        <div class="caption-box">
+          <label for="caption"><span data-i18n="caption">Κείμενο κάτω από το QR</span> <span class="opt" data-i18n="optional">(προαιρετικό)</span></label>
+          <input type="text" id="caption" maxlength="60" autocomplete="off">
+          <div class="chips" id="chips"></div>
+        </div>
+
+        <div class="downloads">
+          <div class="dl-row">
+            <button type="button" class="btn-main" id="dlPng" disabled>PNG <small data-i18n="pngHint">για οθόνη και social</small></button>
+            <button type="button" class="btn-line" id="dlSvg" disabled>SVG <small data-i18n="svgHint">για τυπογραφείο</small></button>
+          </div>
+          <p class="print-title" data-i18n="printTitle">Πρότυπα εκτύπωσης (PDF)</p>
+          <div class="print-list">
+            <button type="button" class="print-btn" data-tpl="sticker" disabled><span class="shape" aria-hidden="true"><i style="width:18px;height:22px"></i></span><span data-i18n="tplSticker">Αυτοκόλλητο τραπεζιού, 8 × 10 cm</span></button>
+            <button type="button" class="print-btn" data-tpl="tent" disabled><span class="shape" aria-hidden="true"><i style="width:20px;height:28px"></i></span><span data-i18n="tplTent">Καρτελάκι πάγκου, A6</span></button>
+            <button type="button" class="print-btn" data-tpl="poster" disabled><span class="shape" aria-hidden="true"><i style="width:23px;height:32px"></i></span><span data-i18n="tplPoster">Αφίσα βιτρίνας, A4</span></button>
+          </div>
+          <p class="tip" data-i18n="tip">Πριν το τυπώσεις σε πολλά αντίτυπα, σκάναρέ το μία φορά με το κινητό σου.</p>
+          <div class="after-dl" id="afterDl" hidden>
+            <p data-i18n="afterDl">Θες QR που αλλάζεις τι ανοίγει, χωρίς να το ξανατυπώσεις;</p>
+            <a href="#soon" data-i18n="afterDlLink">Δες το Premium</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <section class="bridge" id="soon">
+      <p class="eyebrow" data-i18n="bEyebrow">Premium</p>
+      <h2 data-i18n="bridgeTitle">QR που αλλάζεις όποτε θες, χωρίς νέα εκτύπωση</h2>
+      <p data-i18n="bridgeText">Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Με τα δυναμικά QR αλλάζεις τον προορισμό από το κινητό σου, βλέπεις πόσοι σκάναραν, και το ψηφιακό σου προφίλ φεύγει χωρίς διαφήμιση.</p>
+      <ul class="b-features">
+        <li class="b-feat">
+          <div class="b-ico"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+          <strong data-i18n="bL1">Έως 10 δυναμικά QR</strong>
+          <span data-i18n="bL1sub">Τύπωσε μία φορά, άλλαξε τον προορισμό όσες θέλεις</span>
+        </li>
+        <li class="b-feat">
+          <div class="b-ico"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+          <strong data-i18n="bL3">Στατιστικά σκαναρισμάτων</strong>
+          <span data-i18n="bL3sub">Δες πόσοι σκάναραν, πότε και από πού</span>
+        </li>
+        <li class="b-feat">
+          <div class="b-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <strong data-i18n="bL4">Ψηφιακό προφίλ χωρίς διαφήμιση</strong>
+          <span data-i18n="bL4sub">Καθαρό προφίλ, μόνο η δική σου μάρκα</span>
+        </li>
+        <li class="b-feat">
+          <div class="b-ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <strong data-i18n="bL5">Εγγυημένη τιμή</strong>
+          <span data-i18n="bL5sub">Η τιμή σου μένει ίδια όσο η συνδρομή είναι ενεργή</span>
+        </li>
+      </ul>
+      <div class="b-bottom">
+        <div class="b-price"><b data-i18n="bPrice">7€</b><span data-i18n="bPer">/ μήνα, με ΦΠΑ</span></div>
+        <p class="b-alt" data-i18n="bAlt">ή 70€ τον χρόνο (2 μήνες δώρο)</p>
+        <a class="b-cta" href="/admin#qr" data-i18n="bCta">Ξεκίνα δωρεάν <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <p class="b-note" data-i18n="bNote">Φτιάχνεις και δοκιμάζεις δωρεάν. Πληρώνεις μόνο όταν θέλεις να τα ενεργοποιήσεις.</p>
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2 data-i18n="faqTitle">Συχνές ερωτήσεις</h2>
+      <div id="faqList"></div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <p data-i18n-html="footer">© 2026 <a href="https://arakronservices.gr">AR Akron Services</a>. Τα QR που φτιάχνεις εδώ είναι δικά σου, για κάθε χρήση.</p>
+  </footer>
+</div>
+
+<button class="mini" id="mini" type="button" aria-label="QR"><canvas id="miniCanvas" width="160" height="160"></canvas></button>
+
+<script>
+/* =====================================================================
+   Όνομα προϊόντος: άλλαξέ το εδώ όταν κλείσει το τελικό brand
+   ===================================================================== */
+const BRAND = 'AR Akron QR';
+
+/* ------------------------- Κείμενα (EL / EN) ------------------------- */
+const I18N = {
+  el: {
+    title: 'Δωρεάν QR code για την επιχείρησή σου | ' + BRAND,
+    eyebrow: 'Δημιουργία QR για όλες τις ανάγκες', langBtn: 'English', navProfile: 'Δωρεάν ψηφιακό προφίλ',
+    h1: 'QR code <span class="gold">δωρεάν</span>, έτοιμο για εκτύπωση',
+    lead: 'Ό,τι γράφεις μένει στη συσκευή σου. Κατεβάζεις σε PNG, SVG ή έτοιμο για τυπογραφείο.',
+    trust1: 'Χωρίς εγγραφή', trust2: 'Χωρίς υδατογράφημα', trust3: 'Δεν λήγει ποτέ',
+    typeLabel: 'Τι θες να ανοίγει το QR;',
+    t_link: 'Link', t_wifi: 'Wi-Fi', t_review: 'Κριτική', t_phone: 'Τηλέφωνο',
+    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Χάρτης', t_vcard: 'Κάρτα',
+    optional: '(προαιρετικό)',
+    f_url: 'Διεύθυνση σελίδας', ph_url: 'π.χ. www.to-magazi-mou.gr',
+    f_ssid: 'Όνομα δικτύου', ph_ssid: 'π.χ. Taverna_Guests',
+    f_pass: 'Κωδικός', show: 'Εμφάνιση', hide: 'Απόκρυψη',
+    f_enc: 'Ασφάλεια', enc_wpa: 'WPA / WPA2 / WPA3 (συνήθως αυτό)', enc_wep: 'WEP (παλιά routers)', enc_none: 'Χωρίς κωδικό',
+    f_hidden: 'Το δίκτυο είναι κρυφό',
+    f_review: 'Link κριτικών Google', ph_review: 'https://g.page/r/…/review',
+    f_phone: 'Αριθμός τηλεφώνου', ph_phone: '210 123 4567',
+    f_wa: 'Αριθμός WhatsApp', ph_wa: '69X XXX XXXX',
+    f_wamsg: 'Έτοιμο μήνυμα', ph_wamsg: 'Γεια σας, θα ήθελα…',
+    f_email: 'Email', ph_email: 'info@to-magazi-mou.gr',
+    f_subject: 'Θέμα', f_body: 'Μήνυμα',
+    f_map: 'Διεύθυνση ή link από Google Maps', ph_map: 'π.χ. Αδριανού 1, Αθήνα',
+    f_name: 'Ονοματεπώνυμο', f_org: 'Επιχείρηση', f_title: 'Θέση', f_vphone: 'Τηλέφωνο',
+    f_vemail: 'Email', f_vurl: 'Ιστοσελίδα', f_addr: 'Διεύθυνση',
+    n_url: 'Αυτό δεν μοιάζει με διεύθυνση σελίδας. Έλεγξε ότι έχει κατάληξη, π.χ. .gr ή .com.',
+    n_review: 'Αυτό δεν μοιάζει με link του Google. Δες παρακάτω πώς το βρίσκεις.',
+    n_email: 'Έλεγξε το email, λείπει το @ ή η κατάληξη.',
+    n_phone: 'Ο αριθμός φαίνεται μικρός. Γράψε όλα τα ψηφία.',
+    appearance: 'Εμφάνιση',
+    fg: 'Χρώμα QR', bg: 'Φόντο', resetColors: 'Επαναφορά χρωμάτων',
+    warnLow: 'Χαμηλή αντίθεση. Πολλά κινητά δεν θα το διαβάσουν. Διάλεξε πιο σκούρο χρώμα QR ή πιο ανοιχτό φόντο.',
+    warnInv: 'Το QR είναι πιο ανοιχτό από το φόντο. Αρκετές κάμερες δεν διαβάζουν «ανάποδα» QR. Κράτα το QR σκούρο και το φόντο ανοιχτό.',
+    logoAdd: 'Πρόσθεσε το λογότυπό σου', logoChange: 'Άλλαξε λογότυπο', logoRemove: 'Ξέχασε το λογότυπο',
+    logoNote: 'Το λογότυπο και τα χρώματα μένουν αποθηκευμένα μόνο σε αυτή τη συσκευή.',
+    logoErr: 'Δεν μπορέσαμε να ανοίξουμε αυτή την εικόνα. Δοκίμασε αρχείο PNG, JPG ή SVG.',
+    caption: 'Κείμενο κάτω από το QR',
+    empty: 'Συμπλήρωσε τα στοιχεία αριστερά και το QR εμφανίζεται εδώ.',
+    emptyMobile: 'Συμπλήρωσε τα στοιχεία και το QR εμφανίζεται εδώ.',
+    tooLong: 'Το κείμενο είναι πολύ μεγάλο για ένα QR. Κόψε λίγο το μήνυμα ή τα στοιχεία.',
+    pngHint: 'για οθόνη και social', svgHint: 'για τυπογραφείο',
+    printTitle: 'Πρότυπα εκτύπωσης (PDF)',
+    tplSticker: 'Αυτοκόλλητο τραπεζιού, 8 × 10 cm', tplTent: 'Καρτελάκι πάγκου, A6', tplPoster: 'Αφίσα βιτρίνας, A4',
+    tip: 'Πριν το τυπώσεις σε πολλά αντίτυπα, σκάναρέ το μία φορά με το κινητό σου.',
+    afterDl: 'Θες QR που αλλάζεις τι ανοίγει, χωρίς να το ξανατυπώσεις;',
+    afterDlLink: 'Δες το Premium',
+    captionPh: 'Γράψε ό,τι θες ή διάλεξε από κάτω',
+    sug: {
+      link: ['Κάνε κράτηση', 'Ακολούθησέ μας', 'Δες την ιστοσελίδα μας'],
+      wifi: ['Δωρεάν Wi-Fi', 'Σύνδεση στο Wi-Fi'],
+      review: ['Πώς σου φάνηκε;', 'Άφησε μια κριτική', 'Η γνώμη σου μετράει'],
+      phone: ['Κάλεσέ μας', 'Κλείσε τραπέζι τηλεφωνικά'],
+      whatsapp: ['Στείλε μας μήνυμα', 'Παράγγειλε στο WhatsApp'],
+      email: ['Στείλε μας email', 'Ζήτα προσφορά'],
+      map: ['Βρες μας στον χάρτη', 'Οδηγίες για να έρθεις'],
+      vcard: ['Αποθήκευσε την επαφή μας', 'Κράτα τα στοιχεία μας']
+    },
+    sub_wifi: 'Δίκτυο', credit: 'Φτιάχτηκε δωρεάν με ' + BRAND,
+    help_link: '<p>Γράψε τη διεύθυνση όπως τη βλέπεις στον browser. Αν λείπει το https://, το προσθέτουμε εμείς.</p><p>Το QR ανοίγει πάντα αυτή τη σελίδα. Αν αλλάξει η διεύθυνση, θα χρειαστείς νέο QR.</p>',
+    help_wifi: '<p>Ο πελάτης σκανάρει και συνδέεται χωρίς να πληκτρολογήσει κωδικό. Ο κωδικός γράφεται μόνο μέσα στο QR, δεν στέλνεται πουθενά.</p><p>Αν αλλάξεις κωδικό στο router, θα χρειαστείς νέο QR.</p>',
+    help_review: '<h3>Πώς βρίσκεις το link κριτικών σου</h3><ol><li>Μπες στο Google με τον λογαριασμό που διαχειρίζεται την επιχείρησή σου και αναζήτησε το όνομά της.</li><li>Στο πλαίσιο της επιχείρησης πάτα «Ζητήστε κριτικές» ή «Λήψη περισσότερων κριτικών».</li><li>Αντέγραψε το link που εμφανίζεται και επικόλλησέ το εδώ.</li></ol><p>Βάλε το QR πάνω στον λογαριασμό ή δίπλα στο ταμείο, εκεί που ο πελάτης έχει ένα λεπτό.</p>',
+    help_phone: '<p>Με ένα σκανάρισμα ανοίγει η κλήση προς εσένα. Στα ελληνικά νούμερα προσθέτουμε αυτόματα το +30.</p>',
+    help_whatsapp: '<p>Ανοίγει συνομιλία μαζί σου στο WhatsApp. Αν γράψεις έτοιμο μήνυμα, ο πελάτης απλώς πατάει «Αποστολή».</p>',
+    help_email: '<p>Ανοίγει νέο email προς εσένα, με το θέμα και το κείμενο που θα ορίσεις.</p>',
+    help_map: '<p>Γράψε τη διεύθυνση ή, για ακριβές σημείο, πάτα «Κοινοποίηση» στο Google Maps και επικόλλησε το link εδώ.</p>',
+    help_vcard: '<p>Ο πελάτης σκανάρει και αποθηκεύει τα στοιχεία σου στις επαφές του με ένα πάτημα.</p>',
+    bEyebrow: 'Premium', bridgeTitle: 'QR που αλλάζεις όποτε θες, χωρίς νέα εκτύπωση',
+    bridgeText: 'Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Με τα δυναμικά QR αλλάζεις τον προορισμό από το κινητό σου, βλέπεις πόσοι σκάναραν, και το ψηφιακό σου προφίλ φεύγει χωρίς διαφήμιση.',
+    bPrice: '7€', bPer: '/ μήνα, με ΦΠΑ', bAlt: 'ή 70€ τον χρόνο (2 μήνες δώρο)',
+    bL1: 'Έως 10 δυναμικά QR', bL1sub: 'Τύπωσε μία φορά, άλλαξε τον προορισμό όσες θέλεις',
+    bL3: 'Στατιστικά σκαναρισμάτων', bL3sub: 'Δες πόσοι σκάναραν, πότε και από πού',
+    bL4: 'Ψηφιακό προφίλ χωρίς διαφήμιση', bL4sub: 'Καθαρό προφίλ, μόνο η δική σου μάρκα',
+    bL5: 'Εγγυημένη τιμή', bL5sub: 'Η τιμή σου μένει ίδια όσο η συνδρομή είναι ενεργή',
+    bCta: 'Ξεκίνα δωρεάν', bNote: 'Φτιάχνεις και δοκιμάζεις δωρεάν. Πληρώνεις μόνο όταν θέλεις να τα ενεργοποιήσεις.',
+    faqTitle: 'Συχνές ερωτήσεις',
+    faq: [
+      ['Λήγουν τα QR που φτιάχνω εδώ;', 'Όχι. Η πληροφορία είναι γραμμένη μέσα στο ίδιο το QR, οπότε λειτουργεί για πάντα, χωρίς συνδρομή.'],
+      ['Χρειάζεται εγγραφή;', 'Όχι. Φτιάχνεις και κατεβάζεις το QR χωρίς λογαριασμό.'],
+      ['Αποθηκεύετε όσα γράφω;', 'Όχι. Το QR δημιουργείται μέσα στη συσκευή σου και τίποτα δεν στέλνεται σε server, ούτε ο κωδικός του Wi-Fi.'],
+      ['Μπορώ να αλλάξω αργότερα τι ανοίγει το QR;', 'Όχι σε αυτά τα δωρεάν QR, γιατί η πληροφορία είναι μέσα στον κωδικό. Γι\' αυτό ετοιμάζουμε QR που αλλάζουν χωρίς νέα εκτύπωση.'],
+      ['Πόσο μικρό μπορώ να το τυπώσω;', 'Τουλάχιστον 2 × 2 cm, αλλά 3 cm και πάνω είναι πιο ασφαλές. Όσο πιο μακριά στέκεται ο πελάτης, τόσο μεγαλύτερο πρέπει να είναι.'],
+      ['Μπορώ να το χρησιμοποιήσω για την επιχείρησή μου;', 'Ναι, για κάθε χρήση, και εμπορική. Δεν χρειάζεται να αναφέρεις από πού το έφτιαξες.']
+    ],
+    footer: '© 2026 <a href="https://arakronservices.gr">AR Akron Services</a>. Τα QR που φτιάχνεις εδώ είναι δικά σου, για κάθε χρήση.'
+  },
+  en: {
+    title: 'Free QR codes for your business | ' + BRAND,
+    eyebrow: 'QR codes for every need', langBtn: 'Ελληνικά', navProfile: 'Free digital profile',
+    h1: '<span class="gold">Free</span> QR codes, ready to print',
+    lead: 'Everything you type stays on your device. Download as PNG, SVG or print-ready.',
+    trust1: 'No sign-up', trust2: 'No watermark', trust3: 'Never expires',
+    typeLabel: 'What should the QR open?',
+    t_link: 'Link', t_wifi: 'Wi-Fi', t_review: 'Review', t_phone: 'Phone',
+    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Map', t_vcard: 'Contact',
+    optional: '(optional)',
+    f_url: 'Web address', ph_url: 'e.g. www.yourshop.com',
+    f_ssid: 'Network name', ph_ssid: 'e.g. Taverna_Guests',
+    f_pass: 'Password', show: 'Show', hide: 'Hide',
+    f_enc: 'Security', enc_wpa: 'WPA / WPA2 / WPA3 (usually this)', enc_wep: 'WEP (old routers)', enc_none: 'No password',
+    f_hidden: 'The network is hidden',
+    f_review: 'Google review link', ph_review: 'https://g.page/r/…/review',
+    f_phone: 'Phone number', ph_phone: '+30 210 123 4567',
+    f_wa: 'WhatsApp number', ph_wa: '+30 69X XXX XXXX',
+    f_wamsg: 'Ready-made message', ph_wamsg: 'Hello, I would like…',
+    f_email: 'Email', ph_email: 'hello@yourshop.com',
+    f_subject: 'Subject', f_body: 'Message',
+    f_map: 'Address or Google Maps link', ph_map: 'e.g. 1 Adrianou St, Athens',
+    f_name: 'Full name', f_org: 'Business', f_title: 'Job title', f_vphone: 'Phone',
+    f_vemail: 'Email', f_vurl: 'Website', f_addr: 'Address',
+    n_url: 'This doesn\'t look like a web address. Check it has an ending, e.g. .com.',
+    n_review: 'This doesn\'t look like a Google link. See below how to find it.',
+    n_email: 'Check the email, the @ or the ending is missing.',
+    n_phone: 'The number looks short. Type all the digits.',
+    appearance: 'Appearance',
+    fg: 'QR colour', bg: 'Background', resetColors: 'Reset colours',
+    warnLow: 'Low contrast. Many phones won\'t read it. Pick a darker QR colour or a lighter background.',
+    warnInv: 'The QR is lighter than the background. Many cameras can\'t read inverted QR codes. Keep the QR dark and the background light.',
+    logoAdd: 'Add your logo', logoChange: 'Change logo', logoRemove: 'Forget the logo',
+    logoNote: 'Your logo and colours are saved only on this device.',
+    logoErr: 'We couldn\'t open this image. Try a PNG, JPG or SVG file.',
+    caption: 'Text under the QR',
+    empty: 'Fill in the details on the left and your QR appears here.',
+    emptyMobile: 'Fill in the details and your QR appears here.',
+    tooLong: 'The text is too long for one QR. Shorten the message or details.',
+    pngHint: 'for screens and social', svgHint: 'for print shops',
+    printTitle: 'Print templates (PDF)',
+    tplSticker: 'Table sticker, 8 × 10 cm', tplTent: 'Counter card, A6', tplPoster: 'Window poster, A4',
+    tip: 'Before printing many copies, scan it once with your phone.',
+    afterDl: 'Want a QR you can point somewhere else without reprinting it?',
+    afterDlLink: 'See Premium',
+    captionPh: 'Type anything, or pick one below',
+    sug: {
+      link: ['Book a table', 'Follow us', 'Visit our website'],
+      wifi: ['Free Wi-Fi', 'Connect to our Wi-Fi'],
+      review: ['How was it?', 'Leave us a review', 'Your opinion matters'],
+      phone: ['Call us', 'Book by phone'],
+      whatsapp: ['Message us', 'Order on WhatsApp'],
+      email: ['Email us', 'Ask for a quote'],
+      map: ['Find us on the map', 'Get directions'],
+      vcard: ['Save our contact', 'Keep our details']
+    },
+    sub_wifi: 'Network', credit: 'Made free with ' + BRAND,
+    help_link: '<p>Type the address as you see it in your browser. If https:// is missing, we add it.</p><p>The QR always opens this page. If the address changes, you\'ll need a new QR.</p>',
+    help_wifi: '<p>Guests scan and connect without typing a password. The password is written only inside the QR and is not sent anywhere.</p><p>If you change the router password, you\'ll need a new QR.</p>',
+    help_review: '<h3>How to find your review link</h3><ol><li>Sign in to Google with the account that manages your business and search for its name.</li><li>In the business panel, tap “Ask for reviews” or “Get more reviews”.</li><li>Copy the link that appears and paste it here.</li></ol><p>Put the QR on the bill or next to the till, where customers have a minute.</p>',
+    help_phone: '<p>One scan starts a call to you. Greek numbers get +30 added automatically.</p>',
+    help_whatsapp: '<p>Opens a WhatsApp chat with you. If you write a ready-made message, the customer just taps Send.</p>',
+    help_email: '<p>Opens a new email to you, with the subject and text you set.</p>',
+    help_map: '<p>Type the address or, for an exact spot, tap Share in Google Maps and paste the link here.</p>',
+    help_vcard: '<p>Customers scan and save your details to their contacts in one tap.</p>',
+    bEyebrow: 'Premium', bridgeTitle: 'QR codes you can change any time, without reprinting',
+    bridgeText: 'Free QR codes are permanent: whatever you type is what they open, forever. With dynamic QR codes you change the destination from your phone, see how many people scanned, and your digital profile goes ad-free.',
+    bPrice: '€7', bPer: '/ month, VAT incl.', bAlt: 'or €70 a year (2 months free)',
+    bL1: 'Up to 10 dynamic QR codes', bL1sub: 'Print once, change the destination as often as you like',
+    bL3: 'Scan statistics', bL3sub: 'See how many scanned, when and where',
+    bL4: 'Ad-free digital profile', bL4sub: 'A clean profile, only your brand',
+    bL5: 'Price guarantee', bL5sub: 'Your price stays the same while your subscription is active',
+    bCta: 'Start for free', bNote: 'Create and test for free. Pay only when you want to activate them.',
+    faqTitle: 'Questions',
+    faq: [
+      ['Do these QR codes expire?', 'No. The information is written inside the QR itself, so it works forever with no subscription.'],
+      ['Do I need to sign up?', 'No. You create and download the QR without an account.'],
+      ['Do you store what I type?', 'No. The QR is created on your device and nothing is sent to a server, not even the Wi-Fi password.'],
+      ['Can I change what the QR opens later?', 'Not with these free codes, because the information is inside the code. That\'s why we\'re building QR codes you can change without reprinting.'],
+      ['How small can I print it?', 'At least 2 × 2 cm, but 3 cm or more is safer. The further away people stand, the bigger it should be.'],
+      ['Can I use it for my business?', 'Yes, for any use, including commercial. You don\'t need to credit us.']
+    ],
+    footer: '© 2026 <a href="https://arakronservices.gr">AR Akron Services</a>. The QR codes you make here are yours, for any use.'
+  }
+};
+
+/* ------------------------- Εικονίδια ------------------------- */
+const ICONS = {
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  wifi: '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/>',
+  review: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  whatsapp: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  email: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>',
+  map: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  vcard: '<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0"/><path d="M15 10h4M15 14h4"/>'
+};
+
+/* ------------------------- Βοηθητικές ------------------------- */
+const $ = (id) => document.getElementById(id);
+const trim = (v) => (v || '').trim();
+const digits = (v) => (v || '').replace(/\D/g, '');
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function withScheme(v) {
+  v = trim(v);
+  if (!v) return '';
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : 'https://' + v;
+}
+function looksLikeUrl(v) {
+  try { const u = new URL(withScheme(v)); return /\.[a-z]{2,}$/i.test(u.hostname); } catch (e) { return false; }
+}
+function intlNumber(v) {
+  const raw = trim(v);
+  let d = digits(raw);
+  if (raw.startsWith('00')) d = d.slice(2);
+  else if (!raw.startsWith('+') && d.length === 10 && /^(2|69)/.test(d)) d = '30' + d;
+  return d;
+}
+function wifiEsc(s) { return (s || '').replace(/([\\;,:"])/g, '\\$1'); }
+function vcEsc(s) { return (s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+function shortUrl(u) {
+  u = u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '');
+  return u.length > 42 ? u.slice(0, 40) + '…' : u;
+}
+
+/* ------------------------- Τύποι QR ------------------------- */
+const TYPES = [
+  { id: 'link',
+    fields: [{ id: 'url', type: 'url', label: 'f_url', ph: 'ph_url', note: 'n_url' }],
+    build: (v) => trim(v.url) ? withScheme(v.url) : null,
+    check: (v) => ({ url: trim(v.url) && !looksLikeUrl(v.url) }),
+    sub: (v) => trim(v.url) ? shortUrl(withScheme(v.url)) : '' },
+  { id: 'wifi',
+    fields: [
+      { id: 'ssid', type: 'text', label: 'f_ssid', ph: 'ph_ssid' },
+      { id: 'pass', type: 'password', label: 'f_pass' },
+      { id: 'enc', type: 'select', label: 'f_enc', options: [['WPA', 'enc_wpa'], ['WEP', 'enc_wep'], ['nopass', 'enc_none']] },
+      { id: 'hidden', type: 'check', label: 'f_hidden' }
+    ],
+    build: (v) => {
+      if (!trim(v.ssid)) return null;
+      const enc = v.enc || 'WPA';
+      let s = 'WIFI:T:' + enc + ';S:' + wifiEsc(v.ssid) + ';';
+      if (enc !== 'nopass') s += 'P:' + wifiEsc(v.pass || '') + ';';
+      if (v.hidden) s += 'H:true;';
+      return s + ';';
+    },
+    sub: (v, t) => trim(v.ssid) ? t.sub_wifi + ': ' + trim(v.ssid) : '' },
+  { id: 'review',
+    fields: [{ id: 'url', type: 'url', label: 'f_review', ph: 'ph_review', note: 'n_review' }],
+    build: (v) => trim(v.url) ? withScheme(v.url) : null,
+    check: (v) => ({ url: trim(v.url) && !/(google\.|g\.page|goo\.gl)/i.test(v.url) }),
+    sub: () => '' },
+  { id: 'phone',
+    fields: [{ id: 'num', type: 'tel', label: 'f_phone', ph: 'ph_phone', note: 'n_phone' }],
+    build: (v) => { const d = intlNumber(v.num); return d ? 'tel:+' + d : null; },
+    check: (v) => ({ num: trim(v.num) && digits(v.num).length < 7 }),
+    sub: (v) => trim(v.num) },
+  { id: 'whatsapp',
+    fields: [
+      { id: 'num', type: 'tel', label: 'f_wa', ph: 'ph_wa', note: 'n_phone' },
+      { id: 'msg', type: 'textarea', label: 'f_wamsg', ph: 'ph_wamsg', optional: true }
+    ],
+    build: (v) => {
+      const d = intlNumber(v.num);
+      if (!d) return null;
+      return 'https://wa.me/' + d + (trim(v.msg) ? '?text=' + encodeURIComponent(trim(v.msg)) : '');
+    },
+    check: (v) => ({ num: trim(v.num) && digits(v.num).length < 7 }),
+    sub: (v) => trim(v.num) ? 'WhatsApp: ' + trim(v.num) : '' },
+  { id: 'email',
+    fields: [
+      { id: 'to', type: 'email', label: 'f_email', ph: 'ph_email', note: 'n_email' },
+      { id: 'subject', type: 'text', label: 'f_subject', optional: true },
+      { id: 'body', type: 'textarea', label: 'f_body', optional: true }
+    ],
+    build: (v) => {
+      if (!trim(v.to)) return null;
+      const q = [];
+      if (trim(v.subject)) q.push('subject=' + encodeURIComponent(trim(v.subject)));
+      if (trim(v.body)) q.push('body=' + encodeURIComponent(trim(v.body)));
+      return 'mailto:' + trim(v.to) + (q.length ? '?' + q.join('&') : '');
+    },
+    check: (v) => ({ to: trim(v.to) && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trim(v.to)) }),
+    sub: (v) => trim(v.to) },
+  { id: 'map',
+    fields: [{ id: 'place', type: 'text', label: 'f_map', ph: 'ph_map' }],
+    build: (v) => {
+      const p = trim(v.place);
+      if (!p) return null;
+      return /^https?:\/\//i.test(p) ? p : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
+    },
+    sub: (v) => /^https?:\/\//i.test(trim(v.place)) ? '' : trim(v.place) },
+  { id: 'vcard',
+    fields: [
+      { id: 'name', type: 'text', label: 'f_name' },
+      { id: 'org', type: 'text', label: 'f_org', optional: true, half: true },
+      { id: 'title', type: 'text', label: 'f_title', optional: true, half: true },
+      { id: 'tel', type: 'tel', label: 'f_vphone', optional: true, half: true },
+      { id: 'mail', type: 'email', label: 'f_vemail', optional: true, half: true },
+      { id: 'web', type: 'url', label: 'f_vurl', optional: true },
+      { id: 'addr', type: 'text', label: 'f_addr', optional: true }
+    ],
+    build: (v) => {
+      const name = trim(v.name);
+      if (!name) return null;
+      const parts = name.split(/\s+/);
+      const last = parts.length > 1 ? parts.pop() : '';
+      const first = parts.join(' ');
+      const L = ['BEGIN:VCARD', 'VERSION:3.0', 'N:' + vcEsc(last) + ';' + vcEsc(first) + ';;;', 'FN:' + vcEsc(name)];
+      if (trim(v.org)) L.push('ORG:' + vcEsc(trim(v.org)));
+      if (trim(v.title)) L.push('TITLE:' + vcEsc(trim(v.title)));
+      if (trim(v.tel)) L.push('TEL;TYPE=CELL:+' + intlNumber(v.tel));
+      if (trim(v.mail)) L.push('EMAIL:' + trim(v.mail));
+      if (trim(v.web)) L.push('URL:' + withScheme(v.web));
+      if (trim(v.addr)) L.push('ADR:;;' + vcEsc(trim(v.addr)) + ';;;;');
+      L.push('END:VCARD');
+      return L.join('\n');
+    },
+    sub: (v) => [trim(v.name), trim(v.org)].filter(Boolean).join(', ') }
+];
+const typeById = (id) => TYPES.find(t => t.id === id);
+
+/* ------------------------- Κατάσταση ------------------------- */
+const DEFAULT_FG = '#22241C', DEFAULT_BG = '#FFFFFF';
+const state = {
+  lang: (navigator.language || 'el').toLowerCase().startsWith('el') ? 'el' : 'en',
+  type: 'link',
+  values: { wifi: { enc: 'WPA' } },
+  fg: DEFAULT_FG, bg: DEFAULT_BG,
+  logo: null, logoData: null,
+  captions: {},
+  matrix: null
+};
+const T = () => I18N[state.lang];
+const vals = () => (state.values[state.type] = state.values[state.type] || {});
+const caption = () => state.captions[state.type] || '';
+
+/* ------------------------- QR πυρήνας ------------------------- */
+function toByteString(s) {
+  const b = new TextEncoder().encode(s);
+  let out = '';
+  for (let i = 0; i < b.length; i++) out += String.fromCharCode(b[i]);
+  return out;
+}
+function makeMatrix(text) {
+  try {
+    const qr = qrcode(0, state.logo ? 'H' : 'M');
+    qr.addData(toByteString(text), 'Byte');
+    qr.make();
+    const n = qr.getModuleCount(), grid = [];
+    for (let r = 0; r < n; r++) { const row = []; for (let c = 0; c < n; c++) row.push(qr.isDark(r, c)); grid.push(row); }
+    return { n, grid };
+  } catch (e) { return null; }
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+/* Ζωγραφίζει το QR μαζί με το λευκό περιθώριο (4 κουτάκια) μέσα σε τετράγωνο size × size */
+function drawQR(ctx, x, y, size, m) {
+  const total = m.n + 8, ms = size / total;
+  ctx.fillStyle = state.bg; ctx.fillRect(x, y, size, size);
+  ctx.fillStyle = state.fg;
+  for (let r = 0; r < m.n; r++) {
+    for (let c = 0; c < m.n; c++) {
+      if (!m.grid[r][c]) continue;
+      const x0 = Math.floor(x + (c + 4) * ms), y0 = Math.floor(y + (r + 4) * ms);
+      const x1 = Math.floor(x + (c + 5) * ms), y1 = Math.floor(y + (r + 5) * ms);
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    }
+  }
+  if (state.logo) {
+    const box = m.n * ms * 0.25;
+    const bx = x + size / 2 - box / 2, by = y + size / 2 - box / 2;
+    ctx.fillStyle = state.bg; roundRect(ctx, bx, by, box, box, box * 0.14); ctx.fill();
+    const pad = box * 0.08, iw = state.logo.naturalWidth || state.logo.width, ih = state.logo.naturalHeight || state.logo.height;
+    const s = Math.min((box - 2 * pad) / iw, (box - 2 * pad) / ih);
+    ctx.drawImage(state.logo, x + size / 2 - iw * s / 2, y + size / 2 - ih * s / 2, iw * s, ih * s);
+  }
+}
+function wrapLines(ctx, text, maxW, maxLines) {
+  const words = text.split(/\s+/).filter(Boolean), lines = [];
+  let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width <= maxW || !line) line = test;
+    else { lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) {
+    const kept = lines.slice(0, maxLines);
+    let last = kept[maxLines - 1];
+    while (last.length > 1 && ctx.measureText(last + '…').width > maxW) last = last.slice(0, -1);
+    kept[maxLines - 1] = last + '…';
+    return kept;
+  }
+  return lines;
+}
+
+/* ------------------------- Προεπισκόπηση ------------------------- */
+function render() {
+  const payload = typeById(state.type).build(vals());
+  const canvas = $('qrCanvas'), empty = $('emptyQr');
+  state.matrix = payload ? makeMatrix(payload) : null;
+  const ok = !!state.matrix;
+
+  canvas.hidden = !ok; empty.hidden = ok;
+  empty.classList.toggle('error', !!payload && !ok);
+  if (!ok) {
+    empty.textContent = payload ? T().tooLong : (window.innerWidth < 880 ? T().emptyMobile : T().empty);
+  } else {
+    drawQR(canvas.getContext('2d'), 0, 0, 600, state.matrix);
+    drawQR($('miniCanvas').getContext('2d'), 0, 0, 160, state.matrix);
+  }
+  $('paperCard').style.backgroundColor = state.bg;
+  const cap = $('paperCaption');
+  cap.textContent = caption();
+  cap.style.color = state.fg;
+  cap.hidden = !caption();
+
+  document.querySelectorAll('#dlPng, #dlSvg, .print-btn').forEach(b => b.disabled = !ok);
+  updateMini();
+}
+
+/* ------------------------- Φόρμα ------------------------- */
+function renderTypes() {
+  $('types').innerHTML = TYPES.map(t =>
+    '<button type="button" class="type-btn" data-type="' + t.id + '" aria-pressed="' + (t.id === state.type) + '">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[t.id] + '</svg><span>' + T()['t_' + t.id] + '</span></button>'
+  ).join('');
+}
+function renderFields() {
+  const t = typeById(state.type), v = vals(), L = T();
+  let html = '', halfOpen = false;
+  t.fields.forEach(f => {
+    const id = 'f_' + f.id;
+    const label = L[f.label] + (f.optional ? ' <span class="opt">' + L.optional + '</span>' : '');
+    const ph = f.ph ? ' placeholder="' + esc(L[f.ph]) + '"' : '';
+    let inner;
+    if (f.type === 'select') {
+      inner = '<label for="' + id + '">' + label + '</label><select id="' + id + '" data-key="' + f.id + '">' +
+        f.options.map(o => '<option value="' + o[0] + '"' + ((v[f.id] || f.options[0][0]) === o[0] ? ' selected' : '') + '>' + L[o[1]] + '</option>').join('') + '</select>';
+    } else if (f.type === 'check') {
+      inner = '<label class="check"><input type="checkbox" id="' + id + '" data-key="' + f.id + '"' + (v[f.id] ? ' checked' : '') + '> ' + L[f.label] + '</label>';
+    } else if (f.type === 'textarea') {
+      inner = '<label for="' + id + '">' + label + '</label><textarea id="' + id + '" data-key="' + f.id + '"' + ph + ' maxlength="300">' + esc(v[f.id]) + '</textarea>';
+    } else if (f.type === 'password') {
+      inner = '<label for="' + id + '">' + label + '</label><div class="pw-row"><input type="password" id="' + id + '" data-key="' + f.id + '" value="' + esc(v[f.id]) + '" autocomplete="off" spellcheck="false">' +
+        '<button type="button" class="pw-toggle" data-pw="' + id + '">' + L.show + '</button></div>';
+    } else {
+      const extra = f.type === 'url' ? ' inputmode="url" autocapitalize="off" spellcheck="false"' : f.type === 'email' ? ' autocapitalize="off" spellcheck="false"' : '';
+      const type = f.type === 'url' ? 'text' : f.type;
+      inner = '<label for="' + id + '">' + label + '</label><input type="' + type + '" id="' + id + '" data-key="' + f.id + '" value="' + esc(v[f.id]) + '"' + ph + extra + '>';
+    }
+    if (f.note) inner += '<p class="field-note" id="note_' + f.id + '" hidden>' + L[f.note] + '</p>';
+    if (f.half && !halfOpen) { html += '<div class="grid-2">'; halfOpen = true; }
+    if (!f.half && halfOpen) { html += '</div>'; halfOpen = false; }
+    html += '<div class="field">' + inner + '</div>';
+  });
+  if (halfOpen) html += '</div>';
+  $('fields').innerHTML = html;
+  $('help').innerHTML = L['help_' + state.type];
+  updateNotes();
+}
+function updateNotes() {
+  const t = typeById(state.type);
+  const res = t.check ? t.check(vals()) : {};
+  t.fields.forEach(f => { const n = $('note_' + f.id); if (n) n.hidden = !res[f.id]; });
+}
+function renderCaption() {
+  const cur = caption();
+  $('caption').value = cur;
+  $('caption').placeholder = T().captionPh;
+  $('chips').innerHTML = T().sug[state.type].map(t =>
+    '<button type="button" class="chip" aria-pressed="' + (t === cur) + '">' + esc(t) + '</button>').join('');
+}
+
+/* ------------------------- Χρώματα ------------------------- */
+function lum(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+function checkContrast() {
+  const lf = lum(state.fg), lb = lum(state.bg);
+  const ratio = (Math.max(lf, lb) + 0.05) / (Math.min(lf, lb) + 0.05);
+  const w = $('contrastWarn');
+  if (lf > lb) { w.textContent = T().warnInv; w.hidden = false; }
+  else if (ratio < 4) { w.textContent = T().warnLow; w.hidden = false; }
+  else w.hidden = true;
+}
+function setColors(fg, bg) {
+  state.fg = fg.toUpperCase(); state.bg = bg.toUpperCase();
+  $('fg').value = state.fg.toLowerCase(); $('bg').value = state.bg.toLowerCase();
+  $('fgHex').textContent = state.fg; $('bgHex').textContent = state.bg;
+  checkContrast(); saveBrand(); render();
+}
+
+/* ------------------------- Γλώσσα ------------------------- */
+function applyLang() {
+  const L = T();
+  document.documentElement.lang = state.lang;
+  document.title = L.title;
+  $('langBtn').textContent = L.langBtn;
+  document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (L[k] != null) el.textContent = L[k]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { const k = el.dataset.i18nHtml; if (L[k] != null) el.innerHTML = L[k]; });
+  $('logoBtnText').textContent = state.logo ? L.logoChange : L.logoAdd;
+  $('faqList').innerHTML = L.faq.map(q => '<details><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>').join('');
+  renderTypes(); renderFields(); renderCaption(); checkContrast(); render();
+}
+
+/* ------------------------- Κατέβασμα ------------------------- */
+const fileBase = () => 'qr-' + state.type;
+function saveBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  $('afterDl').hidden = false;
+}
+async function fontsReady() {
+  try { await Promise.all([document.fonts.load('800 40px Manrope'), document.fonts.load('700 40px Manrope'), document.fonts.load('500 40px Manrope')]); } catch (e) {}
+}
+
+async function downloadPng() {
+  if (!state.matrix) return;
+  await fontsReady();
+  const W = 1200, capH = caption() ? 190 : 0;
+  const c = document.createElement('canvas'); c.width = W; c.height = W + capH;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = state.bg; ctx.fillRect(0, 0, c.width, c.height);
+  drawQR(ctx, 0, 0, W, state.matrix);
+  if (caption()) {
+    ctx.fillStyle = state.fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '700 62px Manrope, Arial, sans-serif';
+    const lines = wrapLines(ctx, caption(), W * 0.84, 2);
+    const lh = 74, top = W - 30 + (capH - lines.length * lh) / 2 + lh / 2;
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, top + i * lh));
+  }
+  c.toBlob(b => saveBlob(b, fileBase() + '.png'), 'image/png');
+}
+
+function downloadSvg() {
+  const m = state.matrix; if (!m) return;
+  const total = m.n + 8, capH = caption() ? 8 : 0;
+  let d = '';
+  for (let r = 0; r < m.n; r++) {
+    let c = 0;
+    while (c < m.n) {
+      if (m.grid[r][c]) { const s = c; while (c < m.n && m.grid[r][c]) c++; d += 'M' + (s + 4) + ' ' + (r + 4) + 'h' + (c - s) + 'v1h-' + (c - s) + 'z'; }
+      else c++;
+    }
+  }
+  let extra = '';
+  if (state.logo) {
+    const box = m.n * 0.25, bx = total / 2 - box / 2, pad = box * 0.08;
+    extra += '<rect x="' + bx.toFixed(3) + '" y="' + bx.toFixed(3) + '" width="' + box.toFixed(3) + '" height="' + box.toFixed(3) + '" rx="' + (box * 0.14).toFixed(3) + '" fill="' + state.bg + '"/>';
+    extra += '<image href="' + state.logoData + '" x="' + (bx + pad).toFixed(3) + '" y="' + (bx + pad).toFixed(3) + '" width="' + (box - 2 * pad).toFixed(3) + '" height="' + (box - 2 * pad).toFixed(3) + '" preserveAspectRatio="xMidYMid meet"/>';
+  }
+  if (caption()) {
+    const fs = Math.min(3.2, (total * 0.9) / (caption().length * 0.56));
+    extra += '<text x="' + (total / 2) + '" y="' + (total + capH / 2 - 1) + '" text-anchor="middle" dominant-baseline="middle" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="' + fs.toFixed(2) + '" fill="' + state.fg + '">' + esc(caption()) + '</text>';
+  }
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + total + ' ' + (total + capH) + '" width="' + (total * 10) + '" height="' + ((total + capH) * 10) + '">' +
+    '<rect width="' + total + '" height="' + (total + capH) + '" fill="' + state.bg + '"/><path fill="' + state.fg + '" shape-rendering="crispEdges" d="' + d + '"/>' + extra + '</svg>';
+  saveBlob(new Blob([svg], { type: 'image/svg+xml' }), fileBase() + '.svg');
+}
+
+const TEMPLATES = { sticker: [80, 100], tent: [105, 148], poster: [210, 297] };
+
+async function downloadTemplate(name) {
+  if (!state.matrix) return;
+  await fontsReady();
+  const [wmm, hmm] = TEMPLATES[name], pxmm = 11.811;
+  const W = Math.round(wmm * pxmm), H = Math.round(hmm * pxmm);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = state.bg; ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+
+  const margin = W * 0.08;
+  const heading = caption();
+  const headPx = W * 0.085, headLh = headPx * 1.12;
+  ctx.font = '800 ' + headPx + 'px Manrope, Arial, sans-serif';
+  const headLines = heading ? wrapLines(ctx, heading, W - 2 * margin, 3) : [];
+  const headH = headLines.length * headLh;
+
+  /* Χωρίς κείμενο το πρότυπο μένει καθαρό, εκτός από το Wi-Fi που δείχνει πάντα το όνομα δικτύου */
+  const sub = (heading || state.type === 'wifi') ? (typeById(state.type).sub(vals(), T()) || '') : '';
+  const subPx = W * 0.042, subLh = subPx * 1.3;
+  ctx.font = '500 ' + subPx + 'px Manrope, Arial, sans-serif';
+  const subLines = sub ? wrapLines(ctx, sub, W - 2 * margin, 2) : [];
+  const subH = subLines.length * subLh;
+
+  const creditPx = W * 0.024, creditH = creditPx * 1.6, gap = W * 0.03;
+  const headGap = headH ? gap : 0;
+  const avail = H - 2 * margin - headH - headGap - (subH ? gap + subH : 0) - creditH - gap;
+  const qrSize = Math.min(W - 2 * margin + W * 0.06, avail);
+  const groupH = headH + headGap + qrSize + (subH ? gap + subH : 0);
+  let y = margin + Math.max(0, (H - 2 * margin - creditH - groupH) / 2);
+
+  ctx.fillStyle = state.fg;
+  ctx.font = '800 ' + headPx + 'px Manrope, Arial, sans-serif';
+  headLines.forEach((l, i) => ctx.fillText(l, W / 2, y + i * headLh));
+  y += headH + headGap;
+  drawQR(ctx, (W - qrSize) / 2, y, qrSize, state.matrix);
+  y += qrSize;
+  if (subH) {
+    y += gap;
+    ctx.fillStyle = state.fg; ctx.font = '500 ' + subPx + 'px Manrope, Arial, sans-serif';
+    subLines.forEach((l, i) => ctx.fillText(l, W / 2, y + i * subLh));
+  }
+  ctx.globalAlpha = 0.5; ctx.fillStyle = state.fg;
+  ctx.font = '500 ' + creditPx + 'px Manrope, Arial, sans-serif';
+  ctx.fillText(T().credit, W / 2, H - margin * 0.7 - creditPx);
+  ctx.globalAlpha = 1;
+
+  const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: [wmm, hmm], orientation: 'portrait' });
+  pdf.addImage(c.toDataURL('image/png'), 'PNG', 0, 0, wmm, hmm);
+  saveBlob(pdf.output('blob'), fileBase() + '-' + name + '.pdf');
+}
+
+/* ------------------------- Mini προεπισκόπηση (κινητό) ------------------------- */
+let previewVisible = true, toolVisible = true;
+function updateMini() {
+  const show = window.innerWidth < 880 && !!state.matrix && !previewVisible && toolVisible;
+  $('mini').classList.toggle('show', show);
+}
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(es => { previewVisible = es[0].isIntersecting; updateMini(); }, { threshold: 0.25 }).observe($('paperCard'));
+  new IntersectionObserver(es => { toolVisible = es[0].isIntersecting; updateMini(); }).observe($('tool'));
+}
+window.addEventListener('resize', updateMini);
+$('mini').addEventListener('click', () => $('previewCol').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+
+/* ------------------------- Συμβάντα ------------------------- */
+$('types').addEventListener('click', e => {
+  const b = e.target.closest('.type-btn'); if (!b) return;
+  state.type = b.dataset.type;
+  document.querySelectorAll('.type-btn').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderFields(); renderCaption(); render();
+});
+function onField(e) {
+  const k = e.target.dataset.key; if (!k) return;
+  vals()[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  updateNotes(); render();
+}
+$('fields').addEventListener('input', onField);
+$('fields').addEventListener('change', onField);
+$('fields').addEventListener('click', e => {
+  const b = e.target.closest('.pw-toggle'); if (!b) return;
+  const inp = $(b.dataset.pw), show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  b.textContent = show ? T().hide : T().show;
+});
+$('fg').addEventListener('input', e => setColors(e.target.value, state.bg));
+$('bg').addEventListener('input', e => setColors(state.fg, e.target.value));
+$('resetColors').addEventListener('click', () => setColors(DEFAULT_FG, DEFAULT_BG));
+$('caption').addEventListener('input', e => {
+  state.captions[state.type] = e.target.value.trim();
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.textContent === caption())));
+  render();
+});
+$('chips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  state.captions[state.type] = c.textContent;
+  renderCaption(); render();
+});
+
+/* ------------------------- Λογότυπο ------------------------- */
+const STORE_KEY = 'qrfree:brand';
+function saveBrand() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ logo: state.logoData, fg: state.fg, bg: state.bg })); } catch (e) {}
+}
+function showLogoUI() {
+  const has = !!state.logo;
+  $('logoThumb').hidden = !has; $('logoRemove').hidden = !has; $('logoNote').hidden = !has;
+  if (has) $('logoThumb').style.backgroundImage = 'url("' + state.logoData + '")';
+  $('logoBtnText').textContent = has ? T().logoChange : T().logoAdd;
+}
+function logoError() { const e = $('logoErr'); e.textContent = T().logoErr; e.hidden = false; }
+function loadImage(src) {
+  return new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = rej; img.src = src; });
+}
+function readFile(f, asText) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; asText ? r.readAsText(f) : r.readAsDataURL(f); });
+}
+/* Δίνει στο SVG σταθερό μέγεθος, γιατί χωρίς width/height κάποιοι browsers το δείχνουν με μέγεθος 0 */
+function sizedSvg(text) {
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const svg = doc.documentElement;
+  if (!svg || svg.nodeName.toLowerCase() !== 'svg') throw new Error('svg');
+  const vb = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+  let w = parseFloat(svg.getAttribute('width')), h = parseFloat(svg.getAttribute('height'));
+  if (!(w > 0 && h > 0)) { w = vb[2] > 0 ? vb[2] : 512; h = vb[3] > 0 ? vb[3] : 512; }
+  const k = 512 / Math.max(w, h);
+  svg.setAttribute('width', Math.round(w * k)); svg.setAttribute('height', Math.round(h * k));
+  if (!svg.getAttribute('viewBox')) svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+}
+/* Κάθε λογότυπο μετατρέπεται σε PNG έως 512px: δουλεύει ίδια παντού και χωράει στην αποθήκευση */
+async function setLogoFromFile(f) {
+  $('logoErr').hidden = true;
+  try {
+    const isSvg = f.type === 'image/svg+xml' || /\.svg$/i.test(f.name);
+    const src = isSvg ? sizedSvg(await readFile(f, true)) : await readFile(f, false);
+    const img = await loadImage(src);
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (!iw || !ih) throw new Error('size');
+    const k = Math.min(1, 512 / Math.max(iw, ih));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(iw * k)); c.height = Math.max(1, Math.round(ih * k));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const data = c.toDataURL('image/png');
+    state.logo = await loadImage(data); state.logoData = data;
+    showLogoUI(); saveBrand(); render();
+  } catch (e) { logoError(); }
+}
+$('logoBtn').addEventListener('click', () => $('logoFile').click());
+$('logoFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) setLogoFromFile(f); e.target.value = ''; });
+$('logoRemove').addEventListener('click', () => {
+  state.logo = null; state.logoData = null;
+  showLogoUI(); saveBrand(); render();
+});
+async function restoreBrand() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) {}
+  if (!saved) return;
+  if (/^#[0-9A-F]{6}$/i.test(saved.fg || '') && /^#[0-9A-F]{6}$/i.test(saved.bg || '')) setColors(saved.fg, saved.bg);
+  if (saved.logo) {
+    try { state.logo = await loadImage(saved.logo); state.logoData = saved.logo; } catch (e) { state.logo = null; state.logoData = null; }
+    showLogoUI(); render();
+  }
+}
+
+$('dlPng').addEventListener('click', downloadPng);
+$('dlSvg').addEventListener('click', downloadSvg);
+document.querySelectorAll('.print-btn').forEach(b => b.addEventListener('click', () => downloadTemplate(b.dataset.tpl)));
+$('langBtn').addEventListener('click', () => { state.lang = state.lang === 'el' ? 'en' : 'el'; applyLang(); });
+
+
+/* ------------------------- Εκκίνηση ------------------------- */
+$('brandName').textContent = BRAND;
+/* ?url=… ανοίγει τη γεννήτρια με έτοιμο link (π.χ. από τη σελίδα του προφίλ) */
+(function prefill() {
+  const u = new URLSearchParams(location.search).get('url');
+  if (u && /^https?:\/\//i.test(u)) { state.type = 'link'; state.values.link = { url: u }; }
+})();
+applyLang();
+restoreBrand();
+</script>
+</body>
+</html>

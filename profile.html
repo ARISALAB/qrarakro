@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Προφίλ</title>
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; min-height: 100%; background: #fff; }
+  body { font-family: 'Manrope', 'Segoe UI', Roboto, Arial, sans-serif; color: #1D1F18; }
+  #root { min-height: 100vh; }
+  .state { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: #5E6157; }
+  .state h1 { margin: 0; font-size: 22px; color: #1D1F18; }
+  .state a { color: #4B5A2E; font-weight: 600; }
+  .spin { width: 28px; height: 28px; border: 3px solid #E4E1D8; border-top-color: #4B5A2E; border-radius: 50%; animation: s .8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body>
+<div id="root"><div class="state"><div class="spin" aria-label="…"></div></div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
+import { firebaseConfig, SITE, premiumState } from '/firebase-config.js';
+import { renderProfile, visitorLang } from '/profile-render.js';
+
+const db = getFirestore(initializeApp(firebaseConfig));
+const root = document.getElementById('root');
+const lang = visitorLang();
+document.documentElement.lang = lang;
+
+function notFound() {
+  const t = lang === 'el'
+    ? ['Δεν βρέθηκε αυτό το προφίλ', 'Ίσως ο σύνδεσμος έχει αλλάξει ή το προφίλ δεν είναι πια ενεργό.', 'Φτιάξε δωρεάν QR code']
+    : ['Profile not found', 'The link may have changed, or the profile is no longer active.', 'Make a free QR code'];
+  root.innerHTML = '<div class="state"><h1></h1><p></p><a></a></div>';
+  root.querySelector('h1').textContent = t[0];
+  root.querySelector('p').textContent = t[1];
+  const a = root.querySelector('a'); a.textContent = t[2]; a.href = SITE + '/';
+  document.title = t[0];
+}
+
+async function load() {
+  const params = new URLSearchParams(location.search);
+  const parts = location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+  let pid = params.get('id'), slug = params.get('slug');
+  if (!pid && !slug) {
+    if (parts[0] === 'p' && parts[1]) pid = parts[1];
+    else if (parts[0] && parts[0] !== 'profile.html') slug = parts[0].toLowerCase();
+  }
+  try {
+    if (!pid && slug) {
+      const s = await getDoc(doc(db, 'slugs', slug));
+      if (!s.exists()) return notFound();
+      pid = s.data().pid;
+    }
+    if (!pid) return notFound();
+    const snap = await getDoc(doc(db, 'profiles', pid));
+    if (!snap.exists()) return notFound();
+    const p = { id: snap.id, ...snap.data() };
+    document.title = p.name;
+    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = p.bg || '#FFFFFF';
+    document.body.style.background = p.bg || '#FFFFFF';
+    let ent = null;
+    try { const e = await getDoc(doc(db, 'entitlements', p.ownerUid)); if (e.exists()) ent = e.data(); } catch (e) {}
+    let menuUrl = '';
+    try { const m = await getDoc(doc(db, 'menus', p.id)); if (m.exists() && m.data().published) menuUrl = SITE + '/m/' + p.id; } catch (e) {}
+    renderProfile(root, p, {
+      lang, hideMake: premiumState(ent).usable, menuUrl,
+      onReport: reason => addDoc(collection(db, 'reports'), { pid: p.id, reason, createdAt: serverTimestamp() })
+    });
+  } catch (e) {
+    // Ανενεργό ή ανύπαρκτο προφίλ: οι κανόνες επιστρέφουν "permission denied"
+    notFound();
+  }
+}
+load();
+</script>
+</body>
+</html>
