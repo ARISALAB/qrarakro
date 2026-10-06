@@ -699,8 +699,8 @@ $('obForm').addEventListener('submit', async e => {
 });
 
 /* ---------------- Επεξεργαστής ---------------- */
-const TYPE_NAME = { phone: 'Τηλέφωνο', whatsapp: 'WhatsApp', email: 'Email', link: 'Ιστοσελίδα', booking: 'Κράτηση', menu: 'Μενού / Κατάλογος', map: 'Χάρτης', review: 'Κριτική Google', ...Object.fromEntries(QTYPES.map(t => [t[0], t[1]])) };
-const TYPE_PH = { phone: '210 123 4567', whatsapp: '69X XXX XXXX', email: 'info@to-magazi-mou.gr', link: 'www.to-magazi-mou.gr', booking: 'Link κρατήσεων', map: 'Διεύθυνση ή link από Google Maps', review: 'Link κριτικών Google', ...QPH };
+const TYPE_NAME = { phone: 'Τηλέφωνο', whatsapp: 'WhatsApp', email: 'Email', link: 'Ιστοσελίδα', booking: 'Κράτηση', menu: 'Μενού / Κατάλογος', map: 'Χάρτης', review: 'Κριτική Google', daily: '📅 Daily / Weekly Menu', offers: '🔥 Offers & Promotions', hotel: '🏨 Hotel & Accommodation', realestate: '🏠 Real Estate', product: '📦 Product & Packaging', store: '🛍️ Store & Shop', events: '🎟️ Events', campaign: '📣 Marketing Campaigns', profile: '👤 Business Profile', custom: '⚙️ Custom' };
+const TYPE_PH = { phone: '210 123 4567', whatsapp: '69X XXX XXXX', email: 'info@to-magazi-mou.gr', link: 'www.to-magazi-mou.gr', booking: 'Link κρατήσεων', map: 'Διεύθυνση ή link από Google Maps', review: 'Link κριτικών Google' };
 const SOC_NAME = { instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok', youtube: 'YouTube', linkedin: 'LinkedIn', x: 'X (Twitter)' };
 const PRESETS = [['#15161A', '#F7F4EE'], ['#9C7A43', '#FBF8F2'], ['#1F3A5F', '#F3F6FA'], ['#0F5A4A', '#F1F8F5'], ['#7A2E3A', '#FBF4F5'], ['#3F4B27', '#F6F3EC'], ['#C9A46A', '#0E0F11'], ['#E7D2A6', '#1C1D21']];
 const clone = o => JSON.parse(JSON.stringify(o));
