@@ -238,9 +238,18 @@
   .faq details[open] summary::after { content: '−'; }
   .faq details p { margin: 0 0 18px; color: var(--muted); max-width: 62ch; }
 
-  .site-foot { margin-top: 80px; padding: 26px 0 40px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
-  .site-foot p { margin: 0; }
-  .site-foot a { color: var(--ink-2); }
+  .site-foot { margin-top: 80px; background: #121316; color: rgba(247,244,238,.7); font-size: 14px; }
+  .site-foot a { color: rgba(247,244,238,.85); text-decoration: none; }
+  .site-foot a:hover { color: #E7D2A6; }
+  .foot-inner { max-width: 1180px; margin: 0 auto; padding: 48px 24px 28px; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; }
+  @media (max-width: 700px) { .foot-inner { grid-template-columns: 1fr; gap: 28px; } }
+  .foot-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: #F7F4EE; margin-bottom: 14px; text-decoration: none; }
+  .foot-brand .brand-mark { width: 30px; height: 30px; }
+  .foot-col h4 { margin: 0 0 14px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,238,.45); }
+  .foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .foot-col li a { display: block; }
+  .foot-copy { max-width: 1180px; margin: 0 auto; padding: 18px 24px; border-top: 1px solid rgba(247,244,238,.1); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(247,244,238,.4); }
+  .foot-copy a { color: rgba(247,244,238,.5); }
 
   @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
   @media (min-width: 900px) {
@@ -403,7 +412,32 @@
   </main>
 
   <footer class="site-foot">
-    <p data-i18n-html="footer">© 2026 <a href="https://arakronservices.gr">AR Akron Services</a>. Τα QR που φτιάχνεις εδώ είναι δικά σου, για κάθε χρήση.</p>
+    <div class="foot-inner">
+      <div>
+        <a href="https://arakronservices.gr" class="foot-brand"><span class="brand-mark"><i></i><i></i><i></i><i></i></span> AR Akron Services</a>
+        <p style="margin:0 0 16px;max-width:32ch;line-height:1.6">Συμβουλευτική και ψηφιακά εργαλεία για εστίαση, τουρισμό και φιλοξενία.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Εφαρμογές</h4>
+        <ul>
+          <li><a href="https://tablereserve.gr">TableReserve</a></li>
+          <li><a href="https://gofinanceos.com">GoFinanceOS</a></li>
+          <li><a href="https://qr.arakronservices.gr">AR Akron QR</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Πληροφορίες</h4>
+        <ul>
+          <li><a href="https://arakronservices.gr">arakronservices.gr</a></li>
+          <li><a href="https://www.facebook.com/arakronservices" target="_blank" rel="noopener">Facebook</a></li>
+          <li><a href="https://www.instagram.com/arakronservices" target="_blank" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-copy">
+      <span>© 2026 AR Akron Services. Όλα τα δικαιώματα διατηρούνται.</span>
+      <a href="https://qr.arakronservices.gr">qr.arakronservices.gr</a>
+    </div>
   </footer>
 </div>
 
