@@ -587,7 +587,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
 
@@ -595,7 +594,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 auth.languageCode = 'el';
 const db = getFirestore(app);
-const storage = getStorage(app);
 const $ = id => document.getElementById(id);
 $('brandName').textContent = BRAND;
 
@@ -1361,18 +1359,24 @@ $('qLogoFile').addEventListener('change', async e => {
 $('qLogoProf').addEventListener('click', () => { qCustom = ''; cur.logo = true; syncQ(); });
 $('qLogoDel').addEventListener('click', () => { qCustom = ''; cur.logo = false; syncQ(); });
 
-/* PDF upload for menu/daily */
+/* PDF upload for menu/daily via Cloudinary */
+const CLOUD_NAME = 'djs1rbsbn';
+const UPLOAD_PRESET = 'QR code Ar Akron Services';
 $('pdfUploadBtn').addEventListener('click', () => $('pdfFile').click());
 $('pdfFile').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   if (f.size > 10 * 1024 * 1024) { $('pdfUploadStatus').textContent = 'Μέγιστο μέγεθος 10 MB.'; return; }
   $('pdfUploadBtn').disabled = true; $('pdfUploadStatus').textContent = 'Ανεβαίνει…';
   try {
-    const path = 'pdfs/' + user.uid + '/' + (curCode || 'tmp') + '.pdf';
-    const sRef = storageRef(storage, path);
-    await uploadBytes(sRef, f, { contentType: 'application/pdf' });
-    const url = await getDownloadURL(sRef);
-    cur.v = url; $('qValue').value = url;
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    fd.append('public_id', user.uid + '_' + (curCode || 'tmp'));
+    fd.append('resource_type', 'raw');
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/raw/upload', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    cur.v = data.secure_url; $('qValue').value = data.secure_url;
     $('pdfUploadStatus').textContent = '✓ Ανέβηκε! Μπορείς να το αλλάξεις ξανά.';
   } catch (err) {
     console.error(err);
