@@ -130,7 +130,7 @@ service cloud.firestore {
     }
 
     // ----- Δυναμικά QR -----
-    function qrTypes() { return ['link', 'menu', 'booking', 'review', 'whatsapp', 'phone', 'email', 'map', 'profile']; }
+    function qrTypes() { return ['link', 'menu', 'booking', 'review', 'whatsapp', 'phone', 'email', 'map', 'profile', 'daily', 'offers', 'hotel', 'realestate', 'product', 'store', 'events', 'campaign', 'custom']; }
     function validQr(d) {
       return d.keys().hasOnly(['ownerUid', 'ownerPid', 'name', 't', 'v', 'fg', 'bg', 'caption', 'logo', 'paused',
                                'scans', 'testScans', 'createdAt', 'updatedAt'])
