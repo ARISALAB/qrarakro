@@ -1413,7 +1413,7 @@ function dishHtml(d, dish, idx) {
 function renderDailyEditor() {
   const todayNum = new Date().getDay();
   $('dailyDays').innerHTML = DAY_ORDER.map(d => {
-    const dishes = dailyData[d] || [];
+    const dishes = Array.isArray(dailyData[d]) ? dailyData[d] : [];
     const isToday = d === todayNum;
     return '<div class="day-block' + (isToday ? ' open' : '') + '" data-dayn="' + d + '">' +
       '<div class="day-header"><span>' + (isToday ? '📌 ' : '') + DAY_NAMES[d] + '</span><span class="day-count">' + dishes.length + ' πιάτα</span></div>' +
@@ -1495,8 +1495,16 @@ $('dailyDays').addEventListener('change', async e => {
 async function loadDailyContent(code) {
   try {
     const s = await getDoc(doc(db, 'qrcontent', code));
-    if (s.exists()) dailyData = s.data().days || {};
-    else dailyData = {};
+    if (s.exists()) {
+      const raw = s.data().days || {};
+      // Convert old string format to array
+      Object.keys(raw).forEach(k => {
+        if (typeof raw[k] === 'string') {
+          raw[k] = raw[k].split('\n').filter(l => l.trim()).map(l => ({ n: l.trim() }));
+        }
+      });
+      dailyData = raw;
+    } else dailyData = {};
   } catch (e) { dailyData = {}; }
   renderDailyEditor();
 }
