@@ -1422,6 +1422,7 @@ function renderDailyEditor() {
         '<button type="button" class="add-dish" data-day="' + d + '">+ Πρόσθεσε πιάτο</button>' +
       '</div></div>';
   }).join('');
+  updateDayCounts();
 }
 
 function collectDailyData() {
@@ -1456,6 +1457,7 @@ $('dailyDays').addEventListener('click', e => {
     add.insertAdjacentHTML('beforebegin', dishHtml(d, {}, dailyData[d].length - 1));
     const newRow = add.previousElementSibling;
     newRow.querySelector('.dish-name').focus();
+    updateDayCounts();
     return;
   }
   // Delete dish
@@ -1463,6 +1465,7 @@ $('dailyDays').addEventListener('click', e => {
   if (del) {
     if (del.dataset.f === 'imgdel') { del.parentElement.remove(); return; }
     del.closest('.dish-row').remove();
+    updateDayCounts();
     return;
   }
   // Photo upload trigger
@@ -1508,26 +1511,41 @@ async function loadDailyContent(code) {
   renderDailyEditor();
 }
 
+async function saveDailyMenu() {
+  const days = collectDailyData();
+  await setDoc(doc(db, 'qrcontent', curCode), {
+    ownerUid: user.uid,
+    type: 'daily',
+    title: cur.name || 'Μενού Ημέρας',
+    days: days,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+  dailyData = days;
+  return days;
+}
+
 $('dailySave').addEventListener('click', async () => {
   const days = collectDailyData();
   if (Object.keys(days).length === 0) { $('dailyStatus').textContent = 'Γράψε τουλάχιστον ένα πιάτο (με όνομα) πριν αποθηκεύσεις.'; return; }
   $('dailySave').disabled = true; $('dailyStatus').textContent = 'Αποθηκεύεται…';
   try {
-    await setDoc(doc(db, 'qrcontent', curCode), {
-      ownerUid: user.uid,
-      type: 'daily',
-      title: cur.name || 'Μενού Ημέρας',
-      days: days,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-    dailyData = days;
-    $('dailyStatus').textContent = '✓ Αποθηκεύτηκε!';
+    await saveDailyMenu();
+    $('dailyStatus').textContent = '✓ Αποθηκεύτηκε! (' + Object.keys(days).length + ' μέρες)';
+    updateDayCounts();
   } catch (err) {
     console.error(err);
     $('dailyStatus').textContent = 'Σφάλμα: ' + (err.message || 'δοκίμασε ξανά');
   }
   $('dailySave').disabled = false;
 });
+
+function updateDayCounts() {
+  document.querySelectorAll('.day-block').forEach(blk => {
+    const d = blk.dataset.dayn;
+    const n = blk.querySelectorAll('.dish-row').length;
+    const c = blk.querySelector('.day-count'); if (c) c.textContent = n + ' πιάτα';
+  });
+}
 
 /* PDF upload for menu/daily via Cloudinary */
 const CLOUD_NAME = 'djs1rbsbn';
@@ -1570,7 +1588,11 @@ async function saveQ(extra) {
 $('qSave').addEventListener('click', async () => {
   if (cur.t !== 'profile' && cur.t !== 'daily' && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
   $('qSave').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…';
-  try { await saveQ({}); $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.'; }
+  try {
+    await saveQ({});
+    if (cur.t === 'daily') { await saveDailyMenu(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με το μενού.'; }
+    else $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.';
+  }
   catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }
   $('qSave').disabled = false;
 });
