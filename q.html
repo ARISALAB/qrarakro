@@ -13,6 +13,17 @@
   .box p { margin: 0; color: #6B6C72; max-width: 34ch; line-height: 1.5; }
   .box a { margin-top: 8px; color: #121316; font-weight: 700; }
   .spin { width: 26px; height: 26px; border: 3px solid #E7E2D8; border-top-color: #C9A46A; border-radius: 50%; animation: s .8s linear infinite; }
+  .daily { max-width: 480px; margin: 0 auto; padding: 32px 20px; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+  .daily h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
+  .daily .today-label { color: #C9A46A; font-weight: 700; font-size: 14px; margin-bottom: 20px; }
+  .daily .menu-items { white-space: pre-line; line-height: 1.7; font-size: 16px; color: #121316; }
+  .daily .closed { color: #6B6C72; font-style: italic; }
+  .daily .all-days { margin-top: 28px; border-top: 1px solid #E7E2D8; padding-top: 20px; }
+  .daily .all-days h3 { margin: 0 0 12px; font-size: 14px; color: #6B6C72; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .daily .day-block { margin-bottom: 14px; }
+  .daily .day-name { font-weight: 700; font-size: 14px; color: #C9A46A; }
+  .daily .day-items { white-space: pre-line; font-size: 14px; color: #444; line-height: 1.5; }
+  .daily footer { margin-top: 28px; text-align: center; font-size: 12px; color: #999; }
   @keyframes s { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 </style>
@@ -40,6 +51,44 @@ const T = EL ? {
   home: 'Make your own QR code'
 };
 document.documentElement.lang = EL ? 'el' : 'en';
+
+const DAYS_EL = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο'];
+const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+function renderDaily(data) {
+  const todayNum = new Date().getDay(); // 0=Sun
+  const dayNames = EL ? DAYS_EL : DAYS_EN;
+  const todayMenu = data.days && data.days[String(todayNum)];
+  const b = document.getElementById('box');
+  b.className = 'daily';
+
+  let html = '<h1>' + (data.title || (EL ? 'Μενού Ημέρας' : 'Daily Menu')) + '</h1>';
+  html += '<div class="today-label">' + dayNames[todayNum] + '</div>';
+
+  if (todayMenu) {
+    html += '<div class="menu-items">' + esc(todayMenu) + '</div>';
+  } else {
+    html += '<div class="closed">' + (EL ? 'Δεν υπάρχει μενού για σήμερα' : 'No menu for today') + '</div>';
+  }
+
+  // Show other days
+  const otherDays = DAY_ORDER.filter(d => d !== todayNum && data.days && data.days[String(d)]);
+  if (otherDays.length) {
+    html += '<div class="all-days"><h3>' + (EL ? 'Υπόλοιπη εβδομάδα' : 'Rest of the week') + '</h3>';
+    otherDays.forEach(d => {
+      html += '<div class="day-block"><div class="day-name">' + dayNames[d] + '</div>';
+      html += '<div class="day-items">' + esc(data.days[String(d)]) + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
+  b.innerHTML = html;
+  document.title = data.title || 'Daily Menu';
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 function show(t) {
   const b = document.getElementById('box');
@@ -75,6 +124,15 @@ async function go() {
   ]);
 
   if (st.usable) {                          // Premium ενεργό ή σε περίοδο χάριτος
+    // Daily menu micro-page
+    if (q.t === 'daily') {
+      await count('scans');
+      try {
+        const cs = await getDoc(doc(db, 'qrcontent', code));
+        if (cs.exists()) return renderDaily(cs.data());
+      } catch (e) {}
+      return show(T.draft);
+    }
     if (!dest) return show(T.draft);
     await count('scans'); return location.replace(dest);
   }

@@ -247,6 +247,11 @@
   }
   @media (max-width: 560px) { .who span { display: none; } .brand { white-space: nowrap; } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+  .daily-days { display: grid; gap: 10px; }
+  .day-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: start; }
+  .day-row label { font-weight: 700; font-size: 13px; padding-top: 10px; color: var(--ink-2); }
+  .day-row textarea { min-height: 56px; resize: vertical; font-size: 14px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; }
+  .day-row textarea:focus { outline: none; border-color: var(--gold); }
   .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #121316; color: rgba(247,244,238,.85); padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.3); }
   .cookie-banner a { color: #E7D2A6; text-decoration: underline; text-underline-offset: 2px; }
   .cookie-banner button { padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 0; }
@@ -469,6 +474,16 @@
                       <input type="file" id="pdfFile" accept="application/pdf" hidden>
                     </div></div>
                   <p class="q-hint" id="qTypeHint" hidden></p>
+
+                  <!-- Daily Menu Editor -->
+                  <div id="dailyEditor" hidden style="margin-top:16px">
+                    <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Μενού ανά ημέρα</h3>
+                    <p class="hint" style="margin:0 0 14px">Γράψε τα πιάτα κάθε μέρας. Το QR θα δείχνει αυτόματα τη σημερινή μέρα. Άφησε κενό αν είσαι κλειστά.</p>
+                    <div class="daily-days" id="dailyDays"></div>
+                    <button type="button" class="btn line small" id="dailySave" style="margin-top:12px">Αποθήκευση μενού</button>
+                    <span class="hint" id="dailyStatus" style="margin-left:8px"></span>
+                  </div>
+
                 </div>
               </section>
               <section class="card">
@@ -1315,6 +1330,7 @@ function openQr(code) {
   syncQ(); loadStats(code); window.scrollTo({ top: 0 });
   watchQr(code);
   getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
+  if (cur.t === 'daily') loadDailyContent(code);
 }
 $('qrBack').addEventListener('click', () => showQrList());
 function syncQ() {
@@ -1322,6 +1338,8 @@ function syncQ() {
   $('qValue').placeholder = QPH[cur.t] || '';
   $('qValueLabel').textContent = QPH[cur.t] || 'Προορισμός';
   $('pdfUploadWrap').hidden = !['menu', 'daily'].includes(cur.t);
+  $('dailyEditor').hidden = cur.t !== 'daily';
+  $('qValueWrap').hidden = cur.t === 'profile' || cur.t === 'daily';
   const hint = QHINT[cur.t] || ''; $('qTypeHint').textContent = hint; $('qTypeHint').hidden = !hint;
   $('qTypeHint').className = 'q-hint' + (cur.t !== 'profile' && hint ? ' q-hint-gold' : '');
   $('qValueErr').hidden = !(cur.t !== 'profile' && cur.v.trim() && !qDest(cur));
@@ -1350,7 +1368,7 @@ async function drawQPreview() {
   drawCode($('qCanvas'), 600, shortUrl(curCode), cur.fg, cur.bg, qLogoImg);
 }
 $('qName').addEventListener('input', e => { cur.name = e.target.value; });
-$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); });
+$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); if (cur.t === 'daily' && curCode) loadDailyContent(curCode); });
 $('qValue').addEventListener('input', e => { cur.v = e.target.value; $('qValueErr').hidden = !(cur.v.trim() && !qDest(cur)); });
 $('qCaption').addEventListener('input', e => { cur.caption = e.target.value; syncQ(); });
 $('qFg').addEventListener('input', e => { cur.fg = e.target.value.toUpperCase(); syncQ(); });
@@ -1363,6 +1381,52 @@ $('qLogoFile').addEventListener('change', async e => {
 });
 $('qLogoProf').addEventListener('click', () => { qCustom = ''; cur.logo = true; syncQ(); });
 $('qLogoDel').addEventListener('click', () => { qCustom = ''; cur.logo = false; syncQ(); });
+
+/* ---------- Daily Menu Editor ---------- */
+const DAY_NAMES = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο'];
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon-Sun
+let dailyData = {};
+
+function renderDailyEditor() {
+  $('dailyDays').innerHTML = DAY_ORDER.map(d =>
+    '<div class="day-row"><label>' + DAY_NAMES[d] + '</label>' +
+    '<textarea data-day="' + d + '" placeholder="π.χ. Μουσακάς 8€, Χωριάτικη 7€">' +
+    (dailyData[d] || '') + '</textarea></div>'
+  ).join('');
+}
+
+async function loadDailyContent(code) {
+  try {
+    const s = await getDoc(doc(db, 'qrcontent', code));
+    if (s.exists()) dailyData = s.data().days || {};
+    else dailyData = {};
+  } catch (e) { dailyData = {}; }
+  renderDailyEditor();
+}
+
+$('dailySave').addEventListener('click', async () => {
+  const days = {};
+  $('dailyDays').querySelectorAll('textarea').forEach(ta => {
+    const v = ta.value.trim();
+    if (v) days[ta.dataset.day] = v;
+  });
+  $('dailySave').disabled = true; $('dailyStatus').textContent = 'Αποθηκεύεται…';
+  try {
+    await setDoc(doc(db, 'qrcontent', curCode), {
+      ownerUid: user.uid,
+      type: 'daily',
+      title: cur.name || 'Μενού Ημέρας',
+      days: days,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    dailyData = days;
+    $('dailyStatus').textContent = '✓ Αποθηκεύτηκε!';
+  } catch (err) {
+    console.error(err);
+    $('dailyStatus').textContent = 'Σφάλμα: ' + (err.message || 'δοκίμασε ξανά');
+  }
+  $('dailySave').disabled = false;
+});
 
 /* PDF upload for menu/daily via Cloudinary */
 const CLOUD_NAME = 'djs1rbsbn';
