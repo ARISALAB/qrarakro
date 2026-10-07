@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Το προφίλ μου | AR Akron QR</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%234B5A2E'/%3E%3Crect x='3' y='3' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='9' y='3' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='3' y='9' width='4' height='4' fill='%23FBF9F4'/%3E%3Crect x='10' y='10' width='2' height='2' fill='%23FBF9F4'/%3E%3C/svg%3E">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FBF9F4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -274,6 +275,16 @@
   .pick-panel img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
   .pick-panel img:hover { border-color: var(--gold); }
   .pick-panel .no-photos { font-size: 12px; color: var(--ink-2); font-style: italic; }
+  .offer-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
+  .offer-card .off-del { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border: 0; background: transparent; color: var(--ink-2); font-size: 18px; cursor: pointer; border-radius: 6px; }
+  .offer-card .off-del:hover { background: #fee; color: #c00; }
+  .offer-grid { display: grid; gap: 10px; }
+  .offer-grid .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .offer-grid label { font-size: 12px; font-weight: 600; color: var(--ink-2); display: block; margin-bottom: 3px; }
+  .offer-grid input, .offer-grid textarea { width: 100%; font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; font-family: inherit; }
+  .offer-grid textarea { min-height: 50px; resize: vertical; font-family: Georgia, serif; font-style: italic; }
+  .offer-img-row { display: flex; align-items: center; gap: 8px; }
+  .offer-img-row img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
   .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #121316; color: rgba(247,244,238,.85); padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.3); }
   .cookie-banner a { color: #E7D2A6; text-decoration: underline; text-underline-offset: 2px; }
   .cookie-banner button { padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 0; }
@@ -518,6 +529,29 @@
                     <div class="daily-days" id="dailyDays"></div>
                     <button type="button" class="btn line small" id="dailySave" style="margin-top:12px">Αποθήκευση μενού</button>
                     <span class="hint" id="dailyStatus" style="margin-left:8px"></span>
+                  </div>
+
+                  <!-- Offers Editor -->
+                  <div id="offersEditor" hidden style="margin-top:16px">
+                    <div class="field" style="margin-bottom:16px">
+                      <label for="offersTitle">Τίτλος σελίδας <span style="color:var(--gold-2);font-weight:600">(το βλέπουν οι πελάτες)</span></label>
+                      <input type="text" id="offersTitle" maxlength="80" placeholder="π.χ. Οι προσφορές μας">
+                    </div>
+
+                    <div id="offGalleryWrap" style="margin-bottom:16px">
+                      <h3 style="margin:0 0 8px;font-size:15px;font-weight:700">Οι φωτογραφίες μου</h3>
+                      <div class="gallery" id="offGallery"></div>
+                      <button type="button" class="btn line small" id="offGalleryAdd" style="margin-top:8px">+ Ανέβασε φωτογραφία</button>
+                      <input type="file" id="offGalleryFile" accept="image/*" hidden>
+                      <span class="hint" id="offGalleryStatus" style="margin-left:8px"></span>
+                    </div>
+
+                    <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Προσφορές <span class="hint" style="font-weight:400">(έως 5)</span></h3>
+                    <p class="hint" style="margin:0 0 14px">Με ημερομηνία λήξης, η προσφορά εξαφανίζεται αυτόματα όταν περάσει.</p>
+                    <div id="offersList"></div>
+                    <button type="button" class="add-dish" id="offerAdd">+ Πρόσθεσε προσφορά</button>
+                    <button type="button" class="btn line small" id="offersSave" style="margin-top:12px">Αποθήκευση προσφορών</button>
+                    <span class="hint" id="offersStatus" style="margin-left:8px"></span>
                   </div>
 
                 </div>
@@ -1367,6 +1401,7 @@ function openQr(code) {
   watchQr(code);
   getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
   if (cur.t === 'daily') loadDailyContent(code);
+  if (cur.t === 'offers') loadOffersContent(code);
 }
 $('qrBack').addEventListener('click', () => showQrList());
 function syncQ() {
@@ -1375,7 +1410,8 @@ function syncQ() {
   $('qValueLabel').textContent = QPH[cur.t] || 'Προορισμός';
   $('pdfUploadWrap').hidden = !['menu', 'daily'].includes(cur.t);
   $('dailyEditor').hidden = cur.t !== 'daily';
-  $('qValueWrap').hidden = cur.t === 'profile' || cur.t === 'daily';
+  $('offersEditor').hidden = cur.t !== 'offers';
+  $('qValueWrap').hidden = ['profile', 'daily', 'offers'].includes(cur.t);
   const hint = QHINT[cur.t] || ''; $('qTypeHint').textContent = hint; $('qTypeHint').hidden = !hint;
   $('qTypeHint').className = 'q-hint' + (cur.t !== 'profile' && hint ? ' q-hint-gold' : '');
   $('qValueErr').hidden = !(cur.t !== 'profile' && cur.t !== 'daily' && cur.v.trim() && !qDest(cur));
@@ -1404,7 +1440,7 @@ async function drawQPreview() {
   drawCode($('qCanvas'), 600, shortUrl(curCode), cur.fg, cur.bg, qLogoImg);
 }
 $('qName').addEventListener('input', e => { cur.name = e.target.value; });
-$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); if (cur.t === 'daily' && curCode) loadDailyContent(curCode); });
+$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); if (cur.t === 'daily' && curCode) loadDailyContent(curCode); if (cur.t === 'offers' && curCode) loadOffersContent(curCode); });
 $('qValue').addEventListener('input', e => { cur.v = e.target.value; $('qValueErr').hidden = !(cur.v.trim() && !qDest(cur)); });
 $('qCaption').addEventListener('input', e => { cur.caption = e.target.value; syncQ(); });
 $('qFg').addEventListener('input', e => { cur.fg = e.target.value.toUpperCase(); syncQ(); });
@@ -1614,6 +1650,160 @@ function updateDayCounts() {
   });
 }
 
+/* ---------- Offers Editor ---------- */
+let offersData = [];
+
+function offerHtml(o, i) {
+  return '<div class="offer-card" data-oi="' + i + '">' +
+    '<button type="button" class="off-del" title="Διαγραφή προσφοράς">×</button>' +
+    '<div class="offer-grid">' +
+      '<div><label>Τίτλος προσφοράς</label><input data-of="t" value="' + esc(o.t || '') + '" placeholder="π.χ. 2 πίτσες στην τιμή της μίας" maxlength="80"></div>' +
+      '<div><label>Περιγραφή</label><textarea data-of="d" placeholder="Λεπτομέρειες προσφοράς" maxlength="300">' + esc(o.d || '') + '</textarea></div>' +
+      '<div class="row2">' +
+        '<div><label>Παλιά τιμή €</label><input data-of="op" value="' + esc(o.op || '') + '" placeholder="20,00"></div>' +
+        '<div><label>Νέα τιμή €</label><input data-of="np" value="' + esc(o.np || '') + '" placeholder="12,00"></div>' +
+      '</div>' +
+      '<div class="row2">' +
+        '<div><label>Κωδικός κουπονιού</label><input data-of="c" value="' + esc(o.c || '') + '" placeholder="SUMMER20" maxlength="20"></div>' +
+        '<div><label>Λήγει στις</label><input data-of="e" type="date" value="' + esc(o.e || '') + '"></div>' +
+      '</div>' +
+      '<div><label>Σύνδεσμος δράσης (προαιρετικά)</label><input data-of="u" value="' + esc(o.u || '') + '" placeholder="https://… για κράτηση ή παραγγελία"></div>' +
+      '<div><label>Όροι (μικρά γράμματα)</label><input data-of="tc" value="' + esc(o.tc || '') + '" placeholder="π.χ. Ισχύει Δευτ-Πέμ, όχι με άλλες προσφορές" maxlength="200"></div>' +
+      '<div class="offer-img-row">' +
+        (o.img ? '<img src="' + esc(o.img) + '"><button type="button" class="off-imgdel" style="border:0;background:none;color:#c00;cursor:pointer;font-size:16px">×</button>' : '') +
+        '<button type="button" class="btn line small off-pick-btn">📷 Επίλεξε φωτογραφία</button>' +
+      '</div>' +
+      '<div class="pick-panel off-pick-panel"></div>' +
+    '</div></div>';
+}
+
+function renderOffers() {
+  $('offersList').innerHTML = offersData.map((o, i) => offerHtml(o, i)).join('');
+  $('offerAdd').style.display = offersData.length >= 5 ? 'none' : 'block';
+}
+
+function collectOffers() {
+  const arr = [];
+  $('offersList').querySelectorAll('.offer-card').forEach(card => {
+    const g = f => { const el = card.querySelector('[data-of="' + f + '"]'); return el ? el.value.trim() : ''; };
+    const t = g('t'); if (!t) return;
+    const o = { t };
+    ['d', 'op', 'np', 'c', 'e', 'u', 'tc'].forEach(f => { const v = g(f); if (v) o[f] = v; });
+    const img = card.querySelector('.offer-img-row img'); if (img) o.img = img.src;
+    arr.push(o);
+  });
+  return arr;
+}
+
+$('offerAdd').addEventListener('click', () => {
+  if (offersData.length >= 5) return;
+  offersData = collectOffers();
+  offersData.push({ t: '' });
+  renderOffers();
+  const last = $('offersList').lastElementChild;
+  if (last) last.querySelector('[data-of="t"]').focus();
+});
+
+$('offersList').addEventListener('click', e => {
+  const del = e.target.closest('.off-del');
+  if (del) { del.closest('.offer-card').remove(); offersData = collectOffers(); $('offerAdd').style.display = offersData.length >= 5 ? 'none' : 'block'; return; }
+  const imgdel = e.target.closest('.off-imgdel');
+  if (imgdel) { const img = imgdel.previousElementSibling; if (img) img.remove(); imgdel.remove(); return; }
+  const pickBtn = e.target.closest('.off-pick-btn');
+  if (pickBtn) {
+    const card = pickBtn.closest('.offer-card');
+    const panel = card.querySelector('.off-pick-panel');
+    if (panel.classList.contains('open')) { panel.classList.remove('open'); return; }
+    document.querySelectorAll('.pick-panel.open').forEach(p => p.classList.remove('open'));
+    panel.innerHTML = gallery.length
+      ? gallery.map(u => '<img src="' + esc(u) + '" data-opick="' + esc(u) + '">').join('')
+      : '<span class="no-photos">Ανέβασε πρώτα φωτογραφίες πάνω.</span>';
+    panel.classList.add('open');
+    return;
+  }
+  const picked = e.target.closest('[data-opick]');
+  if (picked) {
+    const card = picked.closest('.offer-card');
+    const imgRow = card.querySelector('.offer-img-row');
+    const existing = imgRow.querySelector('img');
+    if (existing) existing.src = picked.dataset.opick;
+    else imgRow.insertAdjacentHTML('afterbegin', '<img src="' + esc(picked.dataset.opick) + '"><button type="button" class="off-imgdel" style="border:0;background:none;color:#c00;cursor:pointer;font-size:16px">×</button>');
+    card.querySelector('.off-pick-panel').classList.remove('open');
+    return;
+  }
+});
+
+/* Gallery for offers (shares same gallery array) */
+$('offGalleryAdd').addEventListener('click', () => $('offGalleryFile').click());
+$('offGalleryFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { $('offGalleryStatus').textContent = 'Μέγιστο 5 MB.'; return; }
+  $('offGalleryAdd').disabled = true; $('offGalleryStatus').textContent = 'Ανεβαίνει…';
+  try {
+    const fd = new FormData();
+    fd.append('file', f); fd.append('upload_preset', UPLOAD_PRESET);
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error('fail');
+    gallery.push(data.secure_url);
+    renderOffGallery();
+    $('offGalleryStatus').textContent = '✓ Ανέβηκε';
+  } catch (err) { $('offGalleryStatus').textContent = 'Σφάλμα upload'; }
+  $('offGalleryAdd').disabled = false;
+});
+
+function renderOffGallery() {
+  const g = $('offGallery');
+  if (!gallery.length) { g.innerHTML = '<span class="gallery-empty">Καμία φωτογραφία ακόμα.</span>'; return; }
+  g.innerHTML = gallery.map((url, i) =>
+    '<div class="gallery-item"><img src="' + esc(url) + '" alt="">' +
+    '<button type="button" class="gdel" data-gi="' + i + '">×</button></div>'
+  ).join('');
+}
+
+$('offGallery').addEventListener('click', e => {
+  const del = e.target.closest('.gdel'); if (!del) return;
+  gallery.splice(Number(del.dataset.gi), 1);
+  renderOffGallery();
+});
+
+async function saveOffers() {
+  const offers = collectOffers();
+  await setDoc(doc(db, 'qrcontent', curCode), {
+    ownerUid: user.uid,
+    type: 'offers',
+    title: ($('offersTitle').value || '').trim() || 'Προσφορές',
+    offers: offers,
+    gallery: gallery,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+  offersData = offers;
+  return offers;
+}
+
+$('offersSave').addEventListener('click', async () => {
+  const offers = collectOffers();
+  if (!offers.length) { $('offersStatus').textContent = 'Πρόσθεσε τουλάχιστον μία προσφορά με τίτλο.'; return; }
+  $('offersSave').disabled = true; $('offersStatus').textContent = 'Αποθηκεύεται…';
+  try { await saveOffers(); $('offersStatus').textContent = '✓ Αποθηκεύτηκε! (' + offers.length + ' προσφορές)'; }
+  catch (err) { console.error(err); $('offersStatus').textContent = 'Σφάλμα: ' + (err.message || 'δοκίμασε ξανά'); }
+  $('offersSave').disabled = false;
+});
+
+async function loadOffersContent(code) {
+  try {
+    const s = await getDoc(doc(db, 'qrcontent', code));
+    if (s.exists()) {
+      const dd = s.data();
+      offersData = Array.isArray(dd.offers) ? dd.offers : [];
+      gallery = Array.isArray(dd.gallery) ? dd.gallery : [];
+      $('offersTitle').value = dd.title || '';
+    } else { offersData = []; gallery = []; $('offersTitle').value = ''; }
+  } catch (e) { offersData = []; gallery = []; }
+  renderOffGallery();
+  renderOffers();
+}
+
 /* PDF upload for menu/daily via Cloudinary */
 const CLOUD_NAME = 'djs1rbsbn';
 const UPLOAD_PRESET = 'QR code Ar Akron Services';
@@ -1653,11 +1843,12 @@ async function saveQ(extra) {
   const i = qrs.findIndex(x => x.code === curCode); if (i > -1) qrs[i] = { ...cur };
 }
 $('qSave').addEventListener('click', async () => {
-  if (cur.t !== 'profile' && cur.t !== 'daily' && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
+  if (!['profile', 'daily', 'offers'].includes(cur.t) && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
   $('qSave').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…';
   try {
     await saveQ({});
     if (cur.t === 'daily') { await saveDailyMenu(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με το μενού.'; }
+    else if (cur.t === 'offers') { await saveOffers(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με τις προσφορές.'; }
     else $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.';
   }
   catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }

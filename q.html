@@ -32,6 +32,26 @@
   .daily .other-dish { display: flex; justify-content: space-between; padding: 3px 0; font-size: 14px; color: #444; }
   .daily .other-dish-p { color: #999; }
   .daily footer { margin-top: 28px; text-align: center; font-size: 12px; color: #999; }
+  .offers { max-width: 480px; margin: 0 auto; padding: 32px 20px; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+  .offers h1 { margin: 0 0 20px; font-size: 22px; letter-spacing: -0.02em; }
+  .offer { border: 1px solid #E7E2D8; border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
+  .offer-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+  .offer-body { padding: 16px; }
+  .offer-t { font-size: 18px; font-weight: 700; color: #121316; margin: 0 0 6px; }
+  .offer-d { font-size: 14px; color: #6B6C72; font-family: Georgia, serif; font-style: italic; line-height: 1.5; margin: 0 0 12px; }
+  .offer-prices { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .offer-old { font-size: 15px; color: #999; text-decoration: line-through; }
+  .offer-new { font-size: 24px; font-weight: 800; color: #C9A46A; }
+  .offer-badge { display: inline-block; background: #C9A46A; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-left: 6px; }
+  .offer-countdown { background: #FFF6E8; border: 1px solid #F0DCB8; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-weight: 700; color: #8A6A2E; margin-bottom: 12px; text-align: center; }
+  .offer-countdown.soon { background: #FFEBEB; border-color: #F5C2C2; color: #B22; }
+  .offer-coupon { display: flex; align-items: center; gap: 8px; background: #F7F4EE; border: 1px dashed #C9A46A; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+  .offer-coupon code { flex: 1; font-size: 16px; font-weight: 800; letter-spacing: .1em; color: #121316; }
+  .offer-coupon button { background: #121316; color: #fff; border: 0; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .offer-cta { display: block; background: #121316; color: #fff; text-align: center; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none; margin-bottom: 10px; }
+  .offer-tc { font-size: 11px; color: #999; line-height: 1.4; }
+  .offers-empty { text-align: center; color: #6B6C72; font-style: italic; padding: 40px 0; }
+  .offers footer { margin-top: 28px; text-align: center; font-size: 12px; color: #999; }
   @keyframes s { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 </style>
@@ -115,6 +135,60 @@ function renderDaily(data) {
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+function renderOffers(data) {
+  const b = document.getElementById('box');
+  b.className = 'offers';
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const all = Array.isArray(data.offers) ? data.offers : [];
+  const live = all.filter(o => { if (!o.e) return true; const d = new Date(o.e + 'T23:59:59'); return d >= new Date(); });
+
+  let html = '<h1>' + esc(data.title || (EL ? 'Προσφορές' : 'Offers')) + '</h1>';
+  if (!live.length) {
+    html += '<div class="offers-empty">' + (EL ? 'Δεν υπάρχουν ενεργές προσφορές αυτή τη στιγμή.' : 'No active offers right now.') + '</div>';
+  } else {
+    live.forEach(o => {
+      html += '<div class="offer">';
+      if (o.img) html += '<img class="offer-img" src="' + esc(o.img) + '" alt="">';
+      html += '<div class="offer-body">';
+      html += '<h2 class="offer-t">' + esc(o.t) + '</h2>';
+      if (o.d) html += '<p class="offer-d">' + esc(o.d) + '</p>';
+      if (o.np) {
+        html += '<div class="offer-prices">';
+        if (o.op) html += '<span class="offer-old">' + esc(o.op) + ' €</span>';
+        html += '<span class="offer-new">' + esc(o.np) + ' €</span>';
+        if (o.op) {
+          const oldN = parseFloat(String(o.op).replace(',', '.')), newN = parseFloat(String(o.np).replace(',', '.'));
+          if (oldN > 0 && newN >= 0 && newN < oldN) html += '<span class="offer-badge">-' + Math.round((1 - newN / oldN) * 100) + '%</span>';
+        }
+        html += '</div>';
+      }
+      if (o.e) {
+        const end = new Date(o.e + 'T23:59:59');
+        const ms = end - new Date();
+        const days = Math.floor(ms / 86400000), hrs = Math.floor((ms % 86400000) / 3600000);
+        let txt;
+        if (days > 1) txt = (EL ? '⏳ Λήγει σε ' + days + ' μέρες' : '⏳ Ends in ' + days + ' days');
+        else if (days === 1) txt = (EL ? '⏳ Λήγει αύριο' : '⏳ Ends tomorrow');
+        else txt = (EL ? '🔥 Λήγει σήμερα' + (hrs > 0 ? ' (σε ' + hrs + ' ώρες)' : '') : '🔥 Ends today');
+        html += '<div class="offer-countdown' + (days <= 1 ? ' soon' : '') + '">' + txt + '</div>';
+      }
+      if (o.c) html += '<div class="offer-coupon"><code>' + esc(o.c) + '</code><button type="button" data-copy="' + esc(o.c) + '">' + (EL ? 'Αντιγραφή' : 'Copy') + '</button></div>';
+      if (o.u) html += '<a class="offer-cta" href="' + esc(o.u) + '" target="_blank" rel="noopener">' + (EL ? 'Εκμεταλλεύσου την' : 'Get this offer') + '</a>';
+      if (o.tc) html += '<div class="offer-tc">' + esc(o.tc) + '</div>';
+      html += '</div></div>';
+    });
+  }
+  html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
+  b.innerHTML = html;
+  document.title = data.title || 'Offers';
+  b.addEventListener('click', e => {
+    const btn = e.target.closest('[data-copy]'); if (!btn) return;
+    navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+      const old = btn.textContent; btn.textContent = '✓'; setTimeout(() => btn.textContent = old, 1500);
+    }).catch(() => {});
+  });
+}
+
 function show(t) {
   const b = document.getElementById('box');
   b.innerHTML = '<h1></h1><p></p><a></a>';
@@ -150,11 +224,11 @@ async function go() {
 
   if (st.usable) {                          // Premium ενεργό ή σε περίοδο χάριτος
     // Daily menu micro-page
-    if (q.t === 'daily') {
+    if (q.t === 'daily' || q.t === 'offers') {
       await count('scans');
       try {
         const cs = await getDoc(doc(db, 'qrcontent', code));
-        if (cs.exists()) return renderDaily(cs.data());
+        if (cs.exists()) return q.t === 'daily' ? renderDaily(cs.data()) : renderOffers(cs.data());
       } catch (e) {}
       return show(T.draft);
     }
