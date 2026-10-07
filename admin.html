@@ -1456,7 +1456,6 @@ $('dailyDays').addEventListener('click', e => {
     add.insertAdjacentHTML('beforebegin', dishHtml(d, {}, dailyData[d].length - 1));
     const newRow = add.previousElementSibling;
     newRow.querySelector('.dish-name').focus();
-    hdr && updateDayCount(d);
     return;
   }
   // Delete dish
@@ -1511,6 +1510,7 @@ async function loadDailyContent(code) {
 
 $('dailySave').addEventListener('click', async () => {
   const days = collectDailyData();
+  if (Object.keys(days).length === 0) { $('dailyStatus').textContent = 'Γράψε τουλάχιστον ένα πιάτο (με όνομα) πριν αποθηκεύσεις.'; return; }
   $('dailySave').disabled = true; $('dailyStatus').textContent = 'Αποθηκεύεται…';
   try {
     await setDoc(doc(db, 'qrcontent', curCode), {
