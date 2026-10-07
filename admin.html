@@ -247,11 +247,23 @@
   }
   @media (max-width: 560px) { .who span { display: none; } .brand { white-space: nowrap; } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
-  .daily-days { display: grid; gap: 10px; }
-  .day-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: start; }
-  .day-row label { font-weight: 700; font-size: 13px; padding-top: 10px; color: var(--ink-2); }
-  .day-row textarea { min-height: 56px; resize: vertical; font-size: 14px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; }
-  .day-row textarea:focus { outline: none; border-color: var(--gold); }
+  .daily-days { display: grid; gap: 14px; }
+  .day-block { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .day-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-2); cursor: pointer; font-weight: 700; font-size: 14px; }
+  .day-header .day-count { font-weight: 400; font-size: 12px; color: var(--ink-2); }
+  .day-body { padding: 12px 14px; display: none; }
+  .day-block.open .day-body { display: block; }
+  .dish-row { display: grid; grid-template-columns: 1fr 80px 28px; gap: 8px; align-items: start; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .dish-row:last-of-type { border-bottom: 0; }
+  .dish-name { font-size: 14px; font-weight: 600; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  .dish-price { font-size: 14px; text-align: right; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  .dish-desc { grid-column: 1 / 3; font-size: 13px; font-style: italic; font-family: Georgia, 'Times New Roman', serif; color: var(--ink-2); padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; min-height: 36px; resize: vertical; margin-top: 4px; }
+  .dish-img-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .dish-img-row img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+  .dish-del { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--ink-2); font-size: 18px; cursor: pointer; border-radius: 6px; }
+  .dish-del:hover { background: #fee; color: #c00; }
+  .add-dish { font-size: 13px; font-weight: 600; color: var(--gold-2); background: none; border: 1px dashed var(--line); border-radius: 8px; padding: 8px; width: 100%; cursor: pointer; margin-top: 6px; }
+  .add-dish:hover { border-color: var(--gold); }
   .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #121316; color: rgba(247,244,238,.85); padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.3); }
   .cookie-banner a { color: #E7D2A6; text-decoration: underline; text-underline-offset: 2px; }
   .cookie-banner button { padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 0; }
@@ -1384,16 +1396,103 @@ $('qLogoDel').addEventListener('click', () => { qCustom = ''; cur.logo = false; 
 
 /* ---------- Daily Menu Editor ---------- */
 const DAY_NAMES = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο'];
-const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon-Sun
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 let dailyData = {};
 
-function renderDailyEditor() {
-  $('dailyDays').innerHTML = DAY_ORDER.map(d =>
-    '<div class="day-row"><label>' + DAY_NAMES[d] + '</label>' +
-    '<textarea data-day="' + d + '" placeholder="π.χ. Μουσακάς 8€, Χωριάτικη 7€">' +
-    (dailyData[d] || '') + '</textarea></div>'
-  ).join('');
+function dishHtml(d, dish, idx) {
+  return '<div class="dish-row" data-day="' + d + '" data-idx="' + idx + '">' +
+    '<input class="dish-name" placeholder="Όνομα πιάτου" value="' + esc(dish.n || '') + '" data-f="n">' +
+    '<input class="dish-price" placeholder="Τιμή €" value="' + esc(dish.p || '') + '" data-f="p">' +
+    '<button type="button" class="dish-del" title="Αφαίρεση">×</button>' +
+    '<textarea class="dish-desc" placeholder="Περιγραφή (προαιρετικά)" data-f="d">' + esc(dish.d || '') + '</textarea>' +
+    (dish.img ? '<div class="dish-img-row"><img src="' + esc(dish.img) + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση φωτο">×</button></div>' : '') +
+    '<div class="dish-img-row"><button type="button" class="btn line small dish-photo-btn">📷 Φωτογραφία</button>' +
+    '<input type="file" accept="image/*" class="dish-photo-input" hidden></div>' +
+    '</div>';
 }
+function esc(s) { return s.replace ? s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;') : ''; }
+
+function renderDailyEditor() {
+  const todayNum = new Date().getDay();
+  $('dailyDays').innerHTML = DAY_ORDER.map(d => {
+    const dishes = dailyData[d] || [];
+    const isToday = d === todayNum;
+    return '<div class="day-block' + (isToday ? ' open' : '') + '" data-dayn="' + d + '">' +
+      '<div class="day-header"><span>' + (isToday ? '📌 ' : '') + DAY_NAMES[d] + '</span><span class="day-count">' + dishes.length + ' πιάτα</span></div>' +
+      '<div class="day-body">' +
+        dishes.map((dish, i) => dishHtml(d, dish, i)).join('') +
+        '<button type="button" class="add-dish" data-day="' + d + '">+ Πρόσθεσε πιάτο</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function collectDailyData() {
+  const days = {};
+  DAY_ORDER.forEach(d => {
+    const rows = $('dailyDays').querySelectorAll('.dish-row[data-day="' + d + '"]');
+    const arr = [];
+    rows.forEach(r => {
+      const n = r.querySelector('[data-f="n"]').value.trim();
+      if (!n) return;
+      const dish = { n };
+      const p = r.querySelector('[data-f="p"]').value.trim(); if (p) dish.p = p;
+      const desc = r.querySelector('[data-f="d"]').value.trim(); if (desc) dish.d = desc;
+      const img = r.querySelector('.dish-img-row img'); if (img) dish.img = img.src;
+      arr.push(dish);
+    });
+    if (arr.length) days[String(d)] = arr;
+  });
+  return days;
+}
+
+$('dailyDays').addEventListener('click', e => {
+  // Toggle day
+  const hdr = e.target.closest('.day-header');
+  if (hdr) { hdr.parentElement.classList.toggle('open'); return; }
+  // Add dish
+  const add = e.target.closest('.add-dish');
+  if (add) {
+    const d = add.dataset.day;
+    if (!dailyData[d]) dailyData[d] = [];
+    dailyData[d].push({ n: '', p: '', d: '' });
+    add.insertAdjacentHTML('beforebegin', dishHtml(d, {}, dailyData[d].length - 1));
+    const newRow = add.previousElementSibling;
+    newRow.querySelector('.dish-name').focus();
+    hdr && updateDayCount(d);
+    return;
+  }
+  // Delete dish
+  const del = e.target.closest('.dish-del');
+  if (del) {
+    if (del.dataset.f === 'imgdel') { del.parentElement.remove(); return; }
+    del.closest('.dish-row').remove();
+    return;
+  }
+  // Photo upload trigger
+  const photoBtn = e.target.closest('.dish-photo-btn');
+  if (photoBtn) { photoBtn.parentElement.querySelector('.dish-photo-input').click(); return; }
+});
+
+$('dailyDays').addEventListener('change', async e => {
+  if (!e.target.classList.contains('dish-photo-input')) return;
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { alert('Μέγιστο 5 MB'); return; }
+  const row = e.target.closest('.dish-img-row');
+  const existing = row.parentElement.querySelector('.dish-img-row img');
+  row.querySelector('.dish-photo-btn').textContent = '⏳ Ανεβαίνει…';
+  try {
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    fd.append('folder', 'dishes');
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!existing) {
+      row.insertAdjacentHTML('beforebegin', '<div class="dish-img-row"><img src="' + data.secure_url + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση">×</button></div>');
+    } else { existing.src = data.secure_url; }
+  } catch (err) { alert('Σφάλμα upload'); }
+  row.querySelector('.dish-photo-btn').textContent = '📷 Φωτογραφία';
+});
 
 async function loadDailyContent(code) {
   try {
@@ -1405,11 +1504,7 @@ async function loadDailyContent(code) {
 }
 
 $('dailySave').addEventListener('click', async () => {
-  const days = {};
-  $('dailyDays').querySelectorAll('textarea').forEach(ta => {
-    const v = ta.value.trim();
-    if (v) days[ta.dataset.day] = v;
-  });
+  const days = collectDailyData();
   $('dailySave').disabled = true; $('dailyStatus').textContent = 'Αποθηκεύεται…';
   try {
     await setDoc(doc(db, 'qrcontent', curCode), {

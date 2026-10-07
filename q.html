@@ -15,14 +15,22 @@
   .spin { width: 26px; height: 26px; border: 3px solid #E7E2D8; border-top-color: #C9A46A; border-radius: 50%; animation: s .8s linear infinite; }
   .daily { max-width: 480px; margin: 0 auto; padding: 32px 20px; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
   .daily h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
-  .daily .today-label { color: #C9A46A; font-weight: 700; font-size: 14px; margin-bottom: 20px; }
-  .daily .menu-items { white-space: pre-line; line-height: 1.7; font-size: 16px; color: #121316; }
-  .daily .closed { color: #6B6C72; font-style: italic; }
-  .daily .all-days { margin-top: 28px; border-top: 1px solid #E7E2D8; padding-top: 20px; }
-  .daily .all-days h3 { margin: 0 0 12px; font-size: 14px; color: #6B6C72; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
-  .daily .day-block { margin-bottom: 14px; }
-  .daily .day-name { font-weight: 700; font-size: 14px; color: #C9A46A; }
-  .daily .day-items { white-space: pre-line; font-size: 14px; color: #444; line-height: 1.5; }
+  .daily .today-label { color: #C9A46A; font-weight: 700; font-size: 14px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: .06em; }
+  .daily .dish { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E7E2D8; }
+  .daily .dish:last-child { border-bottom: 0; }
+  .daily .dish-photo { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+  .daily .dish-info { flex: 1; min-width: 0; }
+  .daily .dish-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .daily .dish-n { font-weight: 700; font-size: 16px; color: #121316; }
+  .daily .dish-p { font-weight: 700; font-size: 15px; color: #C9A46A; white-space: nowrap; }
+  .daily .dish-d { margin-top: 3px; font-size: 13.5px; color: #6B6C72; font-family: Georgia, 'Times New Roman', serif; font-style: italic; line-height: 1.4; }
+  .daily .closed { color: #6B6C72; font-style: italic; padding: 20px 0; }
+  .daily .all-days { margin-top: 28px; border-top: 2px solid #E7E2D8; padding-top: 20px; }
+  .daily .all-days h3 { margin: 0 0 16px; font-size: 13px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
+  .daily .other-day { margin-bottom: 18px; }
+  .daily .other-day-name { font-weight: 700; font-size: 14px; color: #C9A46A; margin-bottom: 6px; }
+  .daily .other-dish { display: flex; justify-content: space-between; padding: 3px 0; font-size: 14px; color: #444; }
+  .daily .other-dish-p { color: #999; }
   .daily footer { margin-top: 28px; text-align: center; font-size: 12px; color: #999; }
   @keyframes s { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
@@ -57,28 +65,45 @@ const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 function renderDaily(data) {
-  const todayNum = new Date().getDay(); // 0=Sun
+  const todayNum = new Date().getDay();
   const dayNames = EL ? DAYS_EL : DAYS_EN;
-  const todayMenu = data.days && data.days[String(todayNum)];
+  const todayDishes = data.days && data.days[String(todayNum)];
   const b = document.getElementById('box');
   b.className = 'daily';
 
-  let html = '<h1>' + (data.title || (EL ? 'Μενού Ημέρας' : 'Daily Menu')) + '</h1>';
+  let html = '<h1>' + esc(data.title || (EL ? 'Μενού Ημέρας' : 'Daily Menu')) + '</h1>';
   html += '<div class="today-label">' + dayNames[todayNum] + '</div>';
 
-  if (todayMenu) {
-    html += '<div class="menu-items">' + esc(todayMenu) + '</div>';
+  if (Array.isArray(todayDishes) && todayDishes.length) {
+    todayDishes.forEach(dish => {
+      html += '<div class="dish">';
+      if (dish.img) html += '<img class="dish-photo" src="' + esc(dish.img) + '" alt="">';
+      html += '<div class="dish-info"><div class="dish-top"><span class="dish-n">' + esc(dish.n) + '</span>';
+      if (dish.p) html += '<span class="dish-p">' + esc(dish.p) + ' €</span>';
+      html += '</div>';
+      if (dish.d) html += '<div class="dish-d">' + esc(dish.d) + '</div>';
+      html += '</div></div>';
+    });
+  } else if (typeof todayDishes === 'string') {
+    html += '<div class="dish"><div class="dish-info"><div class="dish-d">' + esc(todayDishes) + '</div></div></div>';
   } else {
     html += '<div class="closed">' + (EL ? 'Δεν υπάρχει μενού για σήμερα' : 'No menu for today') + '</div>';
   }
 
-  // Show other days
   const otherDays = DAY_ORDER.filter(d => d !== todayNum && data.days && data.days[String(d)]);
   if (otherDays.length) {
     html += '<div class="all-days"><h3>' + (EL ? 'Υπόλοιπη εβδομάδα' : 'Rest of the week') + '</h3>';
     otherDays.forEach(d => {
-      html += '<div class="day-block"><div class="day-name">' + dayNames[d] + '</div>';
-      html += '<div class="day-items">' + esc(data.days[String(d)]) + '</div></div>';
+      const dishes = data.days[String(d)];
+      html += '<div class="other-day"><div class="other-day-name">' + dayNames[d] + '</div>';
+      if (Array.isArray(dishes)) {
+        dishes.forEach(dish => {
+          html += '<div class="other-dish"><span>' + esc(dish.n) + '</span>';
+          if (dish.p) html += '<span class="other-dish-p">' + esc(dish.p) + ' €</span>';
+          html += '</div>';
+        });
+      } else { html += '<div class="other-dish"><span>' + esc(dishes) + '</span></div>'; }
+      html += '</div>';
     });
     html += '</div>';
   }
