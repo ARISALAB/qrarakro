@@ -1354,7 +1354,7 @@ function syncQ() {
   $('qValueWrap').hidden = cur.t === 'profile' || cur.t === 'daily';
   const hint = QHINT[cur.t] || ''; $('qTypeHint').textContent = hint; $('qTypeHint').hidden = !hint;
   $('qTypeHint').className = 'q-hint' + (cur.t !== 'profile' && hint ? ' q-hint-gold' : '');
-  $('qValueErr').hidden = !(cur.t !== 'profile' && cur.v.trim() && !qDest(cur));
+  $('qValueErr').hidden = !(cur.t !== 'profile' && cur.t !== 'daily' && cur.v.trim() && !qDest(cur));
   $('qFg').value = cur.fg.toLowerCase(); $('qBg').value = cur.bg.toLowerCase();
   $('qFgHex').textContent = cur.fg; $('qBgHex').textContent = cur.bg;
   $('qCapPrev').textContent = cur.caption; $('qCapPrev').style.color = cur.fg;
@@ -1568,7 +1568,7 @@ async function saveQ(extra) {
   const i = qrs.findIndex(x => x.code === curCode); if (i > -1) qrs[i] = { ...cur };
 }
 $('qSave').addEventListener('click', async () => {
-  if (cur.t !== 'profile' && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
+  if (cur.t !== 'profile' && cur.t !== 'daily' && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
   $('qSave').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…';
   try { await saveQ({}); $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.'; }
   catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }
