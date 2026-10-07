@@ -1410,8 +1410,6 @@ function dishHtml(d, dish, idx) {
     '<input type="file" accept="image/*" class="dish-photo-input" hidden></div>' +
     '</div>';
 }
-function esc(s) { return s.replace ? s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;') : ''; }
-
 function renderDailyEditor() {
   const todayNum = new Date().getDay();
   $('dailyDays').innerHTML = DAY_ORDER.map(d => {
