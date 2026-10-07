@@ -188,10 +188,11 @@ service cloud.firestore {
       allow create, update: if verified()
         && request.resource.data.ownerUid == request.auth.uid
         && get(/databases/$(db)/documents/qrs/$(code)).data.ownerUid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['ownerUid', 'type', 'title', 'days', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['ownerUid', 'type', 'title', 'days', 'gallery', 'updatedAt'])
         && request.resource.data.type is string
         && request.resource.data.title is string && request.resource.data.title.size() <= 80
         && request.resource.data.days is map
+        && (!('gallery' in request.resource.data) || (request.resource.data.gallery is list && request.resource.data.gallery.size() <= 50))
         && request.resource.data.updatedAt == request.time;
       allow delete: if verified() && resource.data.ownerUid == request.auth.uid;
     }

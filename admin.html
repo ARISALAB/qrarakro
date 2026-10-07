@@ -264,6 +264,16 @@
   .dish-del:hover { background: #fee; color: #c00; }
   .add-dish { font-size: 13px; font-weight: 600; color: var(--gold-2); background: none; border: 1px dashed var(--line); border-radius: 8px; padding: 8px; width: 100%; cursor: pointer; margin-top: 6px; }
   .add-dish:hover { border-color: var(--gold); }
+  .gallery { display: flex; flex-wrap: wrap; gap: 8px; }
+  .gallery-item { position: relative; width: 64px; height: 64px; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
+  .gallery-item .gdel { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1px solid var(--line); font-size: 12px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #c00; }
+  .gallery-empty { font-size: 13px; color: var(--ink-2); font-style: italic; }
+  .pick-panel { display: none; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--bg-2); border-radius: 8px; margin-top: 6px; grid-column: 1 / -1; }
+  .pick-panel.open { display: flex; }
+  .pick-panel img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
+  .pick-panel img:hover { border-color: var(--gold); }
+  .pick-panel .no-photos { font-size: 12px; color: var(--ink-2); font-style: italic; }
   .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #121316; color: rgba(247,244,238,.85); padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-size: 14px; box-shadow: 0 -2px 12px rgba(0,0,0,.3); }
   .cookie-banner a { color: #E7D2A6; text-decoration: underline; text-underline-offset: 2px; }
   .cookie-banner button { padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: 0; }
@@ -489,6 +499,20 @@
 
                   <!-- Daily Menu Editor -->
                   <div id="dailyEditor" hidden style="margin-top:16px">
+                    <div class="field" style="margin-bottom:16px">
+                      <label for="dailyTitle">Τίτλος σελίδας <span style="color:var(--gold-2);font-weight:600">(το βλέπουν οι πελάτες)</span></label>
+                      <input type="text" id="dailyTitle" maxlength="80" placeholder="π.χ. Το μενού της ημέρας">
+                    </div>
+
+                    <div id="galleryWrap" style="margin-bottom:16px">
+                      <h3 style="margin:0 0 8px;font-size:15px;font-weight:700">Οι φωτογραφίες μου</h3>
+                      <p class="hint" style="margin:0 0 10px">Ανέβασε μία φορά, χρησιμοποίησε σε όποιο πιάτο θες.</p>
+                      <div class="gallery" id="gallery"></div>
+                      <button type="button" class="btn line small" id="galleryAdd" style="margin-top:8px">+ Ανέβασε φωτογραφία</button>
+                      <input type="file" id="galleryFile" accept="image/*" hidden>
+                      <span class="hint" id="galleryStatus" style="margin-left:8px"></span>
+                    </div>
+
                     <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Μενού ανά ημέρα</h3>
                     <p class="hint" style="margin:0 0 14px">Γράψε τα πιάτα κάθε μέρας. Το QR θα δείχνει αυτόματα τη σημερινή μέρα. Άφησε κενό αν είσαι κλειστά.</p>
                     <div class="daily-days" id="dailyDays"></div>
@@ -1403,13 +1427,52 @@ function dishHtml(d, dish, idx) {
   return '<div class="dish-row" data-day="' + d + '" data-idx="' + idx + '">' +
     '<input class="dish-name" placeholder="Όνομα πιάτου" value="' + esc(dish.n || '') + '" data-f="n">' +
     '<input class="dish-price" placeholder="Τιμή €" value="' + esc(dish.p || '') + '" data-f="p">' +
-    '<button type="button" class="dish-del" title="Αφαίρεση">×</button>' +
+    '<button type="button" class="dish-del" title="Αφαίρεση πιάτου">×</button>' +
     '<textarea class="dish-desc" placeholder="Περιγραφή (προαιρετικά)" data-f="d">' + esc(dish.d || '') + '</textarea>' +
-    (dish.img ? '<div class="dish-img-row"><img src="' + esc(dish.img) + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση φωτο">×</button></div>' : '') +
-    '<div class="dish-img-row"><button type="button" class="btn line small dish-photo-btn">📷 Φωτογραφία</button>' +
-    '<input type="file" accept="image/*" class="dish-photo-input" hidden></div>' +
+    '<div class="dish-img-row">' +
+      (dish.img ? '<img src="' + esc(dish.img) + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση φωτο">×</button>' : '') +
+      '<button type="button" class="btn line small pick-photo-btn">📷 Επίλεξε φωτογραφία</button>' +
+    '</div>' +
+    '<div class="pick-panel"></div>' +
     '</div>';
 }
+
+/* ---------- Photo gallery ---------- */
+let gallery = [];
+
+function renderGallery() {
+  const g = $('gallery');
+  if (!gallery.length) { g.innerHTML = '<span class="gallery-empty">Καμία φωτογραφία ακόμα.</span>'; return; }
+  g.innerHTML = gallery.map((url, i) =>
+    '<div class="gallery-item"><img src="' + esc(url) + '" alt="">' +
+    '<button type="button" class="gdel" data-gi="' + i + '" title="Διαγραφή">×</button></div>'
+  ).join('');
+}
+
+$('galleryAdd').addEventListener('click', () => $('galleryFile').click());
+$('galleryFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { $('galleryStatus').textContent = 'Μέγιστο 5 MB.'; return; }
+  $('galleryAdd').disabled = true; $('galleryStatus').textContent = 'Ανεβαίνει…';
+  try {
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error('Upload failed');
+    gallery.push(data.secure_url);
+    renderGallery();
+    $('galleryStatus').textContent = '✓ Ανέβηκε';
+  } catch (err) { console.error(err); $('galleryStatus').textContent = 'Σφάλμα upload'; }
+  $('galleryAdd').disabled = false;
+});
+
+$('gallery').addEventListener('click', e => {
+  const del = e.target.closest('.gdel'); if (!del) return;
+  gallery.splice(Number(del.dataset.gi), 1);
+  renderGallery();
+});
 function renderDailyEditor() {
   const todayNum = new Date().getDay();
   $('dailyDays').innerHTML = DAY_ORDER.map(d => {
@@ -1468,46 +1531,49 @@ $('dailyDays').addEventListener('click', e => {
     updateDayCounts();
     return;
   }
-  // Photo upload trigger
-  const photoBtn = e.target.closest('.dish-photo-btn');
-  if (photoBtn) { photoBtn.parentElement.querySelector('.dish-photo-input').click(); return; }
-});
-
-$('dailyDays').addEventListener('change', async e => {
-  if (!e.target.classList.contains('dish-photo-input')) return;
-  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  if (f.size > 5 * 1024 * 1024) { alert('Μέγιστο 5 MB'); return; }
-  const row = e.target.closest('.dish-img-row');
-  const existing = row.parentElement.querySelector('.dish-img-row img');
-  row.querySelector('.dish-photo-btn').textContent = '⏳ Ανεβαίνει…';
-  try {
-    const fd = new FormData();
-    fd.append('file', f);
-    fd.append('upload_preset', UPLOAD_PRESET);
-    fd.append('folder', 'dishes');
-    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (!existing) {
-      row.insertAdjacentHTML('beforebegin', '<div class="dish-img-row"><img src="' + data.secure_url + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση">×</button></div>');
-    } else { existing.src = data.secure_url; }
-  } catch (err) { alert('Σφάλμα upload'); }
-  row.querySelector('.dish-photo-btn').textContent = '📷 Φωτογραφία';
+  // Open photo picker
+  const pickBtn = e.target.closest('.pick-photo-btn');
+  if (pickBtn) {
+    const row = pickBtn.closest('.dish-row');
+    const panel = row.querySelector('.pick-panel');
+    if (panel.classList.contains('open')) { panel.classList.remove('open'); return; }
+    document.querySelectorAll('.pick-panel.open').forEach(p => p.classList.remove('open'));
+    panel.innerHTML = gallery.length
+      ? gallery.map(u => '<img src="' + esc(u) + '" data-pick="' + esc(u) + '" title="Επίλεξε">').join('')
+      : '<span class="no-photos">Ανέβασε πρώτα φωτογραφίες από «Οι φωτογραφίες μου» πάνω.</span>';
+    panel.classList.add('open');
+    return;
+  }
+  // Pick a photo from panel
+  const picked = e.target.closest('[data-pick]');
+  if (picked) {
+    const row = picked.closest('.dish-row');
+    const imgRow = row.querySelector('.dish-img-row');
+    const existing = imgRow.querySelector('img');
+    if (existing) existing.src = picked.dataset.pick;
+    else imgRow.insertAdjacentHTML('afterbegin', '<img src="' + esc(picked.dataset.pick) + '"><button type="button" class="dish-del" data-f="imgdel" title="Αφαίρεση φωτο">×</button>');
+    row.querySelector('.pick-panel').classList.remove('open');
+    return;
+  }
 });
 
 async function loadDailyContent(code) {
   try {
     const s = await getDoc(doc(db, 'qrcontent', code));
     if (s.exists()) {
-      const raw = s.data().days || {};
-      // Convert old string format to array
+      const dd = s.data();
+      const raw = dd.days || {};
       Object.keys(raw).forEach(k => {
         if (typeof raw[k] === 'string') {
           raw[k] = raw[k].split('\n').filter(l => l.trim()).map(l => ({ n: l.trim() }));
         }
       });
       dailyData = raw;
-    } else dailyData = {};
-  } catch (e) { dailyData = {}; }
+      gallery = Array.isArray(dd.gallery) ? dd.gallery : [];
+      $('dailyTitle').value = dd.title || '';
+    } else { dailyData = {}; gallery = []; $('dailyTitle').value = ''; }
+  } catch (e) { dailyData = {}; gallery = []; }
+  renderGallery();
   renderDailyEditor();
 }
 
@@ -1516,8 +1582,9 @@ async function saveDailyMenu() {
   await setDoc(doc(db, 'qrcontent', curCode), {
     ownerUid: user.uid,
     type: 'daily',
-    title: cur.name || 'Μενού Ημέρας',
+    title: ($('dailyTitle').value || '').trim() || 'Μενού Ημέρας',
     days: days,
+    gallery: gallery,
     updatedAt: serverTimestamp()
   }, { merge: true });
   dailyData = days;
