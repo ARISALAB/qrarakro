@@ -184,12 +184,12 @@
   .steps3 div { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 14px; background: var(--soft); border: 1px solid var(--line); }
   .steps3 b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--ink); color: var(--gold-2); font-size: 14px; }
   .steps3 p { margin: 0; font-size: 14px; color: var(--muted); } .steps3 strong { display: block; color: var(--ink); font-size: 15px; }
-  .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 680px) { .qr-grid { grid-template-columns: 1fr; } }
+  .qr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } .qr-grid > * { min-width: 0; }
+  @media (max-width: 680px) { .qr-grid { grid-template-columns: minmax(0, 1fr); } }
   .qr-card { display: flex; gap: 14px; align-items: center; text-align: left; width: 100%; padding: 16px; border-radius: 18px; background: var(--white); border: 1px solid var(--line); cursor: pointer; font: inherit; color: inherit; transition: border-color .15s, box-shadow .15s, transform .15s; }
   .qr-card:hover { border-color: var(--gold); box-shadow: 0 8px 24px -12px rgba(201,164,106,.25); transform: translateY(-1px); }
   .qr-card canvas { width: 64px; height: 64px; flex: none; border-radius: 10px; border: 1px solid var(--line); }
-  .qr-card .meta { flex: 1; min-width: 0; }
+  .qr-card .meta { flex: 1; min-width: 0; overflow: hidden; }
   .qr-card b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .qr-card small { display: block; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
   .chip-s { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--ink-2); }
@@ -235,7 +235,7 @@
   .inv-row .d { flex: 1; min-width: 0; } .inv-row .d small { display: block; color: var(--muted); font-size: 12.5px; }
   .inv-row b { font-size: 16px; letter-spacing: -0.01em; }
   .plan-card h2 { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.035em; }
-  @media (min-width: 900px) { .qe { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } .qe-right { position: sticky; top: 16px; } .qr-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 900px) { .qe { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } .qe-right { position: sticky; top: 16px; } .qr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (min-width: 560px) { .grid2, .soc-grid { grid-template-columns: 1fr 1fr; } }
   @media (min-width: 960px) { .editor { grid-template-columns: minmax(0, 1fr) 390px; gap: 40px; } }
   @media (max-width: 959px) {
