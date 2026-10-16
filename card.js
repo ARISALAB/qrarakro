@@ -154,6 +154,13 @@ export function drawCard(canvas, side, d, a, bleed = 0) {
       else brandMark(ctx, d, null, W / 2, H / 2, 560, 260, on);
     }
   }
+  // Σύνθημα στην πίσω όψη
+  if (side === 'back' && (d.tagline || '').trim()) {
+    const tc = tpl === 'noir' ? '#F7F4EE' : tpl === 'color' ? '#5E6157' : onColor(acc);
+    ctx.fillStyle = tc; ctx.globalAlpha = .9; ctx.textAlign = 'center';
+    fitText(ctx, d.tagline.trim(), W / 2, H - (tpl === 'noir' ? 82 : 58), W - 2 * P, 26, 600, 15);
+    ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   return canvas;
 }
