@@ -27,7 +27,9 @@
   .daily .closed { color: #6B6C72; font-style: italic; padding: 20px 0; }
   .daily .all-days { margin-top: 28px; border-top: 2px solid #E7E2D8; padding-top: 20px; }
   .daily .all-days h3 { margin: 0 0 16px; font-size: 13px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
-  .daily .other-day { margin-bottom: 18px; }
+  .daily .other-day { margin-bottom: 22px; }
+  .daily .other-day .dish { padding: 10px 0; }
+  .daily .other-day .dish-photo { width: 56px; height: 56px; }
   .daily .other-day-name { font-weight: 700; font-size: 14px; color: #C9A46A; margin-bottom: 6px; }
   .daily .other-dish { display: flex; justify-content: space-between; padding: 3px 0; font-size: 14px; color: #444; }
   .daily .other-dish-p { color: #999; }
@@ -85,6 +87,16 @@ const DAYS_EL = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτ
 const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
+const fmtP = p => /€/.test(String(p)) ? String(p) : p + ' €';
+function dishHtml(dish) {
+  let h = '<div class="dish">';
+  if (dish.img && /^https:\/\//.test(dish.img)) h += '<img class="dish-photo" src="' + esc(dish.img) + '" alt="" loading="lazy">';
+  h += '<div class="dish-info"><div class="dish-top"><span class="dish-n">' + esc(dish.n) + '</span>';
+  if (dish.p) h += '<span class="dish-p">' + esc(fmtP(dish.p)) + '</span>';
+  h += '</div>';
+  if (dish.d) h += '<div class="dish-d">' + esc(dish.d) + '</div>';
+  return h + '</div></div>';
+}
 function renderDaily(data) {
   const todayNum = new Date().getDay();
   const dayNames = EL ? DAYS_EL : DAYS_EN;
@@ -96,15 +108,7 @@ function renderDaily(data) {
   html += '<div class="today-label">' + dayNames[todayNum] + '</div>';
 
   if (Array.isArray(todayDishes) && todayDishes.length) {
-    todayDishes.forEach(dish => {
-      html += '<div class="dish">';
-      if (dish.img) html += '<img class="dish-photo" src="' + esc(dish.img) + '" alt="">';
-      html += '<div class="dish-info"><div class="dish-top"><span class="dish-n">' + esc(dish.n) + '</span>';
-      if (dish.p) html += '<span class="dish-p">' + esc(dish.p) + ' €</span>';
-      html += '</div>';
-      if (dish.d) html += '<div class="dish-d">' + esc(dish.d) + '</div>';
-      html += '</div></div>';
-    });
+    todayDishes.forEach(dish => { html += dishHtml(dish); });
   } else if (typeof todayDishes === 'string') {
     html += '<div class="dish"><div class="dish-info"><div class="dish-d">' + esc(todayDishes) + '</div></div></div>';
   } else {
@@ -118,11 +122,7 @@ function renderDaily(data) {
       const dishes = data.days[String(d)];
       html += '<div class="other-day"><div class="other-day-name">' + dayNames[d] + '</div>';
       if (Array.isArray(dishes)) {
-        dishes.forEach(dish => {
-          html += '<div class="other-dish"><span>' + esc(dish.n) + '</span>';
-          if (dish.p) html += '<span class="other-dish-p">' + esc(dish.p) + ' €</span>';
-          html += '</div>';
-        });
+        dishes.forEach(dish => { html += dishHtml(dish); });
       } else { html += '<div class="other-dish"><span>' + esc(dishes) + '</span></div>'; }
       html += '</div>';
     });
