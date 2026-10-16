@@ -87,6 +87,8 @@ const DAYS_EL = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτ
 const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
+// Το «Powered by» εμφανίζεται μόνο στο πρόχειρο (δοκιμαστικά σκαναρίσματα), όχι σε πελάτες Premium
+let BRAND_ON = true;
 const fmtP = p => /€/.test(String(p)) ? String(p) : p + ' €';
 function dishHtml(dish) {
   let h = '<div class="dish">';
@@ -129,7 +131,7 @@ function renderDaily(data) {
     html += '</div>';
   }
 
-  html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
+  if (BRAND_ON) html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
   b.innerHTML = html;
   document.title = data.title || 'Daily Menu';
 }
@@ -179,7 +181,7 @@ function renderOffers(data) {
       html += '</div></div>';
     });
   }
-  html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
+  if (BRAND_ON) html += '<footer>Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a></footer>';
   b.innerHTML = html;
   document.title = data.title || 'Offers';
   b.addEventListener('click', e => {
@@ -226,6 +228,7 @@ async function go() {
   // Σελίδες που φτιάχνονται μέσα στην εφαρμογή (ημερήσιο μενού, προσφορές, σελίδες με μπλοκ)
   const isPage = q.t === 'daily' || q.t === 'offers' || (isBlockType(q.t) && !(q.v || '').trim());
   const page = async field => {
+    BRAND_ON = field === 'testScans';
     await count(field);
     try {
       const cs = await getDoc(doc(db, 'qrcontent', code));
@@ -235,7 +238,7 @@ async function go() {
         if (q.t === 'offers') return renderOffers(d);
         document.body.style.background = '#F7F4EE';
         if (d.title) document.title = d.title;
-        return renderBlocks(document.getElementById('box'), d, { lang: EL ? 'el' : 'en' });
+        return renderBlocks(document.getElementById('box'), d, { lang: EL ? 'el' : 'en', footer: BRAND_ON ? 'Powered by <a href="' + SITE + '" style="color:#C9A46A">AR Akron QR</a>' : '' });
       }
     } catch (e) {}
     show(T.draft);
