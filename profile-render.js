@@ -94,12 +94,12 @@ export const textOn = hex => (lum(hex) > 0.42 ? '#1D1F18' : '#FFFFFF');
 function vcEsc(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
 export function vcardFor(p) {
   const btn = t => (p.buttons || []).find(b => b.t === t && trim(b.v));
-  const L = ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + vcEsc(p.name), 'ORG:' + vcEsc(p.name)];
+  const L = ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + vcEsc(p.name)];
   const tel = btn('phone') || btn('whatsapp');
   if (tel) L.push('TEL;TYPE=WORK:+' + intlNumber(tel.v));
   const mail = btn('email'); if (mail) L.push('EMAIL:' + trim(mail.v));
   const web = btn('link'); if (web) L.push('URL:' + hrefFor(web));
-  L.push('URL:' + profileUrl(p));
+  L.push('URL:' + prettyUrl(p));
   if (trim(p.address)) L.push('ADR;TYPE=WORK:;;' + vcEsc(p.address) + ';;;;');
   if (trim(p.bio)) L.push('NOTE:' + vcEsc(p.bio));
   L.push('END:VCARD');
