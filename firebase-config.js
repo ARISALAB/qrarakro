@@ -29,7 +29,7 @@ export const LEMON = {
 export const PRICES = { monthly: '7€', yearly: '70€', yearlyPerMonth: '5,83€' };  // με ΦΠΑ
 export const MAX_QR = 10;        // δυναμικά QR ανά λογαριασμό (και στο firestore.rules)
 export const TEST_SCANS = 10;    // δοκιμαστικά σκαναρίσματα πριν την ενεργοποίηση (και στο firestore.rules)
-export const GRACE_DAYS = 30;    // μέρες χάρης μετά τη λήξη της συνδρομής
+export const GRACE_DAYS = 7;     // μέρες χάρης μετά τη λήξη της συνδρομής
 
 // Premium ενεργό (ή σε περίοδο χάριτος) με βάση το έγγραφο entitlements/{uid}
 export function premiumState(ent) {
