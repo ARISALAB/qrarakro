@@ -23,8 +23,8 @@ export const BRAND = 'AR Akron QR';
    (Products → το προϊόν → κάθε variant → Share → "Checkout URL").
    Όσο μένουν κενά, το κουμπί πληρωμής λέει ότι οι πληρωμές ανοίγουν σύντομα. */
 export const LEMON = {
-  monthlyUrl: 'https://akron.lemonsqueezy.com/checkout/buy/3583acb0-7c49-4481-8dcc-f2da8b733c0b?enabled=2181940',  // variant 2181940
-  yearlyUrl:  'https://akron.lemonsqueezy.com/checkout/buy/1ce62c98-7cc8-44c8-b93d-789ab0435cc8?enabled=2181947'   // variant 2181947
+  monthlyUrl: 'https://akron.lemonsqueezy.com/checkout/buy/c0ff0b73-bc76-4b4e-80da-bc5846570dbb?enabled=2255070',  // variant 2255070 (live)
+  yearlyUrl:  'https://akron.lemonsqueezy.com/checkout/buy/2bf91d35-1fba-4c56-a813-95e61b60a8d1?enabled=2255071'   // variant 2255071 (live)
 };
 export const PRICES = { monthly: '7€', yearly: '70€', yearlyPerMonth: '5,83€' };  // με ΦΠΑ
 export const MAX_QR = 10;        // δυναμικά QR ανά λογαριασμό (και στο firestore.rules)
