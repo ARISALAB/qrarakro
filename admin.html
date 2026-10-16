@@ -1632,7 +1632,7 @@ async function waitForPremium() {
   n.textContent = 'Ευχαριστούμε! Ενεργοποιούμε το Premium σου…';
   for (let i = 0; i < 20 && !P.active; i++) { await new Promise(r => setTimeout(r, 3000)); await loadEnt(); }
   history.replaceState(null, '', location.pathname + location.hash);
-  if (P.active) { n.innerHTML = 'Το <b>Premium</b> είναι ενεργό έως ' + fmtDate(P.until) + '. Τα QR σου ενεργοποιήθηκαν.'; $('brandNote').hidden = true; refresh(); if (curSect === 'sQr') showQrList(); if (curSect === 'sPlan') renderPlan(); }
+  if (P.active) { n.innerHTML = '<span>Το <b>Premium</b> είναι ενεργό έως ' + fmtDate(P.until) + '. Τα QR σου ενεργοποιήθηκαν.</span>'; $('brandNote').hidden = true; refresh(); if (curSect === 'sQr') showQrList(); if (curSect === 'sPlan') renderPlan(); }
   else n.textContent = 'Η πληρωμή καταχωρείται. Αν σε λίγα λεπτά δεν δεις το Premium ενεργό, ανανέωσε τη σελίδα ή γράψε μας.';
 }
 
