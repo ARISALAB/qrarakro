@@ -278,11 +278,14 @@
   .cd-seg { display: flex; flex-wrap: wrap; gap: 6px; }
   .cd-seg label { display: flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); cursor: pointer; font-size: 14px; }
   .cd-seg label:has(input:checked) { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
-  .cd-sidepick button { flex: 1; padding: 10px 12px; border: 1px solid rgba(247,244,238,.2); border-radius: 10px; background: transparent; color: rgba(247,244,238,.8); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .cd-sidepick { flex-wrap: nowrap; }
+  .cd-sidepick button { flex: 1; min-width: 0; white-space: nowrap; padding: 10px 6px; border: 1px solid rgba(247,244,238,.2); border-radius: 10px; background: transparent; color: rgba(247,244,238,.8); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
   .cd-sidepick button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--ink); }
   .cd-side { cursor: pointer; border-radius: 14px; padding: 6px; outline: 2px solid transparent; transition: outline-color .15s, opacity .15s; }
   .cd-side.on { outline-color: var(--gold); }
   .cd-side:not(.on) { opacity: .55; }
+  .cd-side[hidden] { display: none; }
+  #cdFront { touch-action: none; }
   .cd-targets { display: grid; gap: 8px; }
   .cd-targets label { display: flex; gap: 12px; align-items: flex-start; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); cursor: pointer; }
   .cd-targets label:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
@@ -727,12 +730,13 @@
         <div class="cd-wrap">
           <div class="cd-prev">
             <div class="cd-seg cd-sidepick" role="tablist" aria-label="Όψη">
-              <button type="button" data-side="front" aria-pressed="true">Μπροστά όψη</button>
-              <button type="button" data-side="back" aria-pressed="false">Πίσω όψη</button>
+              <button type="button" data-view="front" aria-pressed="true">Μπροστά</button>
+              <button type="button" data-view="back" aria-pressed="false">Πίσω</button>
+              <button type="button" data-view="both" aria-pressed="false">Όλη η κάρτα</button>
             </div>
             <div class="cd-side" data-side="front"><span>Μπροστά</span><canvas id="cdFront" class="cd-canvas" role="img" aria-label="Μπροστινή όψη κάρτας"></canvas></div>
             <div class="cd-side" data-side="back"><span>Πίσω</span><canvas id="cdBack" class="cd-canvas" role="img" aria-label="Πίσω όψη κάρτας"></canvas></div>
-            <p class="hint" style="margin:0">Πάτα σε μια όψη για να την επεξεργαστείς. Μέγεθος 85 × 55 mm, έτοιμη για τυπογραφείο.</p>
+            <p class="hint" id="cdPrevHint" style="margin:0"></p>
           </div>
           <div class="cd-form">
             <section class="card">
@@ -773,7 +777,8 @@
                 <p class="hint" id="cdLogoHint" style="margin:0">PNG με διάφανο φόντο δίνει το καλύτερο αποτέλεσμα.</p>
                 <div id="cdLogoOpts" class="stack">
                   <div class="field"><label for="cdLogoScale">Μέγεθος λογότυπου <b id="cdLogoScaleVal" style="color:var(--gold-deep)">100%</b></label>
-                    <input type="range" id="cdLogoScale" min="50" max="160" step="5" value="100" style="width:100%;accent-color:var(--gold-deep)"></div>
+                    <input type="range" id="cdLogoScale" min="30" max="300" step="5" value="100" style="width:100%;accent-color:var(--gold-deep)"></div>
+                  <button type="button" class="link" id="cdLogoReset" style="justify-self:start">Επαναφορά θέσης και μεγέθους</button>
                   <label class="check"><input type="checkbox" id="cdLogoClean"> Αφαίρεση φόντου λογότυπου (αυτόματα)</label>
                   <p class="hint" id="cdCleanMsg" style="margin:0"></p>
                 </div>
@@ -894,7 +899,7 @@ import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimesta
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
 import { BLOCK_SETS, BTN_TYPES, isBlockType, emptyBlocks, mergeBlocks, cleanBlocks, renderBlocks } from '/blocks.js';
-import { drawCard, removeBackground, TEMPLATES, ACCENTS, CW, CH, BLEED } from '/card.js';
+import { drawCard, removeBackground, TEMPLATES, ACCENTS, CW, CH, BLEED, LOGO_MIN, LOGO_MAX } from '/card.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1304,14 +1309,14 @@ $('showQr').addEventListener('click', async () => {
 $('showQrClose').addEventListener('click', () => { $('showQrView').hidden = true; });
 
 /* ---------- Επαγγελματική κάρτα (Premium) ---------- */
-let cd = null, cdEdit = 'front', cdLogoImg = null, cdLogoKey = '', cdCleanRes = null, cdQrs = [];
+let cd = null, cdEdit = 'front', cdView = 'front', cdA = null, cdLogoImg = null, cdLogoKey = '', cdCleanRes = null, cdQrs = [];
 const cdBtn = t => ((saved && saved.buttons) || []).find(b => b.t === t && (b.v || '').trim());
 function cdDefaults() {
   const ph = cdBtn('phone') || cdBtn('whatsapp'), em = cdBtn('email'), web = cdBtn('link');
   return { front: { tpl: 'noir', accent: '#C9A46A' }, back: { tpl: 'noir', accent: '#C9A46A' },
     name: saved.name || '', role: '', company: '', phone: ph ? ph.v : '', email: em ? em.v : '',
     web: web ? web.v.replace(/^https?:\/\//, '').replace(/\/$/, '') : '', addr: saved.address || '', tagline: '',
-    logoSrc: saved.logo ? 'profile' : 'none', logoData: '', logoOnBack: false, logoScale: 1, logoClean: true, v: 2,
+    logoSrc: saved.logo ? 'profile' : 'none', logoData: '', logoOnBack: false, logoScale: 1, logoX: 0, logoY: 0, logoClean: true, v: 2,
     target: 'profile', url: '', mapAddr: saved.address || '', qrPick: '', qrSide: 'back', qrCaption: 'Σκάναρε για τα στοιχεία μου' };
 }
 // Παλιά αποθηκευμένα σχέδια (ένα σχέδιο για όλη την κάρτα) μετατρέπονται στη νέα μορφή
@@ -1358,8 +1363,10 @@ async function openCard() {
   cdSyncForm(); drawCardPreview(true);
 }
 function cdSyncForm() {
-  document.querySelectorAll('.cd-sidepick button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.side === cdEdit)));
-  document.querySelectorAll('.cd-side').forEach(x => x.classList.toggle('on', x.dataset.side === cdEdit));
+  document.querySelectorAll('.cd-sidepick button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === cdView)));
+  document.querySelectorAll('.cd-side').forEach(x => { x.hidden = cdView !== 'both' && x.dataset.side !== cdView; x.classList.toggle('on', cdView !== 'both' || x.dataset.side === cdEdit); });
+  $('cdPrevHint').textContent = cdView === 'both' ? 'Πάτα σε μια όψη για να την επεξεργαστείς. Μέγεθος 85 × 55 mm.'
+    : cdView === 'front' ? 'Σύρε το σήμα για να το μετακινήσεις. Σύρε τη χρυσή λαβή (ή τσίμπησε με δύο δάχτυλα) για να αλλάξεις μέγεθος.' : 'Μέγεθος 85 × 55 mm, έτοιμη για τυπογραφείο.';
   document.querySelectorAll('[data-for]').forEach(x => x.hidden = x.dataset.for !== cdEdit);
   $('cdDesignTitle').textContent = cdEdit === 'front' ? 'Σχέδιο μπροστινής όψης' : 'Σχέδιο πίσω όψης';
   $('cdTpls').innerHTML = TEMPLATES.map(t => '<button type="button" class="cd-tpl" data-tpl="' + t.id + '"><canvas></canvas>' + t.name + '</button>').join('');
@@ -1393,23 +1400,62 @@ async function cdAssets() {
   return { qr, logo: cdLogoImg };
 }
 async function drawCardPreview(withTpls) {
-  const a = await cdAssets();
-  drawCard($('cdFront'), 'front', cdSideData('front'), a); drawCard($('cdBack'), 'back', cdSideData('back'), a);
+  const a = await cdAssets(); cdA = a;
+  cdDrawFront(); drawCard($('cdBack'), 'back', cdSideData('back'), a);
   const cur = cd[cdEdit];
   document.querySelectorAll('.cd-tpl').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tpl === cur.tpl)));
   document.querySelectorAll('[data-acc]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.acc.toLowerCase() === (cur.accent || '').toLowerCase())));
   const pick = $('cdAccentPick'); if (pick) pick.value = cur.accent;
   if (withTpls !== false) document.querySelectorAll('.cd-tpl').forEach(b => drawCard(b.querySelector('canvas'), cdEdit, { ...cdSideData(cdEdit), tpl: b.dataset.tpl }, a));
 }
+function cdDrawFront() { if (cdA) drawCard($('cdFront'), 'front', cdSideData('front'), cdA, 0, { edit: cdEdit === 'front' && cd.logoSrc !== 'none' }); }
 function cdSetSide(side) { if (side === cdEdit) return; cdEdit = side; cdSyncForm(); drawCardPreview(true); }
-document.querySelectorAll('.cd-sidepick button').forEach(b => b.addEventListener('click', () => cdSetSide(b.dataset.side)));
-document.querySelectorAll('.cd-side').forEach(x => x.addEventListener('click', () => cdSetSide(x.dataset.side)));
+document.querySelectorAll('.cd-sidepick button').forEach(b => b.addEventListener('click', () => {
+  cdView = b.dataset.view; if (cdView !== 'both') cdEdit = cdView;
+  cdSyncForm(); drawCardPreview(true);
+}));
+document.querySelectorAll('.cd-side').forEach(x => x.addEventListener('click', () => { if (cdView === 'both') cdSetSide(x.dataset.side); }));
+// Ελεύθερη μετακίνηση και αλλαγή μεγέθους του σήματος πάνω στην προεπισκόπηση
+const cdPtrs = new Map(); let cdDrag = null;
+const cdPt = e => { const r = $('cdFront').getBoundingClientRect(); return { x: (e.clientX - r.left) * CW / r.width, y: (e.clientY - r.top) * CH / r.height }; };
+const cdClamp = v => Math.max(LOGO_MIN, Math.min(LOGO_MAX, v));
+function cdScaleTo(v) { cd.logoScale = cdClamp(v); $('cdLogoScale').value = Math.round(cd.logoScale * 100); $('cdLogoScaleVal').textContent = Math.round(cd.logoScale * 100) + '%'; cdDrawFront(); }
+$('cdFront').addEventListener('pointerdown', e => {
+  if (cdEdit !== 'front' || cd.logoSrc === 'none') return;
+  const R = $('cdFront')._logoRect; if (!R) return;
+  cdPtrs.set(e.pointerId, cdPt(e));
+  if (cdPtrs.size === 2) { const [p1, p2] = [...cdPtrs.values()]; cdDrag = { mode: 'pinch', d0: Math.hypot(p1.x - p2.x, p1.y - p2.y), s0: cd.logoScale || 1 }; return; }
+  const p = cdPt(e), hx = R.x + R.w + 6, hy = R.y + R.h + 6;
+  if (Math.hypot(p.x - hx, p.y - hy) < 46) {
+    const cx = R.x + R.w / 2, cy = R.y + R.h / 2;
+    cdDrag = { mode: 'size', cx, cy, d0: Math.max(20, Math.hypot(p.x - cx, p.y - cy)), s0: cd.logoScale || 1 };
+  } else if (p.x >= R.x - 10 && p.x <= R.x + R.w + 10 && p.y >= R.y - 10 && p.y <= R.y + R.h + 10) {
+    cdDrag = { mode: 'move', p0: p, x0: cd.logoX || 0, y0: cd.logoY || 0 };
+  } else { cdPtrs.delete(e.pointerId); return; }
+  $('cdFront').setPointerCapture(e.pointerId); e.preventDefault();
+});
+$('cdFront').addEventListener('pointermove', e => {
+  const p = cdPt(e);
+  if (cdPtrs.has(e.pointerId)) cdPtrs.set(e.pointerId, p);
+  if (!cdDrag) {
+    const R = $('cdFront')._logoRect; if (!R || cdEdit !== 'front') return;
+    const nearH = Math.hypot(p.x - R.x - R.w - 6, p.y - R.y - R.h - 6) < 46, inside = p.x >= R.x && p.x <= R.x + R.w && p.y >= R.y && p.y <= R.y + R.h;
+    $('cdFront').style.cursor = nearH ? 'nwse-resize' : inside ? 'move' : 'default'; return;
+  }
+  if (cdDrag.mode === 'move') { cd.logoX = Math.round(cdDrag.x0 + p.x - cdDrag.p0.x); cd.logoY = Math.round(cdDrag.y0 + p.y - cdDrag.p0.y); cdDrawFront(); }
+  if (cdDrag.mode === 'size') cdScaleTo(cdDrag.s0 * Math.hypot(p.x - cdDrag.cx, p.y - cdDrag.cy) / cdDrag.d0);
+  if (cdDrag.mode === 'pinch' && cdPtrs.size === 2) { const [p1, p2] = [...cdPtrs.values()]; cdScaleTo(cdDrag.s0 * Math.hypot(p1.x - p2.x, p1.y - p2.y) / cdDrag.d0); }
+});
+const cdUp = e => { cdPtrs.delete(e.pointerId); if (!cdPtrs.size) { if (cdDrag) drawCardPreview(false); cdDrag = null; } };
+$('cdFront').addEventListener('pointerup', cdUp); $('cdFront').addEventListener('pointercancel', cdUp);
+$('cdFront').addEventListener('wheel', e => { if (cdEdit !== 'front' || cd.logoSrc === 'none') return; e.preventDefault(); cdScaleTo((cd.logoScale || 1) * (e.deltaY < 0 ? 1.06 : 1 / 1.06)); }, { passive: false });
+$('cdLogoReset').addEventListener('click', () => { cd.logoX = 0; cd.logoY = 0; cdScaleTo(1); drawCardPreview(false); });
 $('sCard').addEventListener('input', e => {
   const t = e.target; if (!cd) return;
   if (t.dataset.cd) cd[t.dataset.cd] = t.value;
   else if (t.id === 'cdLogoBack') cd.logoOnBack = t.checked;
   else if (t.id === 'cdLogoClean') cd.logoClean = t.checked;
-  else if (t.id === 'cdLogoScale') { cd.logoScale = t.value / 100; $('cdLogoScaleVal').textContent = t.value + '%'; drawCardPreview(false); return; }
+  else if (t.id === 'cdLogoScale') { cdScaleTo(t.value / 100); return; }
   else if (t.id === 'cdQrPick') cd.qrPick = t.value;
   else if (t.name === 'cdTarget') { cd.target = t.value; cdSyncForm(); }
   else if (t.name === 'cdSide') { cd.qrSide = t.value; cdSyncForm(); }
@@ -1446,7 +1492,7 @@ $('cdLogoFile').addEventListener('change', async e => {
 $('cdSave').addEventListener('click', async () => {
   const str = ['name', 'role', 'company', 'phone', 'email', 'web', 'addr', 'tagline', 'logoSrc', 'target', 'url', 'mapAddr', 'qrPick', 'qrSide', 'qrCaption'];
   const data = { front: { tpl: cd.front.tpl, accent: cd.front.accent }, back: { tpl: cd.back.tpl, accent: cd.back.accent }, logoOnBack: !!cd.logoOnBack, logoData: cd.logoData || '',
-    logoScale: Math.max(0.5, Math.min(1.6, Number(cd.logoScale) || 1)), logoClean: cd.logoClean !== false, v: 2 };
+    logoScale: cdClamp(Number(cd.logoScale) || 1), logoX: Math.round(Number(cd.logoX) || 0), logoY: Math.round(Number(cd.logoY) || 0), logoClean: cd.logoClean !== false, v: 2 };
   str.forEach(k => data[k] = String(cd[k] || '').slice(0, 300));
   $('cdMsg').textContent = 'Αποθήκευση…';
   try { await setDoc(doc(db, 'cards', user.uid), { ...data, updatedAt: serverTimestamp() }); $('cdMsg').textContent = 'Το σχέδιο αποθηκεύτηκε.'; }

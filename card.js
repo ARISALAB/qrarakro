@@ -27,21 +27,25 @@ function fitText(ctx, text, x, y, maxW, size, weight, min) {
   return s;
 }
 function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
-let LS = 1; // μέγεθος λογότυπου που διάλεξε ο χρήστης (0.5 – 1.6)
+// Μέγεθος και θέση του σήματος στη μπροστινή όψη, όπως τα ορίζει ο χρήστης (σε μονάδες κάρτας 1004 × 650)
+let LS = 1, LX = 0, LY = 0, REC = null;
+export const LOGO_MIN = 0.3, LOGO_MAX = 3;
 function logoBox(img, maxW, maxH) {
   const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
-  const s = Math.min(Math.min(maxW * LS, CW - 80) / iw, Math.min(maxH * LS, CH - 80) / ih);
+  const s = Math.min(Math.min(maxW * LS, CW * 1.2) / iw, Math.min(maxH * LS, CH * 1.2) / ih);
   return [iw * s, ih * s];
 }
 function drawLogo(ctx, img, cx, cy, maxW, maxH) {
-  const [w, h] = logoBox(img, maxW, maxH);
+  const [w, h] = logoBox(img, maxW, maxH); cx += LX; cy += LY;
   ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+  REC = { x: cx - w / 2, y: cy - h / 2, w, h };
 }
 // Λογότυπο πάνω σε λευκή κάρτα-πλαίσιο (για χρωματιστό φόντο). Το πλαίσιο ακολουθεί το μέγεθος του λογότυπου.
 function logoTile(ctx, img, cx, cy, maxW, maxH) {
-  const [w, h] = logoBox(img, maxW, maxH), pad = Math.max(18, Math.min(w, h) * 0.14);
+  const [w, h] = logoBox(img, maxW, maxH), pad = Math.max(18, Math.min(w, h) * 0.14); cx += LX; cy += LY;
   ctx.fillStyle = '#FFFFFF'; rrect(ctx, cx - w / 2 - pad, cy - h / 2 - pad, w + 2 * pad, h + 2 * pad, 22); ctx.fill();
   ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+  REC = { x: cx - w / 2 - pad, y: cy - h / 2 - pad, w: w + 2 * pad, h: h + 2 * pad };
 }
 function drawQrTile(ctx, qr, x, y, size, caption, capColor) {
   ctx.fillStyle = '#FFFFFF'; rrect(ctx, x, y, size, size, size * 0.08); ctx.fill();
@@ -65,7 +69,11 @@ function drawIdentity(ctx, d, x, y, maxW, nameColor, roleColor) {
 function brandMark(ctx, d, logo, cx, cy, maxW, maxH, color) {
   if (logo) return drawLogo(ctx, logo, cx, cy, maxW, maxH);
   const t = (d.company || d.name || '').trim(); if (!t) return;
-  ctx.fillStyle = color; ctx.textAlign = 'center'; fitText(ctx, t, cx, cy + 18 * LS, Math.min(maxW * LS, CW - 80), Math.round(54 * LS), 800, 18); ctx.textAlign = 'left';
+  cx += LX; cy += LY;
+  ctx.fillStyle = color; ctx.textAlign = 'center';
+  const fs = fitText(ctx, t, cx, cy + 18 * LS, Math.min(maxW * LS, CW * 1.2), Math.round(54 * LS), 800, 14);
+  const tw = Math.min(ctx.measureText(t).width, maxW * LS); ctx.textAlign = 'left';
+  REC = { x: cx - tw / 2, y: cy - fs * 0.6, w: tw, h: fs * 1.2 };
 }
 
 /**
@@ -74,12 +82,15 @@ function brandMark(ctx, d, logo, cx, cy, maxW, maxH, color) {
  * a: { qr: canvas, logo: Image|null }
  * bleed: περιθώριο κοπής σε px (0 για προεπισκόπηση / PNG)
  */
-export function drawCard(canvas, side, d, a, bleed = 0) {
+export function drawCard(canvas, side, d, a, bleed = 0, opts = {}) {
   const W = CW, H = CH, ctx = canvas.getContext('2d');
   canvas.width = W + 2 * bleed; canvas.height = H + 2 * bleed;
   ctx.setTransform(1, 0, 0, 1, bleed, bleed);
   const acc = d.accent || '#C9A46A', logo = d.useLogo ? a.logo : null, P = 64;
-  LS = Math.max(0.5, Math.min(1.6, Number(d.logoScale) || 1));
+  // μέγεθος/θέση χρήστη μόνο για το σήμα της μπροστινής όψης
+  const front = side === 'front';
+  LS = front ? Math.max(LOGO_MIN, Math.min(LOGO_MAX, Number(d.logoScale) || 1)) : 1;
+  LX = front ? Number(d.logoX) || 0 : 0; LY = front ? Number(d.logoY) || 0 : 0; REC = null;
   const qrHere = d.qrSide === side && a.qr;
   // φόντο ως τις άκρες του περιθωρίου κοπής
   const bg = (color, x = 0, y = 0, w = W, h = H) => {
@@ -172,6 +183,14 @@ export function drawCard(canvas, side, d, a, bleed = 0) {
     ctx.fillStyle = tc; ctx.globalAlpha = .9; ctx.textAlign = 'center';
     fitText(ctx, d.tagline.trim(), W / 2, H - (tpl === 'noir' ? 82 : 58), W - 2 * P, 26, 600, 15);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  }
+  // Στην επεξεργασία: πλαίσιο γύρω από το σήμα με λαβή αλλαγής μεγέθους κάτω δεξιά
+  canvas._logoRect = front ? REC : null;
+  if (opts.edit && front && REC) {
+    ctx.save(); ctx.setLineDash([10, 8]); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(201,164,106,.95)';
+    ctx.strokeRect(REC.x - 6, REC.y - 6, REC.w + 12, REC.h + 12); ctx.setLineDash([]);
+    ctx.fillStyle = '#C9A46A'; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(REC.x + REC.w + 6, REC.y + REC.h + 6, 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   return canvas;

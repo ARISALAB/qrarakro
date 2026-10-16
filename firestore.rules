@@ -205,7 +205,7 @@ service cloud.firestore {
       allow get: if signedIn() && request.auth.uid == uid;
       allow create, update: if verified() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['front', 'back', 'name', 'role', 'company', 'phone', 'email', 'web', 'addr', 'tagline',
-                                                  'logoSrc', 'logoData', 'logoOnBack', 'logoScale', 'logoClean', 'v', 'target', 'url', 'mapAddr', 'qrPick', 'qrSide', 'qrCaption', 'updatedAt'])
+                                                  'logoSrc', 'logoData', 'logoOnBack', 'logoScale', 'logoX', 'logoY', 'logoClean', 'v', 'target', 'url', 'mapAddr', 'qrPick', 'qrSide', 'qrCaption', 'updatedAt'])
         && request.resource.data.front is map && request.resource.data.back is map
         && request.resource.data.url is string && request.resource.data.url.size() <= 300
         && request.resource.data.logoData is string && request.resource.data.logoData.size() <= 900000
