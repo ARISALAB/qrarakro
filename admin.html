@@ -249,6 +249,8 @@
   @media (max-width: 560px) { .who span { display: none; } .brand { white-space: nowrap; } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
   .cat-grid[hidden] { display: none !important; }
+  .form { grid-template-columns: minmax(0, 1fr); } .form > *, .card { min-width: 0; }
+  @media (max-width: 959px) { .editor { grid-template-columns: minmax(0, 1fr); } .editor > * { min-width: 0; } }
   .q-fab { display: none; }
   @media (max-width: 600px) {
     .sects { overflow-x: auto; scrollbar-width: none; }
