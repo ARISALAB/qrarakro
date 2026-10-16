@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Δωρεάν QR code για την επιχείρησή σου | AR Akron QR</title>
-<meta name="description" content="Φτιάξε δωρεάν QR code για link, Wi-Fi, κριτικές Google, τηλέφωνο, WhatsApp, email, χάρτη και κάρτα επαφής. Χωρίς εγγραφή, χωρίς υδατογράφημα, με έτοιμα πρότυπα εκτύπωσης.">
+<meta name="description" content="Φτιάξε δωρεάν QR code για link, Wi-Fi, κριτικές Google, τηλέφωνο, WhatsApp, email, χάρτη και social. Χωρίς εγγραφή, χωρίς υδατογράφημα, με έτοιμα πρότυπα εκτύπωσης.">
 <meta name="theme-color" content="#FBF9F4">
 <meta property="og:title" content="Δωρεάν QR code, έτοιμο για εκτύπωση">
 <meta property="og:description" content="Link, Wi-Fi, κριτικές Google και άλλα. Χωρίς εγγραφή, χωρίς υδατογράφημα.">
@@ -464,7 +464,9 @@ const I18N = {
     trust1: 'Χωρίς εγγραφή', trust2: 'Χωρίς υδατογράφημα', trust3: 'Δεν λήγει ποτέ',
     typeLabel: 'Τι θες να ανοίγει το QR;',
     t_link: 'Link', t_wifi: 'Wi-Fi', t_review: 'Κριτική', t_phone: 'Τηλέφωνο',
-    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Χάρτης', t_vcard: 'Κάρτα',
+    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Χάρτης', t_social: 'Social',
+    f_net: 'Πλατφόρμα', f_user: 'Όνομα χρήστη ή link', ph_user: 'π.χ. plakimeze',
+    n_ig: 'Instagram', n_fb: 'Facebook', n_tt: 'TikTok', n_yt: 'YouTube', n_li: 'LinkedIn',
     optional: '(προαιρετικό)',
     f_url: 'Διεύθυνση σελίδας', ph_url: 'π.χ. www.to-magazi-mou.gr',
     f_ssid: 'Όνομα δικτύου', ph_ssid: 'π.χ. Taverna_Guests',
@@ -510,7 +512,7 @@ const I18N = {
       whatsapp: ['Στείλε μας μήνυμα', 'Παράγγειλε στο WhatsApp'],
       email: ['Στείλε μας email', 'Ζήτα προσφορά'],
       map: ['Βρες μας στον χάρτη', 'Οδηγίες για να έρθεις'],
-      vcard: ['Αποθήκευσε την επαφή μας', 'Κράτα τα στοιχεία μας']
+      social: ['Ακολούθησέ μας', 'Βρες μας στα social']
     },
     sub_wifi: 'Δίκτυο', credit: 'Φτιάχτηκε δωρεάν με ' + BRAND,
     help_link: '<p>Γράψε τη διεύθυνση όπως τη βλέπεις στον browser. Αν λείπει το https://, το προσθέτουμε εμείς.</p><p>Το QR ανοίγει πάντα αυτή τη σελίδα. Αν αλλάξει η διεύθυνση, θα χρειαστείς νέο QR.</p>',
@@ -520,7 +522,7 @@ const I18N = {
     help_whatsapp: '<p>Ανοίγει συνομιλία μαζί σου στο WhatsApp. Αν γράψεις έτοιμο μήνυμα, ο πελάτης απλώς πατάει «Αποστολή».</p>',
     help_email: '<p>Ανοίγει νέο email προς εσένα, με το θέμα και το κείμενο που θα ορίσεις.</p>',
     help_map: '<p>Γράψε τη διεύθυνση ή, για ακριβές σημείο, πάτα «Κοινοποίηση» στο Google Maps και επικόλλησε το link εδώ.</p>',
-    help_vcard: '<p>Ο πελάτης σκανάρει και αποθηκεύει τα στοιχεία σου στις επαφές του με ένα πάτημα.</p>',
+    help_social: '<p>Γράψε μόνο το όνομα χρήστη (π.χ. plakimeze) ή επικόλλησε ολόκληρο το link του προφίλ σου. Ο πελάτης σκανάρει και ανοίγει κατευθείαν η σελίδα σου.</p>',
     bEyebrow: 'Premium', bridgeTitle: 'QR που αλλάζεις όποτε θες, χωρίς νέα εκτύπωση',
     bridgeText: 'Τα δωρεάν QR είναι μόνιμα: ό,τι γράψεις, αυτό ανοίγουν για πάντα. Με τα δυναμικά QR αλλάζεις τον προορισμό από το κινητό σου, βλέπεις πόσοι σκάναραν, και το ψηφιακό σου προφίλ φεύγει χωρίς διαφήμιση.',
     bPrice: '7€', bPer: '/ μήνα, με ΦΠΑ', bAlt: 'ή 70€ τον χρόνο (2 μήνες δώρο)',
@@ -548,7 +550,9 @@ const I18N = {
     trust1: 'No sign-up', trust2: 'No watermark', trust3: 'Never expires',
     typeLabel: 'What should the QR open?',
     t_link: 'Link', t_wifi: 'Wi-Fi', t_review: 'Review', t_phone: 'Phone',
-    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Map', t_vcard: 'Contact',
+    t_whatsapp: 'WhatsApp', t_email: 'Email', t_map: 'Map', t_social: 'Social',
+    f_net: 'Platform', f_user: 'Username or link', ph_user: 'e.g. plakimeze',
+    n_ig: 'Instagram', n_fb: 'Facebook', n_tt: 'TikTok', n_yt: 'YouTube', n_li: 'LinkedIn',
     optional: '(optional)',
     f_url: 'Web address', ph_url: 'e.g. www.yourshop.com',
     f_ssid: 'Network name', ph_ssid: 'e.g. Taverna_Guests',
@@ -594,7 +598,7 @@ const I18N = {
       whatsapp: ['Message us', 'Order on WhatsApp'],
       email: ['Email us', 'Ask for a quote'],
       map: ['Find us on the map', 'Get directions'],
-      vcard: ['Save our contact', 'Keep our details']
+      social: ['Follow us', 'Find us on social']
     },
     sub_wifi: 'Network', credit: 'Made free with ' + BRAND,
     help_link: '<p>Type the address as you see it in your browser. If https:// is missing, we add it.</p><p>The QR always opens this page. If the address changes, you\'ll need a new QR.</p>',
@@ -604,7 +608,7 @@ const I18N = {
     help_whatsapp: '<p>Opens a WhatsApp chat with you. If you write a ready-made message, the customer just taps Send.</p>',
     help_email: '<p>Opens a new email to you, with the subject and text you set.</p>',
     help_map: '<p>Type the address or, for an exact spot, tap Share in Google Maps and paste the link here.</p>',
-    help_vcard: '<p>Customers scan and save your details to their contacts in one tap.</p>',
+    help_social: '<p>Type just the username (e.g. plakimeze) or paste your full profile link. Customers scan and your page opens straight away.</p>',
     bEyebrow: 'Premium', bridgeTitle: 'QR codes you can change any time, without reprinting',
     bridgeText: 'Free QR codes are permanent: whatever you type is what they open, forever. With dynamic QR codes you change the destination from your phone, see how many people scanned, and your digital profile goes ad-free.',
     bPrice: '€7', bPer: '/ month, VAT incl.', bAlt: 'or €70 a year (2 months free)',
@@ -635,7 +639,7 @@ const ICONS = {
   whatsapp: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
   email: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>',
   map: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
-  vcard: '<rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0"/><path d="M15 10h4M15 14h4"/>'
+  social: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>'
 };
 
 /* ------------------------- Βοηθητικές ------------------------- */
@@ -734,33 +738,20 @@ const TYPES = [
       return /^https?:\/\//i.test(p) ? p : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p);
     },
     sub: (v) => /^https?:\/\//i.test(trim(v.place)) ? '' : trim(v.place) },
-  { id: 'vcard',
+  { id: 'social',
     fields: [
-      { id: 'name', type: 'text', label: 'f_name' },
-      { id: 'org', type: 'text', label: 'f_org', optional: true, half: true },
-      { id: 'title', type: 'text', label: 'f_title', optional: true, half: true },
-      { id: 'tel', type: 'tel', label: 'f_vphone', optional: true, half: true },
-      { id: 'mail', type: 'email', label: 'f_vemail', optional: true, half: true },
-      { id: 'web', type: 'url', label: 'f_vurl', optional: true },
-      { id: 'addr', type: 'text', label: 'f_addr', optional: true }
+      { id: 'net', type: 'select', label: 'f_net', options: [['instagram', 'n_ig'], ['facebook', 'n_fb'], ['tiktok', 'n_tt'], ['youtube', 'n_yt'], ['linkedin', 'n_li']] },
+      { id: 'user', type: 'text', label: 'f_user', ph: 'ph_user' }
     ],
     build: (v) => {
-      const name = trim(v.name);
-      if (!name) return null;
-      const parts = name.split(/\s+/);
-      const last = parts.length > 1 ? parts.pop() : '';
-      const first = parts.join(' ');
-      const L = ['BEGIN:VCARD', 'VERSION:3.0', 'N:' + vcEsc(last) + ';' + vcEsc(first) + ';;;', 'FN:' + vcEsc(name)];
-      if (trim(v.org)) L.push('ORG:' + vcEsc(trim(v.org)));
-      if (trim(v.title)) L.push('TITLE:' + vcEsc(trim(v.title)));
-      if (trim(v.tel)) L.push('TEL;TYPE=CELL:+' + intlNumber(v.tel));
-      if (trim(v.mail)) L.push('EMAIL:' + trim(v.mail));
-      if (trim(v.web)) L.push('URL:' + withScheme(v.web));
-      if (trim(v.addr)) L.push('ADR:;;' + vcEsc(trim(v.addr)) + ';;;;');
-      L.push('END:VCARD');
-      return L.join('\n');
+      const u = trim(v.user);
+      if (!u) return null;
+      if (/^https?:\/\//i.test(u)) return u;
+      const h = encodeURIComponent(u.replace(/^@/, ''));
+      return ({ instagram: 'https://www.instagram.com/' + h, facebook: 'https://www.facebook.com/' + h, tiktok: 'https://www.tiktok.com/@' + h,
+        youtube: 'https://www.youtube.com/@' + h, linkedin: 'https://www.linkedin.com/in/' + h })[v.net || 'instagram'];
     },
-    sub: (v) => [trim(v.name), trim(v.org)].filter(Boolean).join(', ') }
+    sub: (v) => trim(v.user) && !/^https?:/i.test(trim(v.user)) ? '@' + trim(v.user).replace(/^@/, '') : '' }
 ];
 const typeById = (id) => TYPES.find(t => t.id === id);
 
