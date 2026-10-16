@@ -250,6 +250,19 @@
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
   .cat-grid[hidden] { display: none !important; }
   .form { grid-template-columns: minmax(0, 1fr); } .form > *, .card { min-width: 0; }
+  .btn-list, .b-row, .links, .stack { grid-template-columns: minmax(0, 1fr); }
+  .btn-list > *, .b-row > *, .b-top > *, .links > *, .stack > * { min-width: 0; }
+  .b-top .ico { min-width: 36px; }
+  .share-box { display: grid; gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .share-box h3 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+  .share-box > p { margin: 0; color: var(--muted); font-size: 14px; }
+  .share-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .share-btns .btn { width: 100%; }
+  .show-qr { position: fixed; inset: 0; z-index: 100; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center; color: #121316; }
+  .show-qr[hidden] { display: none; }
+  .show-qr canvas { width: min(82vw, 60vh, 420px); height: auto; aspect-ratio: 1; }
+  .show-qr b { font-size: 22px; letter-spacing: -0.02em; }
+  .show-qr p { margin: 0; color: #5E6157; font-size: 15px; max-width: 320px; }
   @media (max-width: 959px) { .editor { grid-template-columns: minmax(0, 1fr); } .editor > * { min-width: 0; } }
   .q-fab { display: none; }
   @media (max-width: 600px) {
@@ -384,6 +397,12 @@
 
     <!-- Επεξεργαστής -->
     <section id="vEditor" hidden>
+      <div class="show-qr" id="showQrView" hidden role="dialog" aria-label="QR για σκανάρισμα">
+            <canvas id="showQrCanvas" width="900" height="900"></canvas>
+            <b id="showQrName"></b>
+            <p>Σκάναρε με την κάμερα του κινητού και πάτα «Αποθήκευση επαφής».</p>
+            <button type="button" class="btn" id="showQrClose">Κλείσιμο</button>
+          </div>
       <div class="notice" id="paidNote" hidden></div>
       <nav class="sects" role="tablist" aria-label="Ενότητες">
         <button type="button" role="tab" data-sect="sProfile" aria-selected="true">Το προφίλ μου</button>
@@ -478,6 +497,19 @@
                 <a class="btn line small" id="qrGen" target="_blank" rel="noopener">Πρότυπα εκτύπωσης</a>
                 <a class="btn line small" id="viewProfile" target="_blank" rel="noopener">Δες το προφίλ</a>
               </div>
+            </div>
+            <div class="share-box">
+              <h3>Στείλε την κάρτα σου</h3>
+              <p>Ο άλλος ανοίγει το προφίλ σου και με ένα πάτημα σε αποθηκεύει στις επαφές του κινητού του.</p>
+              <button type="button" class="btn gold" id="showQr">Δείξε το QR για σκανάρισμα</button>
+              <div class="field"><label for="shareTel">Κινητό παραλήπτη <span class="opt">(προαιρετικό, για WhatsApp και SMS)</span></label><input type="tel" id="shareTel" inputmode="tel" maxlength="20" placeholder="π.χ. 69xxxxxxxx"></div>
+              <div class="share-btns">
+                <a class="btn line small" id="shViber" target="_blank" rel="noopener">Viber</a>
+                <a class="btn line small" id="shWa" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="btn line small" id="shSms">SMS</a>
+                <a class="btn line small" id="shMail">Email</a>
+              </div>
+              <button type="button" class="btn line small" id="shMore">Άλλη εφαρμογή…</button>
             </div>
           </section>
         </div>
@@ -1034,6 +1066,7 @@ function updateLinks() {
   $('lnPerm').textContent = profileUrl(saved);
   $('viewProfile').href = prettyUrl(saved);
   $('qrGen').href = SITE + '/?url=' + encodeURIComponent(profileUrl(saved));
+  updateShare();
 }
 $('eSlug').addEventListener('input', () => {
   const v = $('eSlug').value.toLowerCase().replace(/\s+/g, '-');
@@ -1072,6 +1105,39 @@ $('qrPng').addEventListener('click', async () => {
   const c = await drawQr(1200, document.createElement('canvas'));
   c.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'qr-' + saved.slug + '.png'; document.body.appendChild(a); a.click(); a.remove(); }, 'image/png');
 });
+
+/* Αποστολή της κάρτας: ο σύνδεσμος με ?c=1 ανοίγει το προφίλ με έτοιμο το κουμπί «Αποθήκευση επαφής» */
+function cardUrl() { return prettyUrl(saved) + '?c=1'; }
+function cardText() { return (saved.name || '') + ' · η ψηφιακή μου κάρτα. Πάτα το σύνδεσμο για να με αποθηκεύσεις στις επαφές σου: ' + cardUrl(); }
+function shareTel() {
+  let d = ($('shareTel').value || '').replace(/[^\d+]/g, '');
+  if (!d) return '';
+  if (d.startsWith('+')) return d.slice(1);
+  if (d.startsWith('00')) return d.slice(2);
+  if (d.length === 10 && /^[26]/.test(d)) return '30' + d;
+  return d;
+}
+function updateShare() {
+  if (!saved) return;
+  const t = encodeURIComponent(cardText()), tel = shareTel();
+  $('shViber').href = 'viber://forward?text=' + t;
+  $('shWa').href = 'https://wa.me/' + tel + '?text=' + t;
+  $('shSms').href = 'sms:' + (tel ? '+' + tel : '') + '?body=' + t;
+  $('shMail').href = 'mailto:?subject=' + encodeURIComponent((saved.name || '') + ' · ψηφιακή κάρτα') + '&body=' + t;
+}
+$('shareTel').addEventListener('input', updateShare);
+['shViber', 'shWa', 'shSms', 'shMail'].forEach(id => $(id).addEventListener('click', updateShare));
+$('shMore').addEventListener('click', async () => {
+  if (navigator.share) { try { await navigator.share({ title: saved.name, text: cardText(), url: cardUrl() }); } catch (e) {} return; }
+  try { await navigator.clipboard.writeText(cardText()); $('shMore').textContent = 'Αντιγράφηκε'; setTimeout(() => $('shMore').textContent = 'Άλλη εφαρμογή…', 1600); } catch (e) { prompt('', cardText()); }
+});
+$('showQr').addEventListener('click', async () => {
+  if (draft.logo !== logoSrc) { logoSrc = draft.logo; logoImg = draft.logo ? await loadImg(draft.logo).catch(() => null) : null; }
+  drawCode($('showQrCanvas'), 900, profileUrl(saved) + '?c=1', '#121316', '#FFFFFF', logoImg);
+  $('showQrName').textContent = saved.name || '';
+  $('showQrView').hidden = false;
+});
+$('showQrClose').addEventListener('click', () => { $('showQrView').hidden = true; });
 
 /* Καρτέλες στο κινητό */
 function tab(prev) {
@@ -1288,7 +1354,7 @@ const CAT_ICONS = {
 function renderCatGrid() {
   $('catGrid').innerHTML = '<button type="button" class="cat-btn" data-cat="">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' +
-    '<span>Όλα</span></button>' + QTYPES.map(t =>
+    '<span>Όλα</span></button>' + QTYPES.filter(t => t[0] !== 'profile').map(t =>
     '<button type="button" class="cat-btn" data-cat="' + t[0] + '">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true">' + (CAT_ICONS[t[0]] || '') + '</svg>' +
     '<span>' + t[1] + '</span></button>'
@@ -1339,7 +1405,8 @@ const QHINT = {
   profile: '',
   custom: '💡 Αλλάζεις τον προορισμό όποτε θέλεις — τα τυπωμένα QR δείχνουν πάντα εκεί που ορίζεις.'
 };
-$('qType').innerHTML = QTYPES.map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
+// Το «Business Profile» αφαιρέθηκε: το προφίλ είναι ήδη η ψηφιακή κάρτα. Παλιά QR αυτού του τύπου συνεχίζουν να δουλεύουν.
+$('qType').innerHTML = QTYPES.filter(t => t[0] !== 'profile').map(t => '<option value="' + t[0] + '">' + t[1] + '</option>').join('');
 let qrs = [], cur = null, curCode = null, qLogoImg = null, qLogoSrc = '', qCustom = '', qCustomSaved = '';
 const shortUrl = code => SITE + '/q/' + code;
 const qDest = q => q.t === 'profile' ? SITE + '/p/' + pid : hrefFor({ t: q.t, v: q.v });
@@ -1407,6 +1474,7 @@ function openQr(code, draft) {
   const q = draft || qrs.find(x => x.code === code); if (!q) return;
   curCode = code; cur = { ...q };
   $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false; $('catGrid').hidden = true;
+  if (cur.t === 'profile' && !$('qType').querySelector('option[value="profile"]')) $('qType').add(new Option('Business Profile', 'profile'));
   $('qName').value = cur.name; $('qType').value = cur.t; $('qValue').value = cur.v; $('qCaption').value = cur.caption;
   qCustom = ''; qCustomSaved = ''; msg('qLogoErr');
   $('qLink').textContent = saved.name || '';

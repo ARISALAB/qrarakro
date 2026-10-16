@@ -4,6 +4,7 @@ import { SITE, BRAND } from './firebase-config.js';
 export const LABELS = {
   el: {
     saveContact: 'Αποθήκευση επαφής', share: 'Κοινοποίηση', copied: 'Ο σύνδεσμος αντιγράφηκε',
+    saveHint: 'Πάτα για να μπει στις επαφές του κινητού σου', saveBig: 'Αποθήκευση στις επαφές',
     hours: 'Ωράριο', address: 'Διεύθυνση', makeYours: 'Φτιάξε κι εσύ δωρεάν προφίλ',
     report: 'Αναφορά', reportPrompt: 'Τι δεν πάει καλά με αυτό το προφίλ;', reported: 'Ευχαριστούμε, θα το ελέγξουμε.',
     b_phone: 'Κάλεσέ μας', b_whatsapp: 'WhatsApp', b_email: 'Email', b_link: 'Ιστοσελίδα',
@@ -11,6 +12,7 @@ export const LABELS = {
   },
   en: {
     saveContact: 'Save contact', share: 'Share', copied: 'Link copied',
+    saveHint: 'Tap to add to your phone contacts', saveBig: 'Save to contacts',
     hours: 'Opening hours', address: 'Address', makeYours: 'Make your own free profile',
     report: 'Report', reportPrompt: 'What is wrong with this profile?', reported: 'Thank you, we will look into it.',
     b_phone: 'Call us', b_whatsapp: 'WhatsApp', b_email: 'Email', b_link: 'Website',
@@ -144,6 +146,10 @@ const CSS = `
 .pf-info div + div{border-top:1px solid var(--pf-line)}
 .pf-info h2{margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pf-muted)}
 .pf-info p{margin:0;white-space:pre-line;overflow-wrap:anywhere}
+.pf-savebar{margin:18px 22px 0;padding:16px;border-radius:18px;background:var(--pf-tint);display:grid;gap:10px;text-align:center}
+.pf-savebar p{margin:0;font-size:14px;color:var(--pf-muted)}
+.pf-savebar button{display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border:0;border-radius:14px;background:var(--pf-accent);color:var(--pf-on);font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+.pf-savebar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .pf-acts{display:grid;grid-template-columns:1fr 52px;gap:10px;padding:22px 22px 0}
 .pf-act.icon{padding:0}
 .pf-act{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:8px 10px;border-radius:16px;border:1px solid var(--pf-line);background:transparent;color:inherit;font:inherit;font-weight:600;font-size:14px;line-height:1.2;cursor:pointer}
@@ -205,6 +211,21 @@ export function renderProfile(root, p, opts = {}) {
   if (trim(p.bio)) head.appendChild(el('p', 'pf-bio', trim(p.bio)));
   head.appendChild(el('div', 'pf-rule'));
   inner.appendChild(head);
+  const saveVcf = () => {
+    if (opts.preview) return;
+    const blob = new Blob([vcardFor(p)], { type: 'text/vcard;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = (trim(p.slug) || 'contact') + '.vcf'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  // Άνοιγμα από «Στείλε την κάρτα σου» (?c=1): το κουμπί αποθήκευσης μπαίνει πρώτο και μεγάλο
+  if (opts.saveFirst) {
+    const bar = el('div', 'pf-savebar');
+    bar.appendChild(el('p', '', L.saveHint));
+    const big = el('button'); big.type = 'button'; big.innerHTML = svg('contact'); big.appendChild(el('span', '', L.saveBig));
+    big.addEventListener('click', saveVcf);
+    bar.appendChild(big); inner.appendChild(bar);
+  }
 
   let buttons = (p.buttons || []).filter(b => hrefFor(b));
   const main = buttons.filter(b => b.main).slice(0, 2);
@@ -250,13 +271,7 @@ export function renderProfile(root, p, opts = {}) {
   const acts = el('div', 'pf-acts');
   const save = el('button', 'pf-act'); save.type = 'button'; save.innerHTML = svg('contact'); save.appendChild(el('span', '', L.saveContact));
   const share = el('button', 'pf-act icon'); share.type = 'button'; share.innerHTML = svg('share'); share.setAttribute('aria-label', L.share); share.title = L.share;
-  save.addEventListener('click', () => {
-    if (opts.preview) return;
-    const blob = new Blob([vcardFor(p)], { type: 'text/vcard;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = (trim(p.slug) || 'contact') + '.vcf'; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  });
+  save.addEventListener('click', saveVcf);
   share.addEventListener('click', async () => {
     if (opts.preview) return;
     const url = prettyUrl(p);

@@ -71,7 +71,7 @@ async function load() {
     let menuUrl = '';
     try { const m = await getDoc(doc(db, 'menus', p.id)); if (m.exists() && m.data().published) menuUrl = SITE + '/m/' + p.id; } catch (e) {}
     renderProfile(root, p, {
-      lang, hideMake: premiumState(ent).usable, menuUrl,
+      lang, hideMake: premiumState(ent).usable, menuUrl, saveFirst: params.get('c') === '1',
       onReport: reason => addDoc(collection(db, 'reports'), { pid: p.id, reason, createdAt: serverTimestamp() })
     });
   } catch (e) {
