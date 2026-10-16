@@ -63,6 +63,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js';
 import { firebaseConfig, SITE, TEST_SCANS, premiumState } from '/firebase-config.js';
 import { hrefFor } from '/profile-render.js';
+import { isBlockType, renderBlocks } from '/blocks.js';
 
 const db = getFirestore(initializeApp(firebaseConfig));
 const el = lang => (navigator.language || 'el').toLowerCase().startsWith('el');
@@ -222,23 +223,34 @@ async function go() {
     new Promise(r => setTimeout(r, 3000))  // περιμένουμε να καταγραφεί το σκανάρισμα (συνήθως < 0,5 δευτ.), το πολύ 3 δευτ.
   ]);
 
+  // Σελίδες που φτιάχνονται μέσα στην εφαρμογή (ημερήσιο μενού, προσφορές, σελίδες με μπλοκ)
+  const isPage = q.t === 'daily' || q.t === 'offers' || (isBlockType(q.t) && !(q.v || '').trim());
+  const page = async field => {
+    await count(field);
+    try {
+      const cs = await getDoc(doc(db, 'qrcontent', code));
+      if (cs.exists()) {
+        const d = cs.data();
+        if (q.t === 'daily') return renderDaily(d);
+        if (q.t === 'offers') return renderOffers(d);
+        document.body.style.background = '#F7F4EE';
+        if (d.title) document.title = d.title;
+        return renderBlocks(document.getElementById('box'), d, { lang: EL ? 'el' : 'en' });
+      }
+    } catch (e) {}
+    show(T.draft);
+  };
+
   if (st.usable) {                          // Premium ενεργό ή σε περίοδο χάριτος
-    // Daily menu micro-page
-    if (q.t === 'daily' || q.t === 'offers') {
-      await count('scans');
-      try {
-        const cs = await getDoc(doc(db, 'qrcontent', code));
-        if (cs.exists()) return q.t === 'daily' ? renderDaily(cs.data()) : renderOffers(cs.data());
-      } catch (e) {}
-      return show(T.draft);
-    }
+    if (isPage) return page('scans');
     if (!dest) return show(T.draft);
     await count('scans'); return location.replace(dest);
   }
   if (st.ever) {                            // Η συνδρομή έληξε: το QR οδηγεί στο δωρεάν προφίλ
     await count('scans'); return location.replace(profile);
   }
-  if ((q.testScans || 0) < TEST_SCANS && dest) {   // Πρόχειρο: δοκιμαστικά σκαναρίσματα
+  if ((q.testScans || 0) < TEST_SCANS && (dest || isPage)) {   // Πρόχειρο: δοκιμαστικά σκαναρίσματα
+    if (isPage) return page('testScans');
     await count('testScans'); return location.replace(dest);
   }
   show(T.draft);

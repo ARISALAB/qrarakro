@@ -258,6 +258,31 @@
   .share-box > p { margin: 0; color: var(--muted); font-size: 14px; }
   .share-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .share-btns .btn { width: 100%; }
+  .bk-mode { display: grid; gap: 8px; margin-bottom: 14px; }
+  .bk-mode label { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); cursor: pointer; }
+  .bk-mode label:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .bk-mode input { accent-color: var(--ink); margin-top: 3px; }
+  .bk-mode b { display: block; font-size: 15px; } .bk-mode small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .bk-form { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  .bk-ed { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); min-width: 0; }
+  .bk-ed > * { min-width: 0; }
+  .bk-ed h4 { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-deep); }
+  .bk-ed input[type=text], .bk-ed input[type=datetime-local], .bk-ed textarea, .bk-ed select { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font: inherit; font-size: 15px; }
+  .bk-ed textarea { min-height: 84px; resize: vertical; }
+  .bk-ed .bk-ttl { border: 0 !important; border-bottom: 1px dashed var(--line-2) !important; border-radius: 0 !important; background: transparent !important; padding: 4px 0 !important; font-size: 13px !important; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-deep); }
+  .bk-ed .bk-k { background: var(--soft) !important; font-size: 13.5px !important; color: var(--muted); padding: 7px 10px !important; }
+  .bk-ed textarea[data-f=sub] { min-height: 56px; }
+  .bk-pair { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 36px; gap: 6px; align-items: center; }
+  .bk-pair3 { display: grid; grid-template-columns: minmax(0, 1fr) 36px; gap: 6px; }
+  .bk-pair3 > div { display: grid; gap: 6px; grid-template-columns: minmax(0, 1fr); padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+  .bk-x { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); cursor: pointer; font-size: 15px; }
+  .bk-imgs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bk-imgs div { position: relative; width: 84px; height: 84px; border-radius: 10px; background: var(--white) center/cover; border: 1px solid var(--line); }
+  .bk-imgs button { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(18,19,22,.75); color: #fff; cursor: pointer; }
+  .bk-cover-img { width: 100%; height: 120px; border-radius: 12px; background: var(--white) center/cover; border: 1px solid var(--line); }
+  .bk-prev { position: fixed; inset: 0; z-index: 100; background: #F7F4EE; overflow-y: auto; }
+  .bk-prev[hidden] { display: none; }
+  .bk-prev-bar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #121316; color: #F7F4EE; }
   .show-qr { position: fixed; inset: 0; z-index: 100; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center; color: #121316; }
   .show-qr[hidden] { display: none; }
   .show-qr canvas { width: min(82vw, 60vh, 420px); height: auto; aspect-ratio: 1; }
@@ -397,6 +422,10 @@
 
     <!-- Επεξεργαστής -->
     <section id="vEditor" hidden>
+      <div class="bk-prev" id="bkPrevView" hidden role="dialog" aria-label="Προεπισκόπηση σελίδας">
+        <div class="bk-prev-bar"><b>Προεπισκόπηση</b><button type="button" class="btn small" id="bkPrevClose">Κλείσιμο</button></div>
+        <div id="bkPrevRoot"></div>
+      </div>
       <div class="show-qr" id="showQrView" hidden role="dialog" aria-label="QR για σκανάρισμα">
             <canvas id="showQrCanvas" width="900" height="900"></canvas>
             <b id="showQrName"></b>
@@ -583,6 +612,17 @@
                     <span class="hint" id="dailyStatus" style="margin-left:8px"></span>
                   </div>
 
+                  <!-- Σελίδα με μπλοκ (Ξενοδοχείο, Ακίνητο, Προϊόν, Κατάστημα, Εκδήλωση, Καμπάνια, Προσαρμοσμένο) -->
+                  <div id="blocksEditor" hidden style="margin-top:4px">
+                    <div class="bk-mode" role="radiogroup" aria-label="Τι ανοίγει το QR">
+                      <label><input type="radio" name="bkMode" value="page"><span><b>Σελίδα που φτιάχνω εδώ</b><small>Συμπληρώνεις τα πεδία, δεν χρειάζεσαι δική σου ιστοσελίδα</small></span></label>
+                      <label><input type="radio" name="bkMode" value="link"><span><b>Δικό μου link</b><small>Το QR οδηγεί σε ιστοσελίδα που έχεις ήδη</small></span></label>
+                    </div>
+                    <div id="bkForm" class="bk-form"></div>
+                    <button type="button" class="btn line small" id="bkPreview" style="margin-top:12px">Προεπισκόπηση σελίδας</button>
+                    <input type="file" id="bkFile" accept="image/*" hidden>
+                  </div>
+
                   <!-- Offers Editor -->
                   <div id="offersEditor" hidden style="margin-top:16px">
                     <div class="field" style="margin-bottom:16px">
@@ -731,6 +771,7 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, creat
 import { getFirestore, doc, getDoc, setDoc, writeBatch, updateDoc, serverTimestamp, collection, query, where, getDocs, increment, documentId, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig, SITE, BRAND, LEMON, PRICES, MAX_QR, TEST_SCANS, GRACE_DAYS, premiumState } from '/firebase-config.js';
 import { renderProfile, hrefFor, BUTTON_TYPES, SOCIALS, LABELS, profileUrl, prettyUrl } from '/profile-render.js';
+import { BLOCK_SETS, BTN_TYPES, isBlockType, emptyBlocks, mergeBlocks, cleanBlocks, renderBlocks } from '/blocks.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1443,7 +1484,7 @@ async function showQrList() {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'qr-card';
     b.innerHTML = '<canvas width="128" height="128"></canvas><span class="meta"><b></b><small></small><span class="chip-s ' + cls + '"></span></span><span class="num"><b>' + (q.scans || 0) + '</b><br>σκαναρ.</span>';
     b.querySelector('b').textContent = q.name;
-    b.querySelector('small').textContent = (QTYPES.find(t => t[0] === q.t) || [0, ''])[1] + (q.t === 'profile' ? '' : ' · ' + (q.v || '—'));
+    b.querySelector('small').textContent = (QTYPES.find(t => t[0] === q.t) || [0, ''])[1] + (q.t === 'profile' ? '' : ' · ' + (q.v || (isBlockType(q.t) || q.t === 'daily' || q.t === 'offers' ? 'Σελίδα' : '—')));
     b.querySelector('.chip-s').textContent = label;
     drawCode(b.querySelector('canvas'), 128, shortUrl(q.code), q.fg, q.bg, null);
     b.onclick = () => openQr(q.code);
@@ -1479,6 +1520,7 @@ function openQr(code, draft) {
   qCustom = ''; qCustomSaved = ''; msg('qLogoErr');
   $('qLink').textContent = saved.name || '';
   $('qSaveMsg').textContent = '';
+  if (isBlockType(cur.t)) loadBlocksContent(code, !!draft);
   syncQ(); window.scrollTo({ top: 0 });
   if (draft) { watchQr(null); $('qBars').innerHTML = ''; $('qTotal').textContent = 'Θα εμφανιστούν μετά την αποθήκευση.'; }
   else { loadStats(code); watchQr(code); }
@@ -1498,10 +1540,11 @@ function syncQ() {
   $('pdfUploadWrap').hidden = !['menu', 'daily'].includes(cur.t);
   $('dailyEditor').hidden = cur.t !== 'daily';
   $('offersEditor').hidden = cur.t !== 'offers';
-  $('qValueWrap').hidden = ['profile', 'daily', 'offers'].includes(cur.t);
+  $('qValueWrap').hidden = ['profile', 'daily', 'offers'].includes(cur.t) || bkPage();
+  $('blocksEditor').hidden = !isBlockType(cur.t);
   const hint = QHINT[cur.t] || ''; $('qTypeHint').textContent = hint; $('qTypeHint').hidden = !hint;
   $('qTypeHint').className = 'q-hint' + (cur.t !== 'profile' && hint ? ' q-hint-gold' : '');
-  $('qValueErr').hidden = !(cur.t !== 'profile' && cur.t !== 'daily' && cur.v.trim() && !qDest(cur));
+  $('qValueErr').hidden = !(cur.t !== 'profile' && cur.t !== 'daily' && !bkPage() && cur.v.trim() && !qDest(cur));
   $('qFg').value = cur.fg.toLowerCase(); $('qBg').value = cur.bg.toLowerCase();
   $('qFgHex').textContent = cur.fg; $('qBgHex').textContent = cur.bg;
   $('qCapPrev').textContent = cur.caption; $('qCapPrev').style.color = cur.fg;
@@ -1530,7 +1573,9 @@ async function drawQPreview() {
   drawCode($('qCanvas'), 600, shortUrl(curCode), cur.fg, cur.bg, qLogoImg);
 }
 $('qName').addEventListener('input', e => { cur.name = e.target.value; });
-$('qType').addEventListener('change', e => { cur.t = e.target.value; syncQ(); if (cur.t === 'daily' && curCode) loadDailyContent(curCode); if (cur.t === 'offers' && curCode) loadOffersContent(curCode); });
+$('qType').addEventListener('change', e => { cur.t = e.target.value;
+  if (isBlockType(cur.t)) { if (bk.code !== curCode) loadBlocksContent(curCode, !!cur.isNew); else { bk.blocks = mergeBlocks(cur.t, bk.blocks); renderBkForm(); } }
+  syncQ(); if (cur.t === 'daily' && curCode) loadDailyContent(curCode); if (cur.t === 'offers' && curCode) loadOffersContent(curCode); });
 $('qValue').addEventListener('input', e => { cur.v = e.target.value; $('qValueErr').hidden = !(cur.v.trim() && !qDest(cur)); });
 $('qCaption').addEventListener('input', e => { cur.caption = e.target.value; syncQ(); });
 $('qFg').addEventListener('input', e => { cur.fg = e.target.value.toUpperCase(); syncQ(); });
@@ -1920,6 +1965,101 @@ $('pdfFile').addEventListener('change', async e => {
   $('pdfUploadBtn').disabled = false;
 });
 
+/* ---------- Σελίδες με μπλοκ ---------- */
+const bk = { mode: 'page', blocks: [], code: null };
+const bkDef = i => (BLOCK_SETS[cur.t] || [])[i] || {};
+const bkPage = () => isBlockType(cur.t) && bk.mode === 'page';
+async function loadBlocksContent(code, isDraft) {
+  bk.code = code; bk.mode = (cur.v || '').trim() ? 'link' : 'page';
+  bk.blocks = emptyBlocks(cur.t); renderBkForm();
+  if (isDraft) return;
+  try {
+    const d = await getDoc(doc(db, 'qrcontent', code));
+    if (d.exists() && d.data().type === 'blocks' && curCode === code) { bk.blocks = mergeBlocks(cur.t, d.data().blocks); renderBkForm(); }
+  } catch (e) { console.error(e); }
+}
+function bkField(i, f, label, val, ph, area) {
+  return '<div class="field"><label>' + label + '</label>' + (area
+    ? '<textarea data-bi="' + i + '" data-f="' + f + '" placeholder="' + esc(ph || '') + '">' + esc(val) + '</textarea>'
+    : '<input type="text" data-bi="' + i + '" data-f="' + f + '" value="' + esc(val) + '" placeholder="' + esc(ph || '') + '">') + '</div>';
+}
+function renderBkForm() {
+  document.querySelectorAll('input[name=bkMode]').forEach(r => r.checked = r.value === bk.mode);
+  $('bkForm').hidden = $('bkPreview').hidden = bk.mode !== 'page';
+  $('bkForm').innerHTML = bk.blocks.map((b, i) => {
+    const d = bkDef(i), ttl = b.type === 'cover' || b.type === 'price' ? '' :
+      '<input type="text" class="bk-ttl" data-bi="' + i + '" data-f="title" value="' + esc(b.title) + '" placeholder="Τίτλος ενότητας" aria-label="Τίτλος ενότητας">';
+    let h = '';
+    if (b.type === 'cover') h = '<h4>Εξώφυλλο</h4>' + bkField(i, 'head', 'Τίτλος', b.head, d.ph) + bkField(i, 'sub', 'Υπότιτλος (προαιρετικό)', b.sub, '', true) +
+      (b.img ? '<div class="bk-cover-img" style="background-image:url(\'' + esc(b.img) + '\')"></div>' : '') +
+      '<div class="img-row"><button type="button" class="btn line small" data-up="cover" data-bi="' + i + '">' + (b.img ? 'Άλλαξε φωτογραφία' : 'Ανέβασε φωτογραφία εξωφύλλου') + '</button>' +
+      (b.img ? '<button type="button" class="link" data-act="noimg" data-bi="' + i + '">Χωρίς φωτογραφία</button>' : '') + '</div>';
+    if (b.type === 'text') h = ttl + '<textarea data-bi="' + i + '" data-f="text" placeholder="' + esc(d.ph || '') + '">' + esc(b.text) + '</textarea>';
+    if (b.type === 'price') h = '<h4>Τιμή</h4>' + bkField(i, 'amount', 'Τιμή', b.amount, d.ph) + bkField(i, 'note', 'Σημείωση (προαιρετικό)', b.note, d.note);
+    if (b.type === 'chips') h = ttl + '<textarea data-bi="' + i + '" data-f="items" placeholder="' + esc(d.ph || '') + '">' + esc(b.items.join(', ')) + '</textarea><p class="hint" style="margin:0">Χώρισε με κόμμα.</p>';
+    if (b.type === 'info') h = ttl + b.rows.map((r, j) => '<div class="bk-pair3"><div><input type="text" class="bk-k" data-bi="' + i + '" data-ri="' + j + '" data-f="k" value="' + esc(r.k) + '" placeholder="Τίτλος, π.χ. Πρωινό"><input type="text" data-bi="' + i + '" data-ri="' + j + '" data-f="v" value="' + esc(r.v) + '" placeholder="' + esc(r.k ? 'Συμπλήρωσε: ' + r.k : 'Τιμή') + '"></div><button type="button" class="bk-x" data-act="delrow" data-bi="' + i + '" data-ri="' + j + '" aria-label="Διαγραφή">✕</button></div>').join('') +
+      (b.rows.length < 15 ? '<button type="button" class="link" data-act="addrow" data-bi="' + i + '" style="justify-self:start">+ Πρόσθεσε γραμμή</button>' : '');
+    if (b.type === 'gallery') h = ttl + '<div class="bk-imgs">' + b.imgs.map((u, j) => '<div style="background-image:url(\'' + esc(u) + '\')"><button type="button" data-act="delimg" data-bi="' + i + '" data-ri="' + j + '" aria-label="Διαγραφή">×</button></div>').join('') + '</div>' +
+      (b.imgs.length < 10 ? '<button type="button" class="btn line small" data-up="gallery" data-bi="' + i + '" style="justify-self:start">+ Ανέβασε φωτογραφία</button>' : '');
+    if (b.type === 'coupon') h = ttl + bkField(i, 'code', 'Κωδικός', b.code, 'π.χ. WELCOME10') + bkField(i, 'note', 'Σημείωση (προαιρετικό)', b.note, d.ph);
+    if (b.type === 'countdown') h = ttl + '<div class="field"><label>' + esc(d.ph || 'Ημερομηνία') + '</label><input type="datetime-local" data-bi="' + i + '" data-f="at" value="' + esc(b.at) + '"></div>';
+    if (b.type === 'buttons') h = ttl + b.items.map((x, j) => '<div class="bk-pair3"><div><select data-bi="' + i + '" data-ri="' + j + '" data-f="t">' + Object.entries(BTN_TYPES).map(([k, n]) => '<option value="' + k + '"' + (k === x.t ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>' +
+      '<input type="text" data-bi="' + i + '" data-ri="' + j + '" data-f="v" value="' + esc(x.v) + '" placeholder="' + (x.t === 'phone' || x.t === 'whatsapp' ? 'Αριθμός τηλεφώνου' : x.t === 'email' ? 'Email' : x.t === 'map' ? 'Διεύθυνση ή link Google Maps' : 'https://…') + '">' +
+      '<input type="text" data-bi="' + i + '" data-ri="' + j + '" data-f="l" value="' + esc(x.l) + '" placeholder="Κείμενο κουμπιού"></div><button type="button" class="bk-x" data-act="delbtn" data-bi="' + i + '" data-ri="' + j + '" aria-label="Διαγραφή">✕</button></div>').join('') +
+      (b.items.length < 6 ? '<button type="button" class="link" data-act="addbtn" data-bi="' + i + '" style="justify-self:start">+ Πρόσθεσε κουμπί</button>' : '') +
+      '<p class="hint" style="margin:0">Κουμπιά χωρίς τιμή δεν εμφανίζονται. Το πρώτο κουμπί βγαίνει χρυσό.</p>';
+    return '<div class="bk-ed">' + h + '</div>';
+  }).join('');
+}
+$('bkForm').addEventListener('input', e => {
+  const t = e.target, i = +t.dataset.bi, f = t.dataset.f; if (isNaN(i) || !f) return;
+  const b = bk.blocks[i]; if (!b) return;
+  if (t.dataset.ri != null) {
+    const list = b.type === 'info' ? b.rows : b.items; list[+t.dataset.ri][f] = t.value;
+    if (b.type === 'buttons' && f === 't') renderBkForm();
+  } else if (b.type === 'chips' && f === 'items') b.items = t.value.split(/[,\n]/).map(x => x.trim()).filter(Boolean);
+  else b[f] = t.value;
+});
+$('bkForm').addEventListener('change', e => { if (e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
+let bkUp = null;
+$('bkForm').addEventListener('click', e => {
+  const a = e.target.closest('[data-act],[data-up]'); if (!a) return;
+  const i = +a.dataset.bi, b = bk.blocks[i], j = +a.dataset.ri;
+  if (a.dataset.up) { bkUp = { i, kind: a.dataset.up, btn: a }; $('bkFile').click(); return; }
+  const act = a.dataset.act;
+  if (act === 'addrow') b.rows.push({ k: '', v: '' });
+  if (act === 'delrow') b.rows.splice(j, 1);
+  if (act === 'addbtn') b.items.push({ t: 'link', v: '', l: '' });
+  if (act === 'delbtn') b.items.splice(j, 1);
+  if (act === 'delimg') b.imgs.splice(j, 1);
+  if (act === 'noimg') b.img = '';
+  renderBkForm();
+});
+$('bkFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f || !bkUp) return;
+  const { i, kind, btn } = bkUp; bkUp = null;
+  if (f.size > 5 * 1024 * 1024) { alert('Μέγιστο μέγεθος φωτογραφίας 5 MB.'); return; }
+  btn.disabled = true; btn.textContent = 'Ανεβαίνει…';
+  try {
+    const fd = new FormData(); fd.append('file', f); fd.append('upload_preset', UPLOAD_PRESET);
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
+    const data = await res.json(); if (!data.secure_url) throw new Error('upload');
+    const url = data.secure_url;
+    if (kind === 'cover') bk.blocks[i].img = url; else bk.blocks[i].imgs.push(url);
+  } catch (err) { console.error(err); alert('Δεν ανέβηκε η φωτογραφία. Δοκίμασε ξανά.'); }
+  renderBkForm();
+});
+document.querySelectorAll('input[name=bkMode]').forEach(r => r.addEventListener('change', () => { bk.mode = r.value; renderBkForm(); syncQ(); }));
+$('bkPreview').addEventListener('click', () => {
+  renderBlocks($('bkPrevRoot'), { title: cur.name, blocks: bk.blocks }, { lang: 'el' });
+  $('bkPrevView').hidden = false; $('bkPrevView').scrollTop = 0;
+});
+$('bkPrevClose').addEventListener('click', () => { $('bkPrevView').hidden = true; });
+async function saveBlocks() {
+  const blocks = cleanBlocks(bk.blocks), cover = blocks.find(b => b.type === 'cover');
+  await setDoc(doc(db, 'qrcontent', curCode), { ownerUid: user.uid, type: 'blocks', title: ((cover && cover.head) || cur.name || '').slice(0, 80), blocks, updatedAt: serverTimestamp() });
+}
+
 async function saveQ(extra) {
   const data = { name: (cur.name || '').trim().slice(0, 60) || 'QR', t: cur.t, v: cur.t === 'profile' ? '' : (cur.v || '').trim().slice(0, 500),
     fg: cur.fg, bg: cur.bg, caption: (cur.caption || '').trim().slice(0, 60), logo: !!cur.logo, paused: !!cur.paused, ...extra, updatedAt: serverTimestamp() };
@@ -1944,13 +2084,15 @@ async function saveQ(extra) {
   const i = qrs.findIndex(x => x.code === curCode); if (i > -1) qrs[i] = { ...cur };
 }
 $('qSave').addEventListener('click', async () => {
-  if (!['profile', 'daily', 'offers'].includes(cur.t) && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
+  if (bkPage()) cur.v = '';
+  else if (!['profile', 'daily', 'offers'].includes(cur.t) && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
   $('qSave').disabled = $('qSaveFab').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…'; $('qSaveFab').textContent = 'Αποθήκευση…';
   let ok = false;
   try {
     await saveQ({});
     if (cur.t === 'daily') { await saveDailyMenu(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με το μενού.'; }
     else if (cur.t === 'offers') { await saveOffers(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με τις προσφορές.'; }
+    else if (bkPage()) { await saveBlocks(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Η σελίδα του QR είναι έτοιμη.'; }
     else $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.';
     ok = true; syncQ(); loadStats(curCode);
   }
