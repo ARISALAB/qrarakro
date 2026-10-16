@@ -248,6 +248,22 @@
   }
   @media (max-width: 560px) { .who span { display: none; } .brand { white-space: nowrap; } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+  .cat-grid[hidden] { display: none !important; }
+  .q-fab { display: none; }
+  @media (max-width: 600px) {
+    .sects { overflow-x: auto; scrollbar-width: none; }
+    .sects::-webkit-scrollbar, .cat-grid::-webkit-scrollbar { display: none; }
+    .sects button { flex: 1 0 auto; padding: 10px 12px; font-size: 14px; }
+    .cat-grid { display: flex; overflow-x: auto; gap: 8px; padding: 2px 2px 6px; margin-bottom: 16px; scroll-snap-type: x proximity; scrollbar-width: none; }
+    .cat-btn { flex: 0 0 auto; flex-direction: row; min-height: 0; gap: 7px; padding: 10px 14px; border-radius: 999px; white-space: nowrap; scroll-snap-align: start; }
+    .cat-btn svg { width: 18px; height: 18px; }
+    .qr-card { padding: 12px; gap: 12px; }
+    .qr-card canvas { width: 56px; height: 56px; }
+  }
+  @media (max-width: 899px) {
+    .q-fab { display: flex; position: fixed; left: 16px; right: 16px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 40; box-shadow: 0 12px 30px -10px rgba(0,0,0,.45); }
+    #qrEditView { padding-bottom: 84px; }
+  }
   .daily-days { display: grid; gap: 14px; }
   .day-block { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
   .day-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-2); cursor: pointer; font-weight: 700; font-size: 14px; }
@@ -369,9 +385,10 @@
       <div class="notice" id="paidNote" hidden></div>
       <nav class="sects" role="tablist" aria-label="Ενότητες">
         <button type="button" role="tab" data-sect="sProfile" aria-selected="true">Το προφίλ μου</button>
+        <button type="button" role="tab" data-sect="sQr" aria-selected="false">Τα QR μου</button>
         <button type="button" role="tab" data-sect="sPlan" aria-selected="false">Συνδρομή</button>
       </nav>
-      <div class="cat-grid" id="catGrid"></div>
+      <div class="cat-grid" id="catGrid" hidden></div>
       <div id="sProfile">
       <div class="tabs" role="group" aria-label="Προβολή">
         <button type="button" id="tabEdit" aria-pressed="true">Επεξεργασία</button>
@@ -490,6 +507,7 @@
 
         <div id="qrEditView" hidden>
           <p style="margin:0 0 14px"><button type="button" class="link" id="qrBack">← Όλα τα QR</button></p>
+          <button type="button" class="btn gold q-fab" id="qSaveFab">Αποθήκευση</button>
           <div class="qe">
             <div class="form">
               <section class="card">
@@ -1128,7 +1146,8 @@ function sect(name, cat) {
   catFilter = cat || null;
   ['sProfile', 'sQr', 'sPlan'].forEach(x => $(x).hidden = x !== name);
   document.querySelectorAll('.sects button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sect === name)));
-  if (name !== 'sQr') document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+  $('catGrid').hidden = name !== 'sQr';
+  document.querySelectorAll('.cat-btn').forEach(x => x.classList.toggle('active', name === 'sQr' && x.dataset.cat === (catFilter || '')));
   $('saveBar').hidden = name !== 'sProfile';
   history.replaceState(null, '', name === 'sQr' ? '#qr' : name === 'sPlan' ? '#plan' : location.pathname + location.search);
   if (name === 'sQr') showQrList();
@@ -1265,7 +1284,9 @@ const CAT_ICONS = {
   custom: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
 };
 function renderCatGrid() {
-  $('catGrid').innerHTML = QTYPES.map(t =>
+  $('catGrid').innerHTML = '<button type="button" class="cat-btn" data-cat="">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' +
+    '<span>Όλα</span></button>' + QTYPES.map(t =>
     '<button type="button" class="cat-btn" data-cat="' + t[0] + '">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true">' + (CAT_ICONS[t[0]] || '') + '</svg>' +
     '<span>' + t[1] + '</span></button>'
@@ -1273,11 +1294,9 @@ function renderCatGrid() {
 }
 $('catGrid').addEventListener('click', e => {
   const b = e.target.closest('.cat-btn'); if (!b) return;
-  const cat = b.dataset.cat;
-  document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  document.querySelectorAll('.sects button').forEach(x => x.setAttribute('aria-selected', 'false'));
-  sect('sQr', cat);
+  if (cur && cur.isNew && !$('qrEditView').hidden && !confirm('Το νέο QR δεν έχει αποθηκευτεί. Να απορριφθεί;')) return;
+  sect('sQr', b.dataset.cat || null);
+  b.scrollIntoView({ block: 'nearest', inline: 'center' });
 });
 
 const QTYPES = [
@@ -1340,7 +1359,7 @@ function renderQrNotice() {
 }
 async function showQrList() {
   watchQr(null); curCode = null;
-  $('qrEditView').hidden = true; $('qrListView').hidden = false;
+  $('qrEditView').hidden = true; $('qrListView').hidden = false; $('catGrid').hidden = false;
   $('qrIntro').hidden = introSeen || P.active;
   try {
     const snap = await getDocs(query(collection(db, 'qrs'), where('ownerUid', '==', user.uid)));
@@ -1377,33 +1396,31 @@ async function createQr() {
   if (qrs.length >= MAX_QR) return;
   let code = newCode();
   for (let i = 0; i < 5 && (await getDoc(doc(db, 'qrs', code))).exists(); i++) code = newCode();
-  const q = { ownerUid: user.uid, ownerPid: pid, name: 'Νέο QR ' + (qrs.length + 1), t: catFilter || 'menu', v: '', fg: '#121316', bg: '#FFFFFF', caption: '',
-    logo: !!saved.logo, paused: false, scans: 0, testScans: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
-  try {
-    const b = writeBatch(db);
-    b.set(doc(db, 'qrs', code), q);
-    b.update(doc(db, 'users', user.uid), { qrCount: increment(1) });
-    await b.commit();
-    usr.qrCount = (usr.qrCount || 0) + 1;
-    qrs.unshift({ code, ...q, createdAt: null });
-    openQr(code);
-  } catch (e) { console.error(e); alert('Δεν δημιουργήθηκε το QR. Δοκίμασε ξανά σε λίγο.'); }
+  // Πρόχειρο μόνο στη μνήμη: γράφεται στη βάση μόνο όταν πατηθεί «Αποθήκευση»
+  const q = { name: 'Νέο QR ' + (qrs.length + 1), t: catFilter || 'menu', v: '', fg: '#121316', bg: '#FFFFFF', caption: '',
+    logo: !!saved.logo, paused: false, scans: 0, testScans: 0, isNew: true };
+  openQr(code, q);
 }
-function openQr(code) {
-  const q = qrs.find(x => x.code === code); if (!q) return;
+function openQr(code, draft) {
+  const q = draft || qrs.find(x => x.code === code); if (!q) return;
   curCode = code; cur = { ...q };
-  $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false;
+  $('qrListView').hidden = true; $('qrIntro').hidden = true; $('qrEditView').hidden = false; $('catGrid').hidden = true;
   $('qName').value = cur.name; $('qType').value = cur.t; $('qValue').value = cur.v; $('qCaption').value = cur.caption;
   qCustom = ''; qCustomSaved = ''; msg('qLogoErr');
   $('qLink').textContent = saved.name || '';
   $('qSaveMsg').textContent = '';
-  syncQ(); loadStats(code); window.scrollTo({ top: 0 });
-  watchQr(code);
-  getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
+  syncQ(); window.scrollTo({ top: 0 });
+  if (draft) { watchQr(null); $('qBars').innerHTML = ''; $('qTotal').textContent = 'Θα εμφανιστούν μετά την αποθήκευση.'; }
+  else { loadStats(code); watchQr(code); }
+  if (!draft) getDoc(doc(db, 'qrlogos', code)).then(d => { if (d.exists() && curCode === code) { qCustom = qCustomSaved = d.data().img; syncQ(); } }).catch(() => {});
   if (cur.t === 'daily') loadDailyContent(code);
   if (cur.t === 'offers') loadOffersContent(code);
 }
-$('qrBack').addEventListener('click', () => showQrList());
+$('qrBack').addEventListener('click', () => {
+  if (cur && cur.isNew && !confirm('Το νέο QR δεν έχει αποθηκευτεί. Να απορριφθεί;')) return;
+  showQrList();
+});
+$('qSaveFab').addEventListener('click', () => $('qSave').click());
 function syncQ() {
   $('qValueWrap').hidden = cur.t === 'profile';
   $('qValue').placeholder = QPH[cur.t] || '';
@@ -1422,6 +1439,9 @@ function syncQ() {
   const [, label] = qStatus(cur);
   $('qStatus').textContent = label + (P.usable || P.ever ? '' : ' · λήψη με την ενεργοποίηση');
   $('qPause').textContent = cur.paused ? 'Συνέχεια' : 'Παύση';
+  $('qPause').hidden = !!cur.isNew; $('qRefresh').hidden = !!cur.isNew;
+  $('qDelete').textContent = cur.isNew ? 'Ακύρωση' : 'Διαγραφή';
+  if (cur.isNew) $('qStatus').textContent = 'Δεν έχει αποθηκευτεί ακόμα';
   $('qDownload').textContent = P.usable ? 'Κατέβασε το QR (PNG)' : 'Ενεργοποίηση για λήψη';
   $('qDownload').className = P.usable ? 'btn' : 'btn line';
   $('qTemplates').hidden = !P.usable;
@@ -1833,7 +1853,18 @@ $('pdfFile').addEventListener('change', async e => {
 async function saveQ(extra) {
   const data = { name: (cur.name || '').trim().slice(0, 60) || 'QR', t: cur.t, v: cur.t === 'profile' ? '' : (cur.v || '').trim().slice(0, 500),
     fg: cur.fg, bg: cur.bg, caption: (cur.caption || '').trim().slice(0, 60), logo: !!cur.logo, paused: !!cur.paused, ...extra, updatedAt: serverTimestamp() };
-  await updateDoc(doc(db, 'qrs', curCode), data);
+  if (cur.isNew) {
+    if (qrs.length >= MAX_QR) throw new Error('limit');
+    if ((await getDoc(doc(db, 'qrs', curCode))).exists()) curCode = newCode();
+    const b = writeBatch(db);
+    b.set(doc(db, 'qrs', curCode), { ownerUid: user.uid, ownerPid: pid, scans: 0, testScans: 0, ...data, createdAt: serverTimestamp() });
+    b.update(doc(db, 'users', user.uid), { qrCount: increment(1) });
+    await b.commit();
+    usr.qrCount = (usr.qrCount || 0) + 1;
+    delete cur.isNew;
+    qrs.unshift({ code: curCode, ...cur, ...data, createdAt: null });
+    watchQr(curCode);
+  } else await updateDoc(doc(db, 'qrs', curCode), data);
   if (qCustom !== qCustomSaved) {
     if (qCustom) await setDoc(doc(db, 'qrlogos', curCode), { ownerUid: user.uid, img: qCustom });
     else await deleteDoc(doc(db, 'qrlogos', curCode)).catch(() => {});
@@ -1844,21 +1875,26 @@ async function saveQ(extra) {
 }
 $('qSave').addEventListener('click', async () => {
   if (!['profile', 'daily', 'offers'].includes(cur.t) && (!cur.v.trim() || !qDest(cur))) { $('qSaveMsg').textContent = 'Συμπλήρωσε έναν σωστό προορισμό πριν την αποθήκευση.'; return; }
-  $('qSave').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…';
+  $('qSave').disabled = $('qSaveFab').disabled = true; $('qSaveMsg').textContent = 'Αποθήκευση…'; $('qSaveFab').textContent = 'Αποθήκευση…';
+  let ok = false;
   try {
     await saveQ({});
     if (cur.t === 'daily') { await saveDailyMenu(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με το μενού.'; }
     else if (cur.t === 'offers') { await saveOffers(); $('qSaveMsg').textContent = 'Αποθηκεύτηκε μαζί με τις προσφορές.'; }
     else $('qSaveMsg').textContent = 'Αποθηκεύτηκε. Το QR ανοίγει ήδη τον νέο προορισμό.';
+    ok = true; syncQ(); loadStats(curCode);
   }
-  catch (e) { console.error(e); $('qSaveMsg').textContent = 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }
-  $('qSave').disabled = false;
+  catch (e) { console.error(e); $('qSaveMsg').textContent = e.message === 'limit' ? 'Έφτασες το όριο των ' + MAX_QR + ' QR.' : 'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.'; }
+  $('qSave').disabled = $('qSaveFab').disabled = false;
+  $('qSaveFab').textContent = ok ? '✓ Αποθηκεύτηκε' : 'Δεν αποθηκεύτηκε, ξαναδοκίμασε';
+  setTimeout(() => { $('qSaveFab').textContent = 'Αποθήκευση'; }, 2500);
 });
 $('qPause').addEventListener('click', async () => {
   try { await saveQ({ paused: !cur.paused }); syncQ(); $('qSaveMsg').textContent = cur.paused ? 'Το QR είναι σε παύση.' : 'Το QR λειτουργεί ξανά.'; }
   catch (e) { $('qSaveMsg').textContent = 'Δεν έγινε η αλλαγή. Δοκίμασε ξανά.'; }
 });
 $('qDelete').addEventListener('click', async () => {
+  if (cur.isNew) return showQrList();
   if (!confirm('Να διαγραφεί το «' + cur.name + '»; Αν είναι τυπωμένο, θα σταματήσει να λειτουργεί.')) return;
   try {
     const b = writeBatch(db);
@@ -1872,6 +1908,7 @@ $('qDelete').addEventListener('click', async () => {
 });
 $('qDownload').addEventListener('click', async () => {
   if (!P.usable) return openPlan();
+  if (cur.isNew) { $('qSaveMsg').textContent = 'Πάτα πρώτα «Αποθήκευση» και μετά κατέβασε το QR.'; return; }
   const c = document.createElement('canvas'), cap = (cur.caption || '').trim(), W = 1200, capH = cap ? 170 : 0;
   c.width = W; c.height = W + capH;
   drawCode(c, W, shortUrl(curCode), cur.fg, cur.bg, qLogoImg, capH);
